@@ -1,7 +1,11 @@
 import express, { Request, Response } from "express"
+import { connectToMongo } from "./config/mongodb.js"
 
 const PORT = 5000
 const app = express()
+
+// Mongodb connection
+connectToMongo()
 
 
 app.use("/", (req: Request, res: Response) => {
