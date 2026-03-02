@@ -3,16 +3,10 @@ import { connectToMongo } from "../config/mongodb.js";
 import { zodLoginSchema, zodUserSchema } from "../validate/user.zod.js";
 import User from "../models/user.schema.js";
 import bcrypt from "bcrypt"
+import { createSession } from "../config/session.js";
+import Session from "../models/session.schema.js";
+import { env } from "../config/env.js";
 
-
-declare module "express-session" {
-  interface SessionData {
-    userId: string;
-    role: "USER" | "LEAD" | "ADMIN";
-    name?: string;
-    email?: string;
-  }
-}
 
 export async function registerUser(req: Request, res: Response){
     try {
@@ -27,7 +21,7 @@ export async function registerUser(req: Request, res: Response){
         })
 
         if(existingUser){
-            res.status(400).json({
+            return res.status(400).json({
                 message: "User already exists"
             })
         }
@@ -81,17 +75,73 @@ export async function loginUser(req: Request, res: Response){
             })
         }
 
-        req.session.userId = existingUser._id.toString()
-        req.session.role = existingUser.role
+        // Session Handling
 
-        res.status(201).json({
-            message: "Login Sucessful",
-            role: existingUser.role 
+        const { sessionId, expiresAt } = await createSession(existingUser.id)
+
+
+        res.cookie("user_session", sessionId, {
+            httpOnly: true,
+            secure: env.NODE_ENV === "production",
+            sameSite: "lax",
+            expires: expiresAt,
+            path: "/"
         })
+
+        return res.status(200).json({
+            message: "Login Successful",
+            user: {
+                id: existingUser.id,
+                name: existingUser.name,
+                email: existingUser.email
+            }
+        })
+        
 
     } catch (error: any) {
         res.status(400).json({
             message: error.message
+        })
+    }
+}
+
+export async function logoutUser(req: Request, res: Response) {
+    const sessionId = req.cookies.user_session
+
+    if(sessionId){
+        await Session.deleteOne({
+            sessionId
+        })
+    }
+
+    res.clearCookie("user_session", {
+        httpOnly: true,
+        secure: env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/"
+    })
+
+    return res.status(200).json({
+        message: "Logout successful"
+    })
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+    const userId = (req as any).userId
+
+    try {
+        const user = await User.findById(userId).select("-password")
+
+        if(!user){
+            return res.status(400).json({
+                message: "User not found"
+            })
+        }
+
+        return res.status(200).json({ user })
+    } catch (error) {
+        res.status(400).json({
+            message: "Server Error"
         })
     }
 }
