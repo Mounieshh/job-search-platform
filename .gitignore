@@ -23,3 +23,6 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+
+# Mongodb Local
+data/
