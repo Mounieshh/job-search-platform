@@ -1,32 +1,11 @@
-import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { Link, useNavigate } from "react-router";
 
-interface User {
-  id: string;
-  name: string;
-  role: string;
-}
 
 const Navbar = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const getSession = async () => {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-    };
-
-    getSession();
-  }, []);
+  
+  const { user, setUser } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     await fetch("http://localhost:5000/api/auth/logout", {
@@ -39,25 +18,22 @@ const Navbar = () => {
   };
 
   return (
-    <nav>
+    <nav className="flex flex-row justify-between p-5 border-b-2 mb-10">
       <div>Job Search Com</div>
 
       <div>
-        <ul>
+        <ul className="flex flex-row gap-6">
           {!user && (
             <>
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-              <li>
-                <Link to="/register">Register</Link>
-              </li>
+              <li><Link to="/login">Login</Link></li>
+              <li><Link to="/register">Register</Link></li>
             </>
           )}
 
           {user && (
             <>
-              <li>{user.name}</li>
+              <li>{user?.name}</li>
+              <li>{user?.role}</li>
               <li>
                 <button onClick={handleLogout}>Logout</button>
               </li>

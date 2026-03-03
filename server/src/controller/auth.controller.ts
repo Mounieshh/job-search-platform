@@ -8,10 +8,10 @@ import Session from "../models/session.schema.js";
 import { env } from "../config/env.js";
 
 
+const PERSONAL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
+
 export async function registerUser(req: Request, res: Response){
     try {
-        await connectToMongo()
-
         const parsedData = zodUserSchema.parse(req.body)
 
         const { name, email, password, role} = parsedData
@@ -29,20 +29,24 @@ export async function registerUser(req: Request, res: Response){
         const salt = 12
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        const isGmail = email.toLowerCase().endsWith("@gmail.com")
+        const emailDomain = email.split('@')[1].toLowerCase()
+        const userType = PERSONAL_DOMAINS.includes(emailDomain) ? 'personal' : 'company'
+        const assignedRole = "USER"
 
-        const assignedRole = isGmail ? "USER" : "LEAD"
 
         const newUser = await User.create({
             name,
             email,
             password: hashedPassword,
+            emailDomain,
+            userType,
             role: assignedRole
         })
 
         res.status(200).json({
             message: "User registered Successfully",
-            userId: newUser._id
+            userId: newUser._id,
+            role: newUser.role
         })
 
     } catch (error: any) {
@@ -55,7 +59,6 @@ export async function registerUser(req: Request, res: Response){
 
 export async function loginUser(req: Request, res: Response){
     try {
-        await connectToMongo()
 
         const parsedData = zodLoginSchema.parse(req.body)
 
@@ -98,7 +101,8 @@ export async function loginUser(req: Request, res: Response){
                 id: existingUser.id,
                 name: existingUser.name,
                 email: existingUser.email,
-                role: existingUser.role
+                role: existingUser.role,
+                userType: existingUser.userType
             }
         })
         

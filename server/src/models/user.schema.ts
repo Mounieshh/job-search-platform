@@ -5,7 +5,11 @@ export interface IUser extends Document {
   email: string;
   password: string;
   mobile?: string;
+  emailDomain: string;
+  userType: "personal" | "company";
   role: "USER" | "LEAD" | "ADMIN";
+  companyId?: string;
+  isCompanyVerified: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -36,12 +40,28 @@ const userSchema = new Schema<IUser>(
       required: false,
       trim: true,
     },
-
+    emailDomain: {
+      type: String,
+      required: true
+    },
+    userType: {
+      type: String,
+      enum: ["personal", "company"],
+      required: true
+    },
     role: {
       type: String,
       enum: ["USER", "LEAD", "ADMIN"],
       default: "USER",
     },
+    companyId: {
+      type: String,
+      default: null
+    },
+    isCompanyVerified: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );

@@ -5,8 +5,11 @@ import { toast } from "sonner"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
+import { useNavigate } from "react-router"
 
 const SignUpForm = () => {
+    const navigate = useNavigate()
+
     const form = useForm<ZodUserFormData>({
         resolver: zodResolver(zodUserSchema),
         defaultValues: {
@@ -29,21 +32,26 @@ const SignUpForm = () => {
             })
     
             const data = await response.json()
-    
+
+            
             if(!response.ok){
                 throw new Error(data.message || "Account Creation Failed")
             }
+
     
             toast.success("Account Created Successfully")
+            form.reset()
+            navigate("/login")
+            
         } catch (error: any) {
-            console.error("Account creation error:", error.message);
+            toast.error(error.message);
         }
     }
 
   return (
     <div>
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[30%] md:w-[35%] mx-auto space-y-5">
                 <FormField
                 name="name"
                 control={form.control}
@@ -89,7 +97,7 @@ const SignUpForm = () => {
                 render={({field}) => (
                     <FormItem>
                         <FormLabel>
-                            Name
+                            Password
                         </FormLabel>
                         <FormControl>
                             <Input
@@ -103,8 +111,8 @@ const SignUpForm = () => {
                 )}
                 />
 
-                <Button type="submit">
-                    Create Account
+                <Button type="submit" disabled={form.formState.isSubmitting} className="cursor-pointer">
+                    {form.formState.isSubmitting ? "Creating Account.." : "Create Account"}
                 </Button>
             </form>
         </Form>
