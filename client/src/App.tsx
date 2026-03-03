@@ -1,11 +1,20 @@
+import { Route, Routes } from "react-router"
+import SignInPage from "./pages/sign-in"
+import SignUpPage from "./pages/sign-up"
+import Navbar from "./components/navbar"
 
 function App() {
 
   return (
     <>
-      <h1 className="text-3xl">
-        Job Search Community
-      </h1>
+      
+      <Navbar/>
+      
+      <Routes>
+        <Route path="/login" element={<SignInPage/>}/>
+        <Route path="/register" element={<SignUpPage/>}/>
+      </Routes>
+
     </>
   )
 }

@@ -4,8 +4,9 @@ import { connectToMongo } from "./config/mongodb.js"
 import authRouter from "../src/routes/auth.route.js"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import { env } from "./config/env.js"
 
-const PORT = 5000
+const PORT = env.PORT || 5000
 const app = express()
 
 app.use(cors({

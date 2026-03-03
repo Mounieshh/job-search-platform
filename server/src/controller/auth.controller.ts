@@ -29,11 +29,15 @@ export async function registerUser(req: Request, res: Response){
         const salt = 12
         const hashedPassword = await bcrypt.hash(password, salt)
 
+        const isGmail = email.toLowerCase().endsWith("@gmail.com")
+
+        const assignedRole = isGmail ? "USER" : "LEAD"
+
         const newUser = await User.create({
             name,
             email,
             password: hashedPassword,
-            role
+            role: assignedRole
         })
 
         res.status(200).json({
@@ -93,7 +97,8 @@ export async function loginUser(req: Request, res: Response){
             user: {
                 id: existingUser.id,
                 name: existingUser.name,
-                email: existingUser.email
+                email: existingUser.email,
+                role: existingUser.role
             }
         })
         
