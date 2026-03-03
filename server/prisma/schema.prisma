@@ -6,9 +6,32 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../src/lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+
+model Job {
+  id String @id @default(cuid())
+  title String
+  description String?
+  url String
+  location String?
+  salary String?
+  companyName String? 
+
+  status String @default("pending")
+  source String @default("internal")
+
+  postedBy String
+  companyId String?
+
+  rejectedReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
 }

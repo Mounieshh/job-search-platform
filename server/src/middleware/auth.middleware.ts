@@ -33,7 +33,7 @@ export async function authorize(req: Request, res: Response, next: NextFunction)
 }
 
 
-export async function requireRoute(...roles: string[]){
+export function requireRoute(...roles: string[]){
     return (req: Request, res: Response, next: NextFunction) => {
         const user = (req as any).user
 

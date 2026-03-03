@@ -13,7 +13,10 @@ function App() {
 
     <AuthProvider>
 
-      <Navbar/>
+      <div className="fixed">
+          <Navbar/> 
+      </div>
+      
       
       <Routes>
         <Route path="/" element={<HomePage/>}/>

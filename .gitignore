@@ -23,6 +23,7 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+src/lib/generated/
 
 # Mongodb Local
 data/
