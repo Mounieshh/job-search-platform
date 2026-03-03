@@ -6,6 +6,8 @@ import bcrypt from "bcrypt"
 import { createSession } from "../config/session.js";
 import Session from "../models/session.schema.js";
 import { env } from "../config/env.js";
+import { isValidDomain } from "../utils/domain.js";
+import Company from "../models/company.schema.js";
 
 
 const PERSONAL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
@@ -14,7 +16,7 @@ export async function registerUser(req: Request, res: Response){
     try {
         const parsedData = zodUserSchema.parse(req.body)
 
-        const { name, email, password, role} = parsedData
+        const { name, email, password } = parsedData
 
         const existingUser = await User.findOne({
             email
@@ -31,8 +33,36 @@ export async function registerUser(req: Request, res: Response){
 
         const emailDomain = email.split('@')[1].toLowerCase()
         const userType = PERSONAL_DOMAINS.includes(emailDomain) ? 'personal' : 'company'
-        const assignedRole = "USER"
 
+        let assignedRole = "USER"
+        let companyId = null
+
+
+        
+        if(userType === "company"){
+            const domainExists = await isValidDomain(emailDomain)
+
+            if(!domainExists){
+                return res.status(400).json({ message: "Company domain not recognized. Please use a valid company email." })
+            }
+
+            let company = await Company.findOne({domain: emailDomain})
+
+            if(!company){
+                company = await Company.create({
+                    name: emailDomain.split(".")[0],
+                    domain: emailDomain,
+                    isVerified: false
+                })
+            }
+
+            companyId = company._id
+
+            const existingCompanyUser = await User.findOne({ emailDomain, userType: "company" })
+            if (!existingCompanyUser) {
+                assignedRole = "LEAD"
+            }
+        }
 
         const newUser = await User.create({
             name,
@@ -40,13 +70,21 @@ export async function registerUser(req: Request, res: Response){
             password: hashedPassword,
             emailDomain,
             userType,
-            role: assignedRole
+            role: assignedRole,
+            companyId: companyId ? companyId.toString() : undefined
         })
+
+        if (assignedRole === "LEAD" && companyId) {
+            await Company.findByIdAndUpdate(companyId, {
+                primaryLeadId: newUser._id
+            })
+        }
 
         res.status(200).json({
             message: "User registered Successfully",
             userId: newUser._id,
-            role: newUser.role
+            role: newUser.role,
+            userType: newUser.userType
         })
 
     } catch (error: any) {

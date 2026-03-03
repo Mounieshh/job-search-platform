@@ -44,9 +44,7 @@ const SignInForm = () => {
 
             form.reset()
 
-            if(data.user.role === "LEAD"){
-                navigate("/lead/dashboard")
-            }
+            navigate("/")
 
         } catch (error: any) {
             toast.error(error.message);
