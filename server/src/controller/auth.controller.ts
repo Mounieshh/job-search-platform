@@ -174,14 +174,12 @@ export async function logoutUser(req: Request, res: Response) {
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-    const userId = (req as any).userId
+    const user = (req as any).user
 
     try {
-        const user = await User.findById(userId).select("-password")
-
         if(!user){
-            return res.status(400).json({
-                message: "User not found"
+            return res.status(401).json({
+                message: "Unauthorized"
             })
         }
 

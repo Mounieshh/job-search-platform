@@ -27,7 +27,7 @@ export async function authorize(req: Request, res: Response, next: NextFunction)
         return res.status(400).json({ message: "User not found" })
     }
 
-    (req as any).userId = session.userId
+    (req as any).user = user
 
     next()
 }

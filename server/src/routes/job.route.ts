@@ -6,7 +6,7 @@ import { authorize, requireRoute } from "../middleware/auth.middleware.js";
 const jobRouter = Router()
 
 
-jobRouter.post("/add", authorize, requireRoute("LEAD", "USER"), createJob)
+jobRouter.post("/add", authorize, requireRoute("LEAD", "ADMIN"), createJob)
 
 
 export default jobRouter

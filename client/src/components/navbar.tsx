@@ -18,8 +18,8 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 bg-white border-b border-zinc-200">
 
-      <Link to="/" className="text-zinc-900 font-semibold tracking-tight">
-        JobSearch
+      <Link to="/" className="text-zinc-900 font-semibold tracking-tight text-2xl">
+        Jobbify
       </Link>
 
       <ul className="flex items-center gap-6 text-sm">
