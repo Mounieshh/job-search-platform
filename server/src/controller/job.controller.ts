@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { jobSchema } from "../validate/job.zod.js";
 import { prisma } from "../config/prisma.js";
+import User from "../models/user.schema.js";
 
 export async function createJob(req: Request, res: Response){
     try {
@@ -23,6 +24,7 @@ export async function createJob(req: Request, res: Response){
 
         const isLead = user.role === "LEAD" || user.role === "ADMIN"
 
+        
         const newJob = await prisma.job.create({
             data: {
                 title,
@@ -48,3 +50,21 @@ export async function createJob(req: Request, res: Response){
     }   
 }
 
+export async function getJobListing(req: Request, res: Response){
+    try {
+        const jobs = await prisma.job.findMany({
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        return res.status(200).json({
+            message: "Job Listings Created",
+            jobs
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}

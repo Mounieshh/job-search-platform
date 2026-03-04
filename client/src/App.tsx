@@ -5,6 +5,9 @@ import Navbar from "./components/navbar"
 import { Toaster } from "./components/ui/sonner"
 import HomePage from "./pages/homepage"
 import { AuthProvider } from "./context/AuthContext"
+import JobUploadForm from "./components/job-form"
+import RoleNavbar from "./components/sidebar"
+import JobsPage from "./pages/jobspage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -15,13 +18,21 @@ function AppLayout() {
   return (
     <>
       {!hideNavbar && <Navbar />}
+
       <main className={hideNavbar ? "" : "pt-14"}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<SignInPage />} />
-          <Route path="/register" element={<SignUpPage />} />
-        </Routes>
+        {!hideNavbar && <RoleNavbar />}
+
+        <div className="p-6">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<SignInPage />} />
+            <Route path="/register" element={<SignUpPage />} />
+            <Route path="/postjob" element={<JobUploadForm />} />
+            <Route path="/joblistings" element={<JobsPage/>}/>
+          </Routes>
+        </div>
       </main>
+
       <Toaster />
     </>
   )

@@ -1,44 +1,35 @@
-import { Link, useLocation } from "react-router"
-import { sidebarConfig } from "../lib/sidebar"
-import { useAuth } from "@/context/AuthContext"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar"
+import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router";
 
-export function RoleSidebar() {
+const RoleNavbar = () => {
+
   const { user } = useAuth()
-  const { pathname } = useLocation()
-
-  if (!user) return null
-
-  const items = sidebarConfig[user.role]
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.path}
-                  >
-                    <Link to={item.path}>{item.label}</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  )
-}
+    <nav className="fixed top-12 left-0 right-0 z-40 h-10 flex items-center bg-background/80 backdrop-blur-sm border-b border-border">
+      <ul className="flex flex-row h-full">
+        {user && (
+          <li className="h-full">
+          <Link
+            to="/postjob"
+            className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+          >
+            Post Job
+          </Link>
+        </li>
+        )}
+        
+        <li className="h-full">
+          <Link
+            to="/joblistings"
+            className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+          >
+            Browse Jobs
+          </Link>
+        </li>
+      </ul>
+    </nav>
+  );
+};
+
+export default RoleNavbar;

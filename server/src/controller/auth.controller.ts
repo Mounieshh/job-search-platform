@@ -141,7 +141,8 @@ export async function loginUser(req: Request, res: Response){
                 email: existingUser.email,
                 role: existingUser.role,
                 userType: existingUser.userType
-            }
+            },
+            sessionId
         })
         
 
