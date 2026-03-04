@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router"
+import { Route, Routes, useLocation } from "react-router"
 import SignInPage from "./pages/sign-in"
 import SignUpPage from "./pages/sign-up"
 import Navbar from "./components/navbar"
@@ -6,29 +6,32 @@ import { Toaster } from "./components/ui/sonner"
 import HomePage from "./pages/homepage"
 import { AuthProvider } from "./context/AuthContext"
 
+const AUTH_ROUTES = ["/login", "/register"]
 
-
-function App() {
+function AppLayout() {
+  const { pathname } = useLocation()
+  const hideNavbar = AUTH_ROUTES.includes(pathname)
 
   return (
-
-    <AuthProvider>
-
-      <div className="fixed">
-          <Navbar/> 
-      </div>
-      
-      
-      <Routes>
-        <Route path="/" element={<HomePage/>}/>
-        <Route path="/login" element={<SignInPage/>}/>
-        <Route path="/register" element={<SignUpPage/>}/>
-      </Routes>
-
+    <>
+      {!hideNavbar && <Navbar />}
+      <main className={hideNavbar ? "" : "pt-14"}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/register" element={<SignUpPage />} />
+        </Routes>
+      </main>
       <Toaster />
+    </>
+  )
+}
 
+function App() {
+  return (
+    <AuthProvider>
+      <AppLayout />
     </AuthProvider>
-
   )
 }
 

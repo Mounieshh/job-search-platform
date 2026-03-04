@@ -40,73 +40,87 @@ const SignInForm = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-      <div className="w-full max-w-sm bg-white border border-zinc-200 rounded-xl p-8 shadow-sm">
-
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Welcome back</h1>
-          <p className="text-sm text-zinc-500 mt-1">Sign in to your account</p>
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <div className="border-2 border-b-0 p-2 w-[36%]">
+          <span className="text-sm font-medium text-foreground pb-1 px-3">
+            Sign In
+          </span>
+          <Link
+            to="/register"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
+          >
+            Sign Up
+          </Link>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <div className="rounded-none border border-border bg-card p-8 shadow-sm">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-card-foreground">Sign In</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Enter your email below to login to your account
+            </p>
+          </div>
 
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-700 text-sm">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="you@example.com"
-                      type="email"
-                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="you@example.com"
+                        type="email"
+                        {...field}
+                        className="rounded-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-700 text-sm">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="••••••••"
-                      type="password"
-                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                name="password"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <Link
+                        to="/forgot-password"
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Forgot your password?
+                      </Link>
+                    </div>
+                    <FormControl>
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        {...field}
+                        className="rounded-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              type="submit"
-              className="w-full bg-zinc-900 hover:bg-zinc-700 text-white cursor-pointer"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
-            </Button>
+              <Button
+                type="submit"
+                className="w-full cursor-pointer rounded-none"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Signing in..." : "Login"}
+              </Button>
+            </form>
+          </Form>
 
-          </form>
-        </Form>
-
-        <p className="text-center text-sm text-zinc-500 mt-6">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-zinc-900 font-medium hover:underline">
-              Register
-          </Link>
-        </p>
-
+        </div>
       </div>
     </div>
   )

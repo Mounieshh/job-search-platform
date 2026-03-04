@@ -37,91 +37,92 @@ const SignUpForm = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50">
-      <div className="w-full max-w-sm bg-white border border-zinc-200 rounded-xl p-8 shadow-sm">
-
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-zinc-900 tracking-tight">Create account</h1>
-          <p className="text-sm text-zinc-500 mt-1">Join the community today</p>
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <div className="border-2 border-b-0 p-2 w-[36%]">
+          <Link
+            to="/login"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
+          >
+            Sign In
+          </Link>
+          <span className="text-sm font-medium text-foreground pb-1 px-3">
+            Sign Up
+          </span>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <div className="rounded-none border border-border bg-card p-8 shadow-sm">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-card-foreground">Sign Up</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create your account to get started
+            </p>
+          </div>
 
-            <FormField
-              name="name"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-700 text-sm">Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} className="rounded-none" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-700 text-sm">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="you@example.com"
-                      type="email"
-                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="you@example.com"
+                        type="email"
+                        {...field}
+                        className="rounded-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-700 text-sm">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="••••••••"
-                      type="password"
-                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                name="password"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        {...field}
+                        className="rounded-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              type="submit"
-              className="w-full bg-zinc-900 hover:bg-zinc-700 text-white cursor-pointer"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Creating account..." : "Create account"}
-            </Button>
-
-          </form>
-        </Form>
-
-        <p className="text-center text-sm text-zinc-500 mt-6">
-          Already have an account?{" "}
-          <Link to="/login" className="text-zinc-900 font-medium hover:underline">
-               Sign in
-          </Link>
-        </p>
-
+              <Button
+                type="submit"
+                className="w-full cursor-pointer rounded-none"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Creating account..." : "Create account"}
+              </Button>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   )
