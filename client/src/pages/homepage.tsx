@@ -1,5 +1,5 @@
 
-import RoleSidebar from "@/components/sidebar"
+import RoleNavbarUser from "@/components/sidebar"
 import { useAuth } from "@/context/AuthContext"
 
 export default function HomePage() {
@@ -10,7 +10,7 @@ export default function HomePage() {
         {user && user?.role === "USER" && (
           <>  
             <div>
-              <RoleSidebar/>
+              <RoleNavbarUser/>
             </div>
           </>
         )}

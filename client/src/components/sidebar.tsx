@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router";
 
-const RoleNavbar = () => {
+const RoleNavbarUser = () => {
 
   const { user } = useAuth()
 
@@ -32,4 +32,4 @@ const RoleNavbar = () => {
   );
 };
 
-export default RoleNavbar;
+export default RoleNavbarUser;

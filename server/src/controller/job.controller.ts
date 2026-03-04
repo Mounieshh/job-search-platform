@@ -53,6 +53,9 @@ export async function createJob(req: Request, res: Response){
 export async function getJobListing(req: Request, res: Response){
     try {
         const jobs = await prisma.job.findMany({
+            where: {
+                status: "approved"
+            },
             orderBy: {
                 createdAt: "desc"
             }
