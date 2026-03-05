@@ -10,6 +10,7 @@ import RoleNavbar from "./components/rolenavbar"
 import JobsPage from "./pages/jobspage"
 import CompanyList from "./pages/companylist"
 import ApprovalPage from "./pages/approvalpage"
+import ApprovePage from "./pages/approvedpage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -34,6 +35,9 @@ function AppLayout() {
             <Route path="/company" element={<CompanyList/>}/>
 
             <Route path="/newrequest" element={<ApprovalPage/>}/>
+            <Route path="/approved" element={<ApprovePage/>}/>
+
+            <Route path="/approval-process" element={<ApprovalPage/>}/>
           </Routes>
         </div>
       </main>

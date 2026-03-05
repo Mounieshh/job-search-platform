@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { useEffect, useState } from "react"
 
@@ -55,7 +56,7 @@ export default function CompanyList() {
             {company.length === 0 ? (
                 <div>No Companies Found</div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-5">
                     {company.map((com, index) => (
                         <div
                             key={com.id}
@@ -66,17 +67,18 @@ export default function CompanyList() {
                                     {String(index + 1).padStart(2, "0")}
                                 </span>
 
-                                <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+                                <span className="text-xs font-mono uppercase tracking-widest text-black font-semibold">
                                     {com.name}
                                 </span>
                             </div>
 
-                            <div className="text-sm font-medium">
-                                Company Users Count: {com.companyUsers}
-                            </div>
-
-                            <div>
-                                Jobs Posted: {com.postCount}
+                            <div className="text-xs font-medium">
+                                <span className="uppercase">
+                                    Users :
+                                </span>
+                                <Badge variant="ghost">
+                                    {com.companyUsers}
+                                </Badge>
                             </div>
 
                         </div>

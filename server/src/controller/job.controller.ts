@@ -169,3 +169,55 @@ export async function rejectJob(req: Request, res: Response){
         })
     }
 }
+
+
+export async function getApprovedRejectedJobs(req: Request,  res: Response){
+    try {
+        const getJobs = await prisma.job.findMany({
+            where: {
+                status: {
+                    in : ["approved", "rejected"]
+                }
+            },
+            orderBy: {
+                updatedAt: "desc"
+            }
+        })
+
+        return res.status(200).json({
+            message: "Approved and Rejected Jobs Listed",
+            jobs: getJobs
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+
+export async function getUserPostedJobs(req: Request, res: Response){
+    try {
+
+        const user = (req as any).user
+
+        const userPostedJobs = await prisma.job.findMany({
+            where: {
+                postedBy: user._id.toString()
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        return res.status(200).json({
+            message: "User Posted Jobs Fetched Successfully",
+            userPostedJobs
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}

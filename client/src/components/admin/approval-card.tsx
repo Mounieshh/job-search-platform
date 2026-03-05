@@ -4,12 +4,19 @@ import type { Job } from "../job-list"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Textarea } from "../ui/textarea"
+import { Label } from "../ui/label"
 
 
 const ApprovalCard = () => {
 
     const [pendingJobs, setPendingJobs] = useState<Job[]>([])
     const [loading, setLoading] = useState(false)
+    const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+    const [rejectReason, setRejectReason] = useState("")
+    const [rejecting, setRejecting] = useState(false)
 
     useEffect(() => {
         const pendingJobs = async () => {
@@ -43,6 +50,64 @@ const ApprovalCard = () => {
         pendingJobs()
     }, [])
 
+
+    const handleApprove = async (jobId: string) => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/jobs/admin/approve/${jobId}`, {
+                method: "PATCH",
+                credentials: "include"
+            })
+
+            if(!response.ok){
+                throw new Error("Failed to Approve Job")
+            }
+
+            setPendingJobs(prev => prev.filter(job => job.id !== jobId))
+
+        } catch (error: any) {
+            console.error(error.message)
+        }
+    }
+
+    const handleReject = async (jobId: string) => {
+         const reason = rejectReason.trim()
+
+         if(!reason){
+            return
+         }
+
+         try {
+            setRejecting(true)
+            const response = await fetch(`http://localhost:5000/api/jobs/admin/reject/${jobId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include"
+                ,body: JSON.stringify({ reason })
+            })
+
+            if(!response.ok){
+                throw new Error("Failed to Reject Jobs")
+            }
+
+            setPendingJobs(prev => prev.filter(job => job.id !== jobId))
+            setRejectDialogOpen(false)
+            setRejectReason("")
+            setSelectedJobId(null)
+            
+        } catch (error: any) {
+            console.error(error.message)
+        } finally {
+            setRejecting(false)
+        }
+    }
+
+    const openRejectDialog = (jobId: string) => {
+        setSelectedJobId(jobId)
+        setRejectReason("")
+        setRejectDialogOpen(true)
+    }
     
     if(loading){
         return (
@@ -93,13 +158,13 @@ const ApprovalCard = () => {
                                 <TableCell className="text-muted-foreground">{pending.user?.email || "N/A"}</TableCell>
                                 <TableCell className="text-muted-foreground">{pending.user?.role || "N/A"}</TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className="">{pending.status}</Badge>
+                                    <Badge variant="outline" className="rounded-none bg-gray-800 text-white uppercase font-semibold">{pending.status}</Badge>
                                 </TableCell>
                                 <TableCell className="flex flex-row gap-1">
-                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20">
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => handleApprove(pending.id)}>
                                         Approve
                                     </Button>
-                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20">
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => openRejectDialog(pending.id)}>
                                         Reject
                                     </Button>
                                 </TableCell>
@@ -108,6 +173,49 @@ const ApprovalCard = () => {
                     </TableBody>
             </Table>
             </div>
+            
+
+            <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+                <DialogContent showCloseButton={false} className="rounded-none">
+                    <DialogHeader>
+                        <DialogTitle>Reject Job</DialogTitle>
+                        <DialogDescription>
+                            Add a short reason for rejection. This will be saved with the job.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="reject-reason">Reason</Label>
+                        <Textarea
+                            id="reject-reason"
+                            placeholder="Write rejection reason..."
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            className="rounded-none"
+                        />
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setRejectDialogOpen(false)}
+                            className="rounded-none cursor-pointer"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={!rejectReason.trim() || rejecting || !selectedJobId}
+                            onClick={() => selectedJobId && handleReject(selectedJobId)}
+                            className="rounded-none cursor-pointer"
+                        >
+                            {rejecting ? "Rejecting..." : "Reject"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
     </div>
   )
 }

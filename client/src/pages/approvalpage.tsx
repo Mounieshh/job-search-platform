@@ -1,4 +1,5 @@
 import ApprovalCard from "@/components/admin/approval-card"
+import ApprovalProcess from "@/components/user/approval-process"
 import { useAuth } from "@/context/AuthContext"
 
 export default function ApprovalPage() {
@@ -10,6 +11,12 @@ export default function ApprovalPage() {
             <div>
                 <ApprovalCard/>
             </div>
+        )}
+
+        {user && user.role === "USER" && (
+          <div>
+            <ApprovalProcess/>
+          </div>
         )}
     </div>
   )

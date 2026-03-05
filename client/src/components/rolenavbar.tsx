@@ -34,7 +34,7 @@ const RoleNavbar = () => {
             </li>
             <li className="h-full">
                 <Link
-                  to="/approval"
+                  to="/approval-process"
                   className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
                 >
                   Approval Process

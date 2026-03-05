@@ -63,7 +63,7 @@ const JobUploadForm = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center fixed inset-19">
       <div className="w-full max-w-lg">
         <div className="rounded-none border border-border bg-card p-8 shadow-sm">
           <div className="mb-6">

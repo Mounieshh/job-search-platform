@@ -88,15 +88,7 @@ const SignInForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
                       <FormLabel>Password</FormLabel>
-                      <Link
-                        to="/forgot-password"
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
                     <FormControl>
                       <Input
                         placeholder="••••••••"

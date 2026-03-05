@@ -22,6 +22,7 @@ export type Job = {
     salary?: string,
     url?: string,
     status: string,
+    rejectedReason?: string | null,
     postedBy: string,
     user: User | null
 }
