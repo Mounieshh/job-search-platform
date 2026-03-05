@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import { env } from "./config/env.js"
 import jobRouter from "./routes/job.route.js"
+import companyRouter from "./routes/company.route.js"
 
 const PORT = env.PORT || 5000
 const app = express()
@@ -23,6 +24,7 @@ connectToMongo()
 
 app.use("/api/auth", authRouter)
 app.use("/api/jobs", jobRouter)
+app.use("/api/company", companyRouter)
 
 app.listen(PORT, () => {
     console.log(`Server started running at ${PORT}`);

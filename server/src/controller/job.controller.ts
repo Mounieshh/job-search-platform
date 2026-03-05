@@ -71,3 +71,27 @@ export async function getJobListing(req: Request, res: Response){
         })
     }
 }
+
+export async function getPendingJobs(req: Request, res: Response){
+    try {
+
+        const pendingjobs = await prisma.job.findMany({
+            where: {
+                status: "pending"
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        return res.status(200).json({
+            message: "Pending Jobs Listed for Approval",
+            pendingjobs
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}

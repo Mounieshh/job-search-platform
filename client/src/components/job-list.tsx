@@ -4,7 +4,7 @@ import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 
-type Job = {
+export type Job = {
     id: string,
     title: string,
     description: string,

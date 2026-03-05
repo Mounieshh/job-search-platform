@@ -6,8 +6,9 @@ import { Toaster } from "./components/ui/sonner"
 import HomePage from "./pages/homepage"
 import { AuthProvider } from "./context/AuthContext"
 import JobUploadForm from "./components/job-form"
-import RoleNavbar from "./components/sidebar"
+import RoleNavbar from "./components/rolenavbar"
 import JobsPage from "./pages/jobspage"
+import CompanyList from "./pages/companylist"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -29,6 +30,7 @@ function AppLayout() {
             <Route path="/register" element={<SignUpPage />} />
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
+            <Route path="/company" element={<CompanyList/>}/>
           </Routes>
         </div>
       </main>

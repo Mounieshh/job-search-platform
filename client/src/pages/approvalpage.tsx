@@ -1,7 +1,15 @@
-
+import { useAuth } from "@/context/AuthContext"
 
 export default function ApprovalPage() {
+    const { user } = useAuth()
+
   return (
-    <div>ApprovalPage</div>
+    <div>
+        {user && user.role === "ADMIN" && (
+            <div>
+                
+            </div>
+        )}
+    </div>
   )
 }
