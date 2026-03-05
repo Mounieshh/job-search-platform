@@ -3,6 +3,15 @@ import { jobSchema } from "../validate/job.zod.js";
 import { prisma } from "../config/prisma.js";
 import User from "../models/user.schema.js";
 
+function toSlug(value: string){
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+}
+
 export async function createJob(req: Request, res: Response){
     try {
 
@@ -214,6 +223,61 @@ export async function getUserPostedJobs(req: Request, res: Response){
         return res.status(200).json({
             message: "User Posted Jobs Fetched Successfully",
             userPostedJobs
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+
+export async function getJobPostById(req: Request, res: Response){
+    try {
+        const rawCompanyName = req.params.companyName
+        const rawSlugId = req.params.slugId
+
+        const companyName = Array.isArray(rawCompanyName)
+            ? rawCompanyName[0]
+            : rawCompanyName
+
+        const slugId = Array.isArray(rawSlugId)
+            ? rawSlugId[0]
+            : rawSlugId
+
+        if(!companyName || !slugId){
+            return res.status(400).json({
+                message: "Company name and slug are required"
+            })
+        }
+
+        const decodedCompanyName = decodeURIComponent(companyName)
+        const decodedSlugId = decodeURIComponent(slugId)
+
+        const jobs = await prisma.job.findMany({
+            where: {
+                status: "approved",
+                companyName: {
+                    equals: decodedCompanyName,
+                    mode: "insensitive"
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        const job = jobs.find((item) => toSlug(item.title) === decodedSlugId)
+
+        if(!job){
+            return res.status(404).json({
+                message: "Job not found"
+            })
+        }
+
+        return res.status(200).json({
+            message: "Job fetched successfully",
+            job
         })
     } catch (error) {
         return res.status(500).json({

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approvejob, createJob, getApprovedRejectedJobs, getJobListing, getPendingJobs, getUserPostedJobs, rejectJob } from "../controller/job.controller.js";
+import { approvejob, createJob, getApprovedRejectedJobs, getJobListing, getJobPostById, getPendingJobs, getUserPostedJobs, rejectJob } from "../controller/job.controller.js";
 import { authorize, requireRoute } from "../middleware/auth.middleware.js";
 
 
@@ -14,6 +14,7 @@ jobRouter.patch("/admin/reject/:id", authorize, requireRoute("ADMIN"), rejectJob
 jobRouter.get("/approved-rejected", authorize, requireRoute("ADMIN"), getApprovedRejectedJobs)
 
 jobRouter.get("/user/post", authorize, getUserPostedJobs)
+jobRouter.get("/:companyName/:slugId", getJobPostById)
 
 
 export default jobRouter

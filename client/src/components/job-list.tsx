@@ -27,6 +27,15 @@ export type Job = {
     user: User | null
 }
 
+function toSlug(value: string){
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+}
+
 
 const JobList = () => {
     
@@ -106,24 +115,23 @@ const JobList = () => {
                         <div className="flex flex-row justify-between items-end -mb-6 -mr-6">
                             <div className="flex flex-wrap items-center gap-2 mb-6">
                                 {job.location && (
-                                    <span className="text-xs border border-border rounded-sm px-2 py-0.5 text-muted-foreground">
+                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
                                         {job.location}
                                     </span>
                                 )}
                                 {job.salary && (
-                                    <span className="text-xs border border-border rounded-sm px-2 py-0.5 text-muted-foreground">
+                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
                                         {job.salary}
                                     </span>
                                 )}
                             </div>
 
-                            {user && job.url && (
+                            {user && (
                                     <Link
-                                        to={job.url}
-                                        target="_blank"
+                                        to={`/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}
                                         className="flex items-center gap-1 text-sm font-medium border-t border-l border-border px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                                     >
-                                        Apply <ArrowUpRight className="size-4" />
+                                        View Job <ArrowUpRight className="size-4" />
                                     </Link>
                             )}
                            
