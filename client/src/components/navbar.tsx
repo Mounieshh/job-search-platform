@@ -13,7 +13,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center justify-between bg-background border-b border-border">
-      <Link to="/" className="h-full flex items-center px-6 text-foreground font-semibold tracking-tight text-lg border-r border-border">
+      <Link to="/" className="h-full flex items-center px-6 text-foreground font-semibold tracking-tight text-lg border-border">
         Jobbify
       </Link>
 

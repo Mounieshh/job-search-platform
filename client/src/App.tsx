@@ -9,6 +9,7 @@ import JobUploadForm from "./components/job-form"
 import RoleNavbar from "./components/rolenavbar"
 import JobsPage from "./pages/jobspage"
 import CompanyList from "./pages/companylist"
+import ApprovalPage from "./pages/approvalpage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -31,6 +32,8 @@ function AppLayout() {
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
             <Route path="/company" element={<CompanyList/>}/>
+
+            <Route path="/newrequest" element={<ApprovalPage/>}/>
           </Routes>
         </div>
       </main>

@@ -6,6 +6,7 @@ export type Company = {
     name: string
     domain: string
     companyUsers: number
+    postCount: number
 }
 
 export default function CompanyList() {
@@ -72,6 +73,10 @@ export default function CompanyList() {
 
                             <div className="text-sm font-medium">
                                 Company Users Count: {com.companyUsers}
+                            </div>
+
+                            <div>
+                                Jobs Posted: {com.postCount}
                             </div>
 
                         </div>

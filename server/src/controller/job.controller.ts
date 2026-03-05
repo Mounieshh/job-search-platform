@@ -23,7 +23,10 @@ export async function createJob(req: Request, res: Response){
         }
 
         const isLead = user.role === "LEAD" || user.role === "ADMIN"
-
+        
+        const createdUser = await User.findById(user._id).select(
+            "_id name email emailDomain role userType"
+        )
         
         const newJob = await prisma.job.create({
             data: {
@@ -36,13 +39,14 @@ export async function createJob(req: Request, res: Response){
                 source: source || "internal",
                 status: isLead ? "approved" : "pending",
                 postedBy: user._id.toString(),
-                companyId: user.companyId ? user.companyId.toString() : null
+                companyId: user.companyId ? user.companyId.toString() : null,
             }
         })
 
         return res.status(200).json({
             message: isLead ? "Job Posted Successfully": "Job Submitted for Approval",
-            job: newJob
+            job: newJob,
+            user: createdUser
         })
 
     } catch (error: any) {
@@ -84,14 +88,84 @@ export async function getPendingJobs(req: Request, res: Response){
             }
         })
 
+        const userIds = pendingjobs.map(job => job.postedBy)
+
+        const users = await User.find({
+            _id: {
+                $in: userIds
+            }
+        }).select("_id name email emailDomain userType role")
+
+        const userMap = new Map(users.map(user => [user._id.toString(), user]))
+
+        const jobWithUser = pendingjobs.map(jobs => ({
+            ...jobs,
+            user: userMap.get(jobs.postedBy) || null
+        }))
+
+
+
+
         return res.status(200).json({
             message: "Pending Jobs Listed for Approval",
-            pendingjobs
+            jobs: jobWithUser
         })
 
     } catch (error) {
         return res.status(500).json({
             message: "Internal Server Error"
+        })
+    }
+}
+
+
+export async function approvejob(req: Request, res:Response){
+    try {
+        
+        const { id } = req.params
+
+        await prisma.job.update({
+            where: {
+                id : id as string
+            },
+            data: {
+                status: "approved"
+            }
+        })
+
+        return res.status(200).json({
+            message: "Job Approved"
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server Error"
+        })
+    }
+}
+
+export async function rejectJob(req: Request, res: Response){
+    try {
+        
+        const { id } = req.params
+        const { reason } = req.body
+
+        await prisma.job.update({
+            where: {
+                id: id as string
+            },
+            data: {
+                status: "rejected",
+                rejectedReason: reason
+            }
+        })
+
+        return res.status(200).json({
+            message: "Job Rejected"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal  Server Error"
         })
     }
 }

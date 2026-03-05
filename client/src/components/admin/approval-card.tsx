@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
 import type { Job } from "../job-list"
-import { Table, TableCaption, TableHead, TableHeader, TableRow } from "../ui/table"
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
+import { Button } from "../ui/button"
+import { Badge } from "../ui/badge"
 
 
 const ApprovalCard = () => {
@@ -24,7 +25,14 @@ const ApprovalCard = () => {
                 }
     
                 const data = await response.json()
-                setPendingJobs(data.user || data)
+                const jobs = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data?.pendingjobs)
+                        ? data.pendingjobs
+                        : Array.isArray(data?.jobs)
+                            ? data.jobs
+                            : []
+                setPendingJobs(jobs)
             } catch (error: any) {
                 console.log(error.message);
             } finally {
@@ -35,7 +43,7 @@ const ApprovalCard = () => {
         pendingJobs()
     }, [])
 
-
+    
     if(loading){
         return (
             <div className="min-h-screen flex justify-center pt-10">
@@ -45,21 +53,61 @@ const ApprovalCard = () => {
     }
 
   return (
-    <div>
-        {pendingJobs.map((pending) => (
-            <Table>
-                <TableCaption>A List of Pending Job Request from the Users to Approve</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Sno</TableHead>
-                        <TableHead>Company Name</TableHead>
-                        <TableHead>Sno</TableHead>
-                        <TableHead>Sno</TableHead>
-                        <TableHead>Sno</TableHead>
-                    </TableRow>
-                </TableHeader>
+    <div className="p-6">
+            <div className="border border-border bg-card">
+                <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                    <div>
+                        <h2 className="text-base font-semibold text-card-foreground">Pending Job Approvals</h2>
+                        <p className="text-sm text-muted-foreground">Review and approve submitted jobs</p>
+                    </div>
+                    <Badge variant="secondary">{pendingJobs.length}</Badge>
+                </div>
+
+            <Table className="w-full">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Sno</TableHead>
+                            <TableHead>Job Title</TableHead>
+                            <TableHead>Company</TableHead>
+                            <TableHead>PostedBy</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+
+                    <TableBody>
+                    {pendingJobs.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                                    No pending jobs to review
+                                </TableCell>
+                            </TableRow>
+                    ) : pendingJobs.map((pending, index) => (
+                            <TableRow key={pending.id}>
+                                <TableCell>
+                                    {String(index + 1).padStart(2, "0")}
+                                </TableCell>
+                                <TableCell className="font-medium text-card-foreground">{pending.title}</TableCell>
+                                <TableCell className="text-muted-foreground">{pending.companyName}</TableCell>
+                                <TableCell className="text-muted-foreground">{pending.user?.email || "N/A"}</TableCell>
+                                <TableCell className="text-muted-foreground">{pending.user?.role || "N/A"}</TableCell>
+                                <TableCell>
+                                    <Badge variant="outline" className="">{pending.status}</Badge>
+                                </TableCell>
+                                <TableCell className="flex flex-row gap-1">
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20">
+                                        Approve
+                                    </Button>
+                                    <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20">
+                                        Reject
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                    ))}
+                    </TableBody>
             </Table>
-        ))}
+            </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { Request , Response} from "express";
 import Company from "../models/company.schema.js";
 import User from "../models/user.schema.js";
+import { prisma } from "../config/prisma.js";
 
 export async function getCompanyList(req: Request, res: Response) {
     try {
@@ -13,12 +14,18 @@ export async function getCompanyList(req: Request, res: Response) {
                 email: { $regex: `@${company.domain}`}
             })
 
-    
+            const jobPostCount = await prisma.job.count({
+                where: {
+                    id: company._id.toString(),
+                }
+            })
+
             result.push({
                 id: company._id,
                 name: company.name,
                 domain: company.domain,
-                companyUsers: count
+                companyUsers: count,
+                totalJobs: jobPostCount
             })
         }
 

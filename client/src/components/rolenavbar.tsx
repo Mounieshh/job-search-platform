@@ -22,6 +22,8 @@ const RoleNavbar = () => {
           </li>
           
           {user.role === "USER" && (
+
+            <>
               <li className="h-full">
                 <Link
                   to="/profile"
@@ -30,6 +32,15 @@ const RoleNavbar = () => {
                   Profile
                 </Link>
             </li>
+            <li className="h-full">
+                <Link
+                  to="/approval"
+                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                >
+                  Approval Process
+                </Link>
+            </li>
+            </>
           )}
 
           {user.role === "ADMIN" && (

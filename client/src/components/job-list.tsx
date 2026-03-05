@@ -4,6 +4,15 @@ import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 
+
+type User = {
+    _id: string,
+    name: string,
+    email: string,
+    emailDomain: string,
+    userType: string,
+    role: string
+}
 export type Job = {
     id: string,
     title: string,
@@ -11,7 +20,10 @@ export type Job = {
     companyName: string,
     location?: string,
     salary?: string,
-    url?: string
+    url?: string,
+    status: string,
+    postedBy: string,
+    user: User | null
 }
 
 
