@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import type { Job } from '../job-list'
 import { toast } from 'sonner'
 import { Spinner } from '../ui/spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
 
 const ApprovedCard = () => {
   const [loading, setLoading] = useState(false)
@@ -33,7 +35,16 @@ const ApprovedCard = () => {
     }
 
     getJobs()
-  }, []) 
+  }, [])
+
+  function toSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+  } 
 
   if (loading) {
     return (
@@ -55,6 +66,7 @@ const ApprovedCard = () => {
               <TableHead>Job Title</TableHead>
               <TableHead>Company</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Job Details</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -67,6 +79,13 @@ const ApprovedCard = () => {
                   <Badge className={`rounded-none w-20 ${job.status === "approved" ? "bg-green-700 text-white" : "bg-orange-500 text-white"} uppercase font-semibold`}>
                     {job.status}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <Link to={`/admin/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}>
+                    <Button className="rounded-none cursor-pointer" variant="outline" size="sm">
+                      View Details
+                    </Button>
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}

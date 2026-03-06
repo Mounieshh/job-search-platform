@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Textarea } from "../ui/textarea"
 import { Label } from "../ui/label"
+import { Link } from "react-router"
 
 
 const ApprovalCard = () => {
@@ -117,6 +118,15 @@ const ApprovalCard = () => {
         )
     }
 
+    function toSlug(title: string): string {
+        return title
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+    }
+
   return (
     <div className="p-6">
             <div className="border border-border bg-card">
@@ -137,6 +147,7 @@ const ApprovalCard = () => {
                             <TableHead>PostedBy</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Job Details</TableHead>
                             <TableHead>Action</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -160,6 +171,13 @@ const ApprovalCard = () => {
                                 <TableCell>
                                     <Badge variant="outline" className="rounded-none bg-gray-800 text-white uppercase font-semibold">{pending.status}</Badge>
                                 </TableCell>
+                                <TableCell>
+                                    <Link to={`/admin/jobs/${encodeURIComponent(pending.companyName || "company")}/${encodeURIComponent(toSlug(pending.title))}`}>
+                                        <Button className="rounded-none cursor-pointer" variant="outline">
+                                            View Details
+                                        </Button>
+                                    </Link>
+                                </TableCell>
                                 <TableCell className="flex flex-row gap-1">
                                     <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => handleApprove(pending.id)}>
                                         Approve
@@ -168,6 +186,7 @@ const ApprovalCard = () => {
                                         Reject
                                     </Button>
                                 </TableCell>
+                                
                             </TableRow>
                     ))}
                     </TableBody>

@@ -16,6 +16,7 @@ type User = {
 export type Job = {
     id: string,
     title: string,
+    summary: string,
     description: string,
     companyName: string,
     location?: string,
@@ -89,55 +90,52 @@ const JobList = () => {
                 {jobs.map((job, index) => (
                     <div
                         key={job.id}
-                        className="border border-border bg-card p-6 flex flex-col justify-between gap-4"
+                        className="h-52 border border-border bg-card p-6 flex flex-col justify-between overflow-hidden"
                     >
-                        <div>
-                            <div className="flex items-center gap-2 mb-3">
+                        <div className="flex-1 overflow-hidden">
+                            <div className="flex items-center gap-2 mb-2">
                                 <span className="text-xs font-mono text-muted-foreground">
                                     {String(index + 1).padStart(2, "0")}
                                 </span>
-                                <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+                                <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">
                                     {job.companyName}
                                 </span>
                             </div>
 
-                            <h2 className="text-lg font-bold text-card-foreground leading-tight">
+                            <h2 className="text-lg font-bold text-card-foreground leading-tight line-clamp-1">
                                 {job.title}
                             </h2>
 
-                            {job.description && (
+                            {job.summary && (
                                 <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                    {job.description}
+                                    {job.summary}
                                 </p>
                             )}
                         </div>
 
-                        <div className="flex flex-row justify-between items-end -mb-6 -mr-6">
+                        <div className="flex flex-row justify-between items-end -mb-6 -mr-6 mt-2">
                             <div className="flex flex-wrap items-center gap-2 mb-6">
                                 {job.location && (
-                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
+                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground truncate max-w-30">
                                         {job.location}
                                     </span>
                                 )}
                                 {job.salary && (
-                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
+                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground truncate max-w-30">
                                         {job.salary}
                                     </span>
                                 )}
                             </div>
 
                             {user && (
-                                    <Link
-                                        to={`/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}
-                                        className="flex items-center gap-1 text-sm font-medium border-t border-l border-border px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                    >
-                                        View Job <ArrowUpRight className="size-4" />
-                                    </Link>
+                                <Link
+                                    to={`/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}
+                                    className="flex items-center gap-1 text-sm font-medium border-t border-l border-border px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
+                                >
+                                    View Job <ArrowUpRight className="size-4" />
+                                </Link>
                             )}
-                           
                         </div>
-
-                        
                     </div>
                 ))}
             </div>

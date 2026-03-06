@@ -12,6 +12,7 @@ import CompanyList from "./pages/companylist"
 import ApprovalPage from "./pages/approvalpage"
 import ApprovePage from "./pages/approvedpage"
 import JobDetailPage from "./pages/job-detail-page"
+import JobDetailAdmin from "./pages/job-detail-admin"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -34,6 +35,7 @@ function AppLayout() {
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
             <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
+            <Route path="/admin/jobs/:companyName/:slugId" element={<JobDetailAdmin/>}/>
             <Route path="/company" element={<CompanyList/>}/>
 
             <Route path="/newrequest" element={<ApprovalPage/>}/>

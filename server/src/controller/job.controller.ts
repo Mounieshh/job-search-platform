@@ -18,7 +18,7 @@ export async function createJob(req: Request, res: Response){
         const user = (req as any).user
         const parsedData = jobSchema.parse(req.body)
 
-        const { title, description, companyName, url, location, salary, source} = parsedData
+        const { title, summary, description, companyName, url, location, salary, source, requirements, duties, employmentType } = parsedData
 
         const existingJob = await prisma.job.findFirst({
             where: {
@@ -40,6 +40,7 @@ export async function createJob(req: Request, res: Response){
         const newJob = await prisma.job.create({
             data: {
                 title,
+                summary,
                 description,
                 companyName,
                 url: url || "",
@@ -47,12 +48,15 @@ export async function createJob(req: Request, res: Response){
                 salary,
                 source: source || "internal",
                 status: isLead ? "approved" : "pending",
+                employmentType,
+                requirements : requirements || [],
+                duties: duties || [],
                 postedBy: user._id.toString(),
                 companyId: user.companyId ? user.companyId.toString() : null,
             }
         })
 
-        return res.status(200).json({
+        return res.status(201).json({
             message: isLead ? "Job Posted Successfully": "Job Submitted for Approval",
             job: newJob,
             user: createdUser
@@ -278,6 +282,72 @@ export async function getJobPostById(req: Request, res: Response){
         return res.status(200).json({
             message: "Job fetched successfully",
             job
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+
+export async function getJobPostByIdAdmin(req: Request, res: Response){
+    try {
+        const rawCompanyName = req.params.companyName
+        const rawSlugId = req.params.slugId
+
+        const companyName = Array.isArray(rawCompanyName)
+            ? rawCompanyName[0]
+            : rawCompanyName
+
+        const slugId = Array.isArray(rawSlugId)
+            ? rawSlugId[0]
+            : rawSlugId
+
+        if(!companyName || !slugId){
+            return res.status(400).json({
+                message: "Company name and slug are required"
+            })
+        }
+
+        const decodedCompanyName = decodeURIComponent(companyName)
+        const decodedSlugId = decodeURIComponent(slugId)
+
+        // Admin can see all jobs regardless of status
+        const jobs = await prisma.job.findMany({
+            where: {
+                companyName: {
+                    equals: decodedCompanyName,
+                    mode: "insensitive"
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        const job = jobs.find((item) => toSlug(item.title) === decodedSlugId)
+
+        if(!job){
+            return res.status(404).json({
+                message: "Job not found"
+            })
+        }
+
+        // Fetch user information
+        let user = null
+        if(job.postedBy){
+            user = await User.findById(job.postedBy).select(
+                "_id name email emailDomain role userType"
+            )
+        }
+
+        return res.status(200).json({
+            message: "Job fetched successfully",
+            job: {
+                ...job,
+                user
+            }
         })
     } catch (error) {
         return res.status(500).json({

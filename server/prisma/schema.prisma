@@ -17,11 +17,18 @@ datasource db {
 model Job {
   id String @id @default(cuid())
   title String
+
+  summary String?
   description String?
   url String
   location String?
   salary String?
   companyName String? 
+
+  employmentType String?
+
+  requirements String[]
+  duties String[]
 
   status String @default("pending")
   source String @default("internal")
