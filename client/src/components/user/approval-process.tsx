@@ -63,7 +63,7 @@ const ApprovalProcess = () => {
                 {users.map((user, index) => (
                     <div
                         key={user.id}
-                        className="border border-border bg-card p-6 flex flex-col justify-between gap-4"
+                        className="h-60 border border-border bg-card p-6 flex flex-col justify-between gap-4"
                     >
                         <div>
                             <div className="flex items-center gap-2 mb-3">
@@ -79,9 +79,9 @@ const ApprovalProcess = () => {
                                 {user.title}
                             </h2>
 
-                            {user.description && (
+                            {user.summary && (
                                 <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                    {user.description}
+                                    {user.summary}
                                 </p>
                             )}
                         </div>
