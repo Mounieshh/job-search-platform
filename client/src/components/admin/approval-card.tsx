@@ -135,7 +135,7 @@ const ApprovalCard = () => {
                         <h2 className="text-base font-semibold text-card-foreground">Pending Job Approvals</h2>
                         <p className="text-sm text-muted-foreground">Review and approve submitted jobs</p>
                     </div>
-                    <Badge variant="secondary">{pendingJobs.length}</Badge>
+                    <Badge variant="secondary" className="rounded-none">{pendingJobs.length}</Badge>
                 </div>
 
             <Table className="w-full">

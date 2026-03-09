@@ -13,6 +13,7 @@ import ApprovalPage from "./pages/approvalpage"
 import ApprovePage from "./pages/approvedpage"
 import JobDetailPage from "./pages/job-detail-page"
 import JobDetailAdmin from "./pages/job-detail-admin"
+import LeadApprovalPage from "./pages/lead-approvalpage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -42,6 +43,7 @@ function AppLayout() {
             <Route path="/approved" element={<ApprovePage/>}/>
 
             <Route path="/approval-process" element={<ApprovalPage/>}/>
+            <Route path="/lead-approval" element={<LeadApprovalPage/>}/>
           </Routes>
         </div>
       </main>

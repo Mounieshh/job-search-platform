@@ -334,7 +334,6 @@ export async function getJobPostByIdAdmin(req: Request, res: Response){
             })
         }
 
-        // Fetch user information
         let user = null
         if(job.postedBy){
             user = await User.findById(job.postedBy).select(
@@ -353,5 +352,16 @@ export async function getJobPostByIdAdmin(req: Request, res: Response){
         return res.status(500).json({
             message: "Internal Server Error"
         })
+    }
+}
+
+
+
+
+export async function getJobForLeadApproval(req: Request, res:Response){
+    try {
+        
+    } catch (error) {
+        
     }
 }

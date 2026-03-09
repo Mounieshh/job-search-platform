@@ -76,8 +76,18 @@ const RoleNavbar = () => {
             
           )}
 
-          
-        
+          {user.role === "LEAD" && (
+            <>
+              <li className="h-full">
+                <Link
+                  to="/lead-approval"
+                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                >
+                  Approval
+                </Link>
+            </li>
+            </>
+          )}
           </>
 
         )}
