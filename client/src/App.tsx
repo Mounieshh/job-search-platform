@@ -25,10 +25,10 @@ function AppLayout() {
     <>
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "" : "pt-14"}>
+      <main className={hideNavbar ? "" : "pt-22"}>
         {!hideNavbar && <RoleNavbar />}
 
-        <div className="p-6">
+        <div className="px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<SignInPage />} />

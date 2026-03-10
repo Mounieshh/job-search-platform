@@ -149,9 +149,9 @@ const JobUploadForm = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-3 sm:px-4">
       <div className="w-full max-w-lg">
-        <div className="rounded-none border border-border bg-card p-8 shadow-sm">
+        <div className="rounded-none border border-border bg-card p-5 sm:p-8 shadow-sm">
           <div className="mb-6">
             <h1 className="text-xl font-semibold text-card-foreground">Post a Job</h1>
             <p className="text-sm text-muted-foreground mt-1">

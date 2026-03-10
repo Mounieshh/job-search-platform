@@ -56,11 +56,11 @@ export default function CompanyList() {
             {company.length === 0 ? (
                 <div>No Companies Found</div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-5">
+                <div className="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2 lg:grid-cols-3 sm:p-5">
                     {company.map((com, index) => (
                         <div
                             key={com.id}
-                            className="border border-border bg-card p-6 flex flex-col gap-3"
+                            className="border border-border bg-card p-5 sm:p-6 flex flex-col gap-3"
                         >
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-mono text-muted-foreground">

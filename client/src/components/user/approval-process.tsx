@@ -53,17 +53,17 @@ const ApprovalProcess = () => {
 
     
   return (
-    <div className="p-6">
+    <div className="px-3 py-4 sm:px-6 sm:py-6">
         {users.length === 0 ? (
             <div className="text-center font-semibold p-5 text-muted-foreground">
                 No Jobs Found
             </div>
         ): (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {users.map((user, index) => (
                     <div
                         key={user.id}
-                        className="h-60 border border-border bg-card p-6 flex flex-col justify-between gap-4"
+                        className="min-h-60 border border-border bg-card p-5 sm:p-6 flex flex-col justify-between gap-4"
                     >
                         <div>
                             <div className="flex items-center gap-2 mb-3">
@@ -86,7 +86,7 @@ const ApprovalProcess = () => {
                             )}
                         </div>
 
-                        <div className="flex flex-row justify-between items-end -mb-6 -mr-6">
+                        <div className="flex flex-row justify-between items-end">
                             <div className="flex flex-wrap items-center gap-2 mb-6">
                                 {user.location && (
                                     <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">

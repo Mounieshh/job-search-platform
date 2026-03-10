@@ -6,8 +6,8 @@ const RoleNavbar = () => {
   const { user } = useAuth()
 
   return (
-    <nav className="fixed top-12 left-0 right-0 z-40 h-10 flex items-center bg-background/80 backdrop-blur-sm border-b border-border">
-      <ul className="flex flex-row h-full">
+    <nav className="fixed top-12 left-0 right-0 z-40 h-10 flex items-center bg-background/80 backdrop-blur-sm border-b border-border overflow-x-auto">
+      <ul className="flex flex-row h-full min-w-max">
 
         {user && (
 
@@ -27,7 +27,7 @@ const RoleNavbar = () => {
               <li className="h-full">
                 <Link
                   to="/profile"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Profile
                 </Link>
@@ -35,7 +35,7 @@ const RoleNavbar = () => {
             <li className="h-full">
                 <Link
                   to="/approval-process"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Approval Process
                 </Link>
@@ -49,7 +49,7 @@ const RoleNavbar = () => {
               <li className="h-full">
                 <Link
                   to="/newrequest"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Job Requests
                 </Link>
@@ -58,7 +58,7 @@ const RoleNavbar = () => {
             <li className="h-full">
                 <Link
                   to="/approved"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Approved Jobs
                 </Link>
@@ -67,7 +67,7 @@ const RoleNavbar = () => {
             <li className="h-full">
                 <Link
                   to="/company"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Company List
                 </Link>
@@ -81,7 +81,7 @@ const RoleNavbar = () => {
               <li className="h-full">
                 <Link
                   to="/lead-approval"
-                  className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+                  className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
                 >
                   Approval
                 </Link>
@@ -95,7 +95,7 @@ const RoleNavbar = () => {
         <li className="h-full">
           <Link
             to="/joblistings"
-            className="flex items-center h-full px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors"
+            className="flex items-center h-full px-4 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-r border-border transition-colors whitespace-nowrap"
           >
             Browse Jobs
           </Link>

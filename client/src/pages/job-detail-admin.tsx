@@ -141,7 +141,7 @@ export default function JobDetailAdmin() {
 
   return (
     <>
-      <div className="px-6 pt-6">
+      <div className="px-3 pt-4 sm:px-6 sm:pt-6">
         <Link
           to={backLink}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -151,7 +151,7 @@ export default function JobDetailAdmin() {
         </Link>
       </div>
 
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <div className="px-3 py-4 sm:px-6 sm:py-6 max-w-6xl mx-auto space-y-6">
 
         <div className="border border-border bg-card p-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -188,7 +188,7 @@ export default function JobDetailAdmin() {
           </Badge>
         </div>
 
-        <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="flex-1 space-y-4">
 
             {isRejected && job.rejectedReason && (
@@ -234,7 +234,7 @@ export default function JobDetailAdmin() {
             )}
 
             <div className="border border-border bg-card p-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Source</p>
                   <p className="text-sm text-card-foreground capitalize mt-0.5">{job.source}</p>
@@ -251,7 +251,7 @@ export default function JobDetailAdmin() {
             </div>
           </div>
 
-          <div className="w-72 space-y-4 shrink-0">
+          <div className="w-full lg:w-72 space-y-4 shrink-0">
 
             <div className="border border-border bg-card p-5 space-y-3">
               <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Job Link</p>

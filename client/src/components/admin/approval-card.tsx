@@ -128,7 +128,7 @@ const ApprovalCard = () => {
     }
 
   return (
-    <div className="p-6">
+    <div className="px-3 py-4 sm:px-6 sm:py-6">
             <div className="border border-border bg-card">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                     <div>
@@ -138,7 +138,7 @@ const ApprovalCard = () => {
                     <Badge variant="secondary" className="rounded-none">{pendingJobs.length}</Badge>
                 </div>
 
-            <Table className="w-full">
+            <Table className="w-full min-w-[980px]">
                     <TableHeader>
                         <TableRow>
                             <TableHead>Sno</TableHead>
@@ -155,7 +155,7 @@ const ApprovalCard = () => {
                     <TableBody>
                     {pendingJobs.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                                <TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">
                                     No pending jobs to review
                                 </TableCell>
                             </TableRow>
@@ -178,7 +178,7 @@ const ApprovalCard = () => {
                                         </Button>
                                     </Link>
                                 </TableCell>
-                                <TableCell className="flex flex-row gap-1">
+                                <TableCell className="flex flex-row gap-1 whitespace-nowrap">
                                     <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => handleApprove(pending.id)}>
                                         Approve
                                     </Button>

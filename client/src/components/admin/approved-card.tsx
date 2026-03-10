@@ -55,11 +55,11 @@ const ApprovedCard = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="px-3 py-4 sm:px-6 sm:py-6">
       {jobs.length === 0 ? (
         <p className="text-center text-muted-foreground py-10">No approved or rejected jobs found</p>
       ) : (
-        <Table className="w-full border-t-2">
+        <Table className="w-full min-w-175 border-t-2">
           <TableHeader>
             <TableRow>
               <TableHead>Sno</TableHead>

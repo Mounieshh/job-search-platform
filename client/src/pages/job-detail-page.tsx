@@ -75,7 +75,7 @@ export default function JobDetailPage() {
   if (!job) return null
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-3 py-6 sm:px-6 sm:py-8 space-y-6">
       <Link
         to="/joblistings"
         className="inline-flex text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -83,7 +83,7 @@ export default function JobDetailPage() {
         ← Back to Jobs
       </Link>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         <div className="flex-1 space-y-4">
           <div className="border border-border bg-card p-6 space-y-3">
             <div>
@@ -165,7 +165,7 @@ export default function JobDetailPage() {
           )}
         </div>
 
-        <div className="w-72 shrink-0 space-y-4">
+        <div className="w-full lg:w-72 shrink-0 space-y-4">
           <div className="border border-border bg-card p-5 space-y-5">
             <div>
               <p className="text-xs uppercase text-muted-foreground">Salary</p>
