@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
 import type { Job } from "../JobList"
 import { Badge } from "../ui/badge"
+import { baseUrl } from "@/lib/base"
 
-const ApprovalProcess = () => {
+const TrackMyPosts = () => {
 
     const [loading, setLoading] = useState(false)
     const [users, setUser] = useState<Job[]>([])
@@ -13,7 +14,7 @@ const ApprovalProcess = () => {
             try {
 
                 setLoading(true)
-                const response = await fetch("http://localhost:5000/api/jobs/user/post", {
+                const response = await fetch(`${baseUrl}/api/jobs/user/post`, {
                     method: "GET",
                     credentials: "include"
                 })
@@ -131,4 +132,4 @@ const ApprovalProcess = () => {
   )
 }
 
-export default ApprovalProcess
+export default TrackMyPosts

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { baseUrl } from "@/lib/base"
 
 type User = {
   _id: string
@@ -58,7 +59,7 @@ export default function JobDetailAdmin() {
         setLoading(true)
         setError("")
         const response = await fetch(
-          `http://localhost:5000/api/jobs/admin/${companyName}/${slugId}`,
+          `${baseUrl}/api/jobs/admin/${companyName}/${slugId}`,
           { method: "GET", credentials: "include" }
         )
         if (!response.ok) {
@@ -81,7 +82,7 @@ export default function JobDetailAdmin() {
     if (!job) return
     try {
       setActionLoading(true)
-      const response = await fetch(`http://localhost:5000/api/jobs/admin/approve/${job.id}`, {
+      const response = await fetch(`${baseUrl}/api/jobs/admin/approve/${job.id}`, {
         method: "PATCH",
         credentials: "include"
       })
@@ -100,7 +101,7 @@ export default function JobDetailAdmin() {
     if (!reason) return
     try {
       setActionLoading(true)
-      const response = await fetch(`http://localhost:5000/api/jobs/admin/reject/${job.id}`, {
+      const response = await fetch(`${baseUrl}/api/jobs/admin/reject/${job.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

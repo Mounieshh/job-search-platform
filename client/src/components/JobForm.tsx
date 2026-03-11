@@ -14,13 +14,8 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import { baseUrl } from "@/lib/base";
+
 
 const textFields = [
   { name: "title",          label: "Job Title",        type: "text", placeholder: "Enter job title" },
@@ -62,7 +57,6 @@ const TagInput = ({
     <div className="space-y-2">
       <label className="text-sm font-medium text-foreground">{label}</label>
 
-      {/* Input row */}
       <div className="flex gap-2">
         <Input
           value={input}
@@ -86,7 +80,7 @@ const TagInput = ({
         </Button>
       </div>
 
-      {/* Tags */}
+
       {items.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {items.map((item, i) => (
@@ -123,7 +117,6 @@ const JobUploadForm = () => {
       url:            "",
       location:       "",
       salary:         "",
-      source:         "internal",
       employmentType: "",
       requirements:   [],
       duties:         [],
@@ -132,7 +125,7 @@ const JobUploadForm = () => {
 
   const onSubmit = async (formData: JobFormData) => {
     try {
-      const response = await fetch("http://localhost:5000/api/jobs/add", {
+      const response = await fetch(`${baseUrl}/api/jobs/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -150,7 +143,7 @@ const JobUploadForm = () => {
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-3 sm:px-4">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-xl">
         <div className="rounded-none border border-border bg-card p-5 sm:p-8 shadow-sm">
           <div className="mb-6">
             <h1 className="text-xl font-semibold text-card-foreground">Post a Job</h1>
@@ -184,29 +177,6 @@ const JobUploadForm = () => {
                   )}
                 />
               ))}
-
-              {/* Source Select */}
-              <FormField
-                name="source"
-                control={form.control}
-                render={({ field: f }) => (
-                  <FormItem>
-                    <FormLabel>Source</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={f.onChange} value={f.value}>
-                        <SelectTrigger className="w-full rounded-none">
-                          <SelectValue placeholder="Select source" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="internal">Internal</SelectItem>
-                          <SelectItem value="external">External</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               {/* Requirements */}
               <FormField

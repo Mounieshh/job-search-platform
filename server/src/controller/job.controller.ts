@@ -12,59 +12,84 @@ function toSlug(value: string){
         .replace(/-+/g, "-")
 }
 
-export async function createJob(req: Request, res: Response){
-    try {
+export async function createJob(req: Request, res: Response) {
+  try {
 
-        const user = (req as any).user
-        const parsedData = jobSchema.parse(req.body)
+    const user = (req as any).user
+    const parsedData = jobSchema.parse(req.body)
 
-        const { title, summary, description, companyName, url, location, salary, source, requirements, duties, employmentType } = parsedData
+    const {
+      title,
+      summary,
+      description,
+      companyName,
+      url,
+      location,
+      salary,
+      requirements,
+      duties,
+      employmentType
+    } = parsedData
 
-        const existingJob = await prisma.job.findFirst({
-            where: {
-                title,
-                companyName
-            }
-        })
+    const companyId = user.company?.companyId?.toString()
 
-        if(existingJob){
-            return res.status(400).json({ message: "This Job already exists"})
+    const existingJob = await prisma.job.findFirst({
+      where: {
+        title,
+        companyId,
+        location,
+        employmentType,
+        status: {
+          in: ["pending", "approved"]
         }
+      }
+    })
 
-        const isLead = user.role === "LEAD" || user.role === "ADMIN"
-        
-        const createdUser = await User.findById(user._id).select(
-            "_id name email emailDomain role userType"
-        )
-        
-        const newJob = await prisma.job.create({
-            data: {
-                title,
-                summary,
-                description,
-                companyName,
-                url: url || "",
-                location,
-                salary,
-                source: source || "internal",
-                status: isLead ? "approved" : "pending",
-                employmentType,
-                requirements : requirements || [],
-                duties: duties || [],
-                postedBy: user._id.toString(),
-                companyId: user.companyId ? user.companyId.toString() : null,
-            }
-        })
+    if (existingJob) {
+      return res.status(409).json({
+        message: "Similar job already exists for this company and location"
+      })
+    }
 
-        return res.status(201).json({
-            message: isLead ? "Job Posted Successfully": "Job Submitted for Approval",
-            job: newJob,
-            user: createdUser
-        })
+    const isLead = user.role === "LEAD" || user.role === "ADMIN"
 
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message })
-    }   
+    const createdUser = await User.findById(user._id).select(
+      "_id name email role accountType"
+    )
+
+    const newJob = await prisma.job.create({
+      data: {
+        title,
+        summary,
+        description,
+        companyName,
+        url: url || "",
+        location,
+        salary,
+        status: isLead ? "approved" : "pending",
+        employmentType,
+        requirements: requirements || [],
+        duties: duties || [],
+        postedBy: user._id.toString(),
+        companyId: companyId || null
+      }
+    })
+
+    return res.status(201).json({
+      message: isLead
+        ? "Job Posted Successfully"
+        : "Job Submitted for Approval",
+      job: newJob,
+      user: createdUser
+    })
+
+  } catch (error: any) {
+
+    return res.status(400).json({
+      message: error.message
+    })
+
+  }
 }
 
 export async function getJobListing(req: Request, res: Response){

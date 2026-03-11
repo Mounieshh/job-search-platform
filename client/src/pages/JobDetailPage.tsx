@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight } from "lucide-react"
+import { baseUrl } from "@/lib/base"
 
 type JobDetail = {
   id: string
@@ -37,7 +38,7 @@ export default function JobDetailPage() {
         setLoading(true)
         setError("")
         const response = await fetch(
-          `http://localhost:5000/api/jobs/${companyName}/${slugId}`,
+          `${baseUrl}/api/jobs/${companyName}/${slugId}`,
           { method: "GET", credentials: "include" }
         )
         if (!response.ok) {

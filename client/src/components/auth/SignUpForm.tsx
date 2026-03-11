@@ -1,4 +1,4 @@
-import { zodUserSchema, type ZodUserFormData } from "@/validate/user.zod"
+import { zodRegisterSchema, type ZodUserFormData } from "@/validate/user.zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -6,18 +6,31 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Link, useNavigate } from "react-router"
+import { useState } from "react"
+import { baseUrl } from "@/lib/base"
+import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "../ui/select"
 
 const SignUpForm = () => {
   const navigate = useNavigate()
 
+  const[userType, setUserType] = useState<"job_seeker" | "company_employee">("job_seeker")
+
   const form = useForm<ZodUserFormData>({
-    resolver: zodResolver(zodUserSchema),
-    defaultValues: { name: "", email: "", password: "" }
+    resolver: zodResolver(zodRegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      accountType: "job_seeker",
+      companyName: "",
+      position: "other",
+      role: "USER"
+    }
   })
 
   const onSubmit = async (formData: ZodUserFormData) => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch(`${baseUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-type": "application/json" },
         credentials: "include",
@@ -49,6 +62,38 @@ const SignUpForm = () => {
           <span className="text-sm font-medium text-foreground pb-1 px-3">
             Sign Up
           </span>
+        </div>
+
+        <div className="flex gap-3 bg-muted p-2 rounded-none">
+            <Button
+              type="button"
+              onClick={() => {
+                setUserType("job_seeker")
+                form.setValue("accountType", "job_seeker")
+              }}
+              className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
+                userType === "job_seeker" 
+                  ? "bg-primary text-white shadow-md" 
+                  : "bg-transparent text-foreground hover:bg-muted-foreground/10"
+              }`}
+            >
+              Normal
+            </Button>
+
+            <Button
+              type="button"
+              onClick={() => {
+                setUserType("company_employee")
+                form.setValue("accountType", "company_employee")
+              }}
+              className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
+                userType === "company_employee" 
+                  ? "bg-primary text-white shadow-md" 
+                  : "bg-transparent text-foreground hover:bg-muted-foreground/10"
+              }`}
+            >
+              Business
+            </Button>
         </div>
 
         <div className="rounded-none border border-border bg-card p-8 shadow-sm">
@@ -112,6 +157,91 @@ const SignUpForm = () => {
                   </FormItem>
                 )}
               />
+
+              {userType === "company_employee" && (
+                <>
+                  <FormField
+                  name="companyName"
+                  control={form.control}
+                  render={({field}) => (
+                    <FormItem>
+                      <FormLabel>
+                        Company Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                        placeholder="Enter the company name"
+                        {...field}
+                        className="rounded-none"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                  />
+
+                  <FormField
+                    name="position"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Position</FormLabel>
+
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-none w-full">
+                              <SelectValue placeholder="Select Position" />
+                            </SelectTrigger>
+                          </FormControl>
+
+                          <SelectContent>
+                            <SelectItem value="software_engineer">
+                              Software Engineer
+                            </SelectItem>
+
+                            <SelectItem value="frontend_developer">
+                              Frontend Developer
+                            </SelectItem>
+
+                            <SelectItem value="backend_developer">
+                              Backend Developer
+                            </SelectItem>
+
+                            <SelectItem value="fullstack_developer">
+                              Fullstack Developer
+                            </SelectItem>
+
+                            <SelectItem value="hr_manager">
+                              HR Manager
+                            </SelectItem>
+
+                            <SelectItem value="recruiter">
+                              Recruiter
+                            </SelectItem>
+
+                            <SelectItem value="team_lead">
+                              Team Lead
+                            </SelectItem>
+
+                            <SelectItem value="engineering_manager">
+                              Engineering Manager
+                            </SelectItem>
+
+                            <SelectItem value="other">
+                              Other
+                            </SelectItem>
+                          </SelectContent>
+
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
               <Button
                 type="submit"

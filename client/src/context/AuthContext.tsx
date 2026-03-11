@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { baseUrl } from "@/lib/base";
 
 interface User {
   id: string;
@@ -21,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const getSession = async () => {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
+      const res = await fetch(`${baseUrl}/api/auth/me`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
-    await fetch("http://localhost:5000/api/auth/logout", {
+    await fetch(`${baseUrl}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

@@ -4,10 +4,23 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  emailDomain: string;
-  userType: "personal" | "company";
+
+  accountType: "job_seeker" | "company_employee";
   role: "USER" | "LEAD" | "ADMIN";
-  companyId?: string;
+
+  company?: {
+    name: string;
+    position:
+      | "software_engineer"
+      | "frontend_developer"
+      | "backend_developer"
+      | "fullstack_developer"
+      | "hr_manager"
+      | "recruiter"
+      | "team_lead"
+      | "engineering_manager"
+      | "other";
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -17,40 +30,56 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
+
     password: {
       type: String,
       required: true,
       minlength: 6,
     },
-    emailDomain: {
+
+    accountType: {
       type: String,
-      required: true
+      enum: ["job_seeker", "company_employee"],
+      required: true,
     },
-    userType: {
-      type: String,
-      enum: ["personal", "company"],
-      required: true
-    },
+
     role: {
       type: String,
       enum: ["USER", "LEAD", "ADMIN"],
       default: "USER",
     },
-    companyId: {
-      type: mongoose.Types.ObjectId,
-      default: null,
-      ref: "Company"
-    }
+
+    company: {
+      companyId: {
+        type: Schema.Types.ObjectId,
+        ref: "Company"
+      },
+      position: {
+        type: String,
+        enum: [
+          "software_engineer",
+          "frontend_developer",
+          "backend_developer",
+          "fullstack_developer",
+          "hr_manager",
+          "recruiter",
+          "team_lead",
+          "engineering_manager",
+          "other",
+        ],
+      },
+    },
   },
   { timestamps: true }
 );
 
-
 const User = mongoose.model<IUser>("User", userSchema);
-export default User
+
+export default User;

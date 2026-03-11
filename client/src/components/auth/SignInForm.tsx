@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { Link, useNavigate } from "react-router"
 import { useAuth } from "@/context/AuthContext"
+import { baseUrl } from "@/lib/base"
 
 const SignInForm = () => {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ const SignInForm = () => {
 
   const onSubmit = async (formData: ZodUserLoginData) => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${baseUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-type": "application/json" },
         credentials: "include",

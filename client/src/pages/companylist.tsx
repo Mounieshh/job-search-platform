@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import { baseUrl } from "@/lib/base"
 import { useEffect, useState } from "react"
 
 export type Company = {
     id: string
     name: string
-    domain: string
     companyUsers: number
     postCount: number
 }
@@ -20,7 +20,7 @@ export default function CompanyList() {
             try {
                 setLoading(true)
 
-                const response = await fetch("http://localhost:5000/api/company/list", {
+                const response = await fetch(`${baseUrl}/api/company/list`, {
                     method: "GET",
                     credentials: "include"
                 })

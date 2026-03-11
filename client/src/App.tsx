@@ -3,7 +3,6 @@ import SignInPage from "./pages/SignInPage"
 import SignUpPage from "./pages/SignUpPage"
 import Navbar from "./components/Navbar"
 import { Toaster } from "./components/ui/sonner"
-import HomePage from "./pages/HomePage"
 import { AuthProvider } from "./context/AuthContext"
 import JobUploadForm from "./components/JobForm"
 import RoleNavbar from "./components/RoleNavbar"
@@ -13,7 +12,7 @@ import ApprovalPage from "./pages/ApprovalPage"
 import ApprovePage from "./pages/ApprovedPage"
 import JobDetailPage from "./pages/JobDetailPage"
 import JobDetailAdmin from "./pages/JobDetailAdmin"
-import LeadApprovalPage from "./pages/LeadApprovalPage"
+import CommunityPage from "./pages/CommunityPage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -25,12 +24,12 @@ function AppLayout() {
     <>
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "" : "pt-22"}>
+      <main className={hideNavbar ? "" : "pt-22 pl-48"}>
         {!hideNavbar && <RoleNavbar />}
 
         <div className="px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<CommunityPage />} />
             <Route path="/login" element={<SignInPage />} />
             <Route path="/register" element={<SignUpPage />} />
             <Route path="/postjob" element={<JobUploadForm />} />
@@ -42,8 +41,7 @@ function AppLayout() {
             <Route path="/newrequest" element={<ApprovalPage/>}/>
             <Route path="/approved" element={<ApprovePage/>}/>
 
-            <Route path="/approval-process" element={<ApprovalPage/>}/>
-            <Route path="/lead-approval" element={<LeadApprovalPage/>}/>
+            <Route path="/my-posts" element={<ApprovalPage/>}/>
           </Routes>
         </div>
       </main>

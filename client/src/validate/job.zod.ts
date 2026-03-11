@@ -8,7 +8,6 @@ export const jobSchema = z.object({
   url:            z.string().url("Enter a valid URL").optional().or(z.literal("")),
   location:       z.string().optional(),
   salary:         z.string().optional(),
-  source:         z.enum(["internal", "external"]),
   employmentType: z.string().optional(),
   requirements:   z.array(z.string()),
   duties:         z.array(z.string()),

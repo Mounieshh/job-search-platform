@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
+import { baseUrl } from "@/lib/base"
 
 
 type User = {
@@ -50,7 +51,7 @@ const JobList = () => {
             try {
                 setLoading(true)
 
-                const response = await fetch("http://localhost:5000/api/jobs", {
+                const response = await fetch(`${baseUrl}/api/jobs`, {
                     method: "GET",
                     credentials: "include"
                 })

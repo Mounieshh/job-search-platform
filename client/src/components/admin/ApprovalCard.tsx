@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "../ui/textarea"
 import { Label } from "../ui/label"
 import { Link } from "react-router"
+import { baseUrl } from "@/lib/base"
 
 
 const ApprovalCard = () => {
@@ -23,7 +24,7 @@ const ApprovalCard = () => {
         const pendingJobs = async () => {
             try {
                 setLoading(true)
-                const response = await fetch("http://localhost:5000/api/jobs/admin/pending", {
+                const response = await fetch(`${baseUrl}/api/jobs/admin/pending`, {
                     method: "GET",
                     credentials: "include"
                 })
@@ -54,7 +55,7 @@ const ApprovalCard = () => {
 
     const handleApprove = async (jobId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/jobs/admin/approve/${jobId}`, {
+            const response = await fetch(`${baseUrl}/api/jobs/admin/approve/${jobId}`, {
                 method: "PATCH",
                 credentials: "include"
             })
@@ -79,7 +80,7 @@ const ApprovalCard = () => {
 
          try {
             setRejecting(true)
-            const response = await fetch(`http://localhost:5000/api/jobs/admin/reject/${jobId}`, {
+            const response = await fetch(`${baseUrl}/api/jobs/admin/reject/${jobId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"

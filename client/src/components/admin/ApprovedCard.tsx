@@ -6,6 +6,7 @@ import { Spinner } from '../ui/spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { baseUrl } from "@/lib/base"
 
 const ApprovedCard = () => {
   const [loading, setLoading] = useState(false)
@@ -16,7 +17,7 @@ const ApprovedCard = () => {
       try {
         setLoading(true)
 
-        const response = await fetch("http://localhost:5000/api/jobs/approved-rejected", {
+        const response = await fetch(`${baseUrl}/api/jobs/approved-rejected`, {
           method: "GET",
           credentials: "include"
         })

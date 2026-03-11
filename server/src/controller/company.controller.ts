@@ -10,21 +10,20 @@ export async function getCompanyList(req: Request, res: Response) {
         const result = []
 
         for(const company of companies) {
-            const count = await User.countDocuments({
-                email: { $regex: `@${company.domain}`}
+            const companyUserCount = await User.countDocuments({
+                "company.companyId": company._id
             })
 
             const jobPostCount = await prisma.job.count({
                 where: {
-                    id: company._id.toString(),
+                    companyId: company._id.toString(),
                 }
             })
 
             result.push({
                 id: company._id,
                 name: company.name,
-                domain: company.domain,
-                companyUsers: count,
+                companyUsers: companyUserCount,
                 totalJobs: jobPostCount
             })
         }
@@ -32,6 +31,25 @@ export async function getCompanyList(req: Request, res: Response) {
         return res.status(200).json({
             message: "Company List Fetched",
             result
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+export async function getCompanyUsersList(req: Request, res: Response){
+    try {
+        const { companyId } = req.params
+
+        const users = await User.find({
+            "company.companyId": companyId
+        }).select("-password")
+
+        return res.status(200).json({
+            message: "Company Users Fetched",
+            users
         })
     } catch (error) {
         return res.status(500).json({

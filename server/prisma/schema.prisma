@@ -31,7 +31,6 @@ model Job {
   duties String[]
 
   status String @default("pending")
-  source String @default("internal")
 
   postedBy String
   companyId String?

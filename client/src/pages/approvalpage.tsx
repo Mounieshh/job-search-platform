@@ -1,5 +1,5 @@
 import ApprovalCard from "@/components/admin/ApprovalCard"
-import ApprovalProcess from "@/components/user/ApprovalProcess"
+import TrackMyPosts from "@/components/user/TrackMyPosts"
 import { useAuth } from "@/context/AuthContext"
 
 export default function ApprovalPage() {
@@ -15,7 +15,7 @@ export default function ApprovalPage() {
 
         {user && user.role === "USER" && (
           <div>
-            <ApprovalProcess/>
+            <TrackMyPosts/>
           </div>
         )}
 

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { connectToMongo } from "../config/mongodb.js";
-import { zodLoginSchema, zodUserSchema } from "../validate/user.zod.js";
+import { zodLoginSchema, zodRegisterSchema } from "../validate/user.zod.js";
 import User from "../models/user.schema.js";
 import bcrypt from "bcrypt"
 import { createSession } from "../config/session.js";
@@ -10,89 +10,85 @@ import Company from "../models/company.schema.js";
 import { NODE_ENV } from "../config/env.js";
 
 
-const PERSONAL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
 
-export async function registerUser(req: Request, res: Response){
+export async function registerUser(req: Request, res: Response) {
+    
     try {
-        const parsedData = zodUserSchema.parse(req.body)
+        const parsedData = zodRegisterSchema.parse(req.body)
 
-        const { name, email, password } = parsedData
+        const { name, email, password, accountType, companyName, position, role } = parsedData
 
-        const existingUser = await User.findOne({
-            email
-        })
 
-        if(existingUser){
-            return res.status(400).json({
+        if (accountType === "company_employee") {
+            const domainMatch = email.match(/@([a-zA-Z0-9.-]+)$/)
+            if (!domainMatch) {
+                return res.status(400).json({
+                    message: "Invalid email format"
+                })
+            }
+
+            const domain = domainMatch[1]
+            const personalDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "mail.com", "protonmail.com", "aol.com"]
+            
+            if (personalDomains.includes(domain.toLowerCase())) {
+                return res.status(400).json({
+                    message: "Company employees must register with a company email address, not personal email"
+                })
+            }
+        }
+
+        const existingUser = await User.findOne({ email })
+
+        if (existingUser) {
+            return res.status(409).json({
                 message: "User already exists"
             })
         }
 
-        const salt = 12
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const hashedPassword = await bcrypt.hash(password, 12)
 
-        const emailDomain = email.split('@')[1].toLowerCase()
-        const userType = PERSONAL_DOMAINS.includes(emailDomain) ? 'personal' : 'company'
-
-        let assignedRole = "USER"
-        let companyId = null
-
-
-        
-        if(userType === "company"){
-            const domainExists = await isValidDomain(emailDomain)
-
-            if(!domainExists){
-                return res.status(400).json({ message: "Company domain not recognized. Please use a valid company email." })
-            }
-
-            let company = await Company.findOne({domain: emailDomain})
-
-            if(!company){
-                company = await Company.create({
-                    name: emailDomain.split(".")[0],
-                    domain: emailDomain
-                })
-            }
-
-            companyId = company._id
-
-            const existingCompanyUser = await User.findOne({ emailDomain, userType: "company" })
-            if (!existingCompanyUser) {
-                assignedRole = "LEAD"
-            }
-        }
-
-        const newUser = await User.create({
+        const userData: any = {
             name,
             email,
             password: hashedPassword,
-            emailDomain,
-            userType,
-            role: assignedRole,
-            companyId: companyId ? companyId.toString() : undefined
-        })
-
-        if (assignedRole === "LEAD" && companyId) {
-            await Company.findByIdAndUpdate(companyId, {
-                primaryLeadId: newUser._id
-            })
+            accountType,
+            role: accountType === "company_employee" ? "LEAD" : role
         }
 
-        res.status(200).json({
-            message: "User registered Successfully",
-            userId: newUser._id,
-            role: newUser.role,
-            userType: newUser.userType
+        if (accountType === "company_employee") {
+
+            let company = await Company.findOne({ name: companyName })
+
+            if (!company) {
+                company = await Company.create({ name: companyName })
+            }
+
+            userData.company = {
+                companyId: company._id,
+                position
+            }
+        }
+
+        await User.create(userData)
+
+        return res.status(201).json({
+            message: "User registered successfully"
         })
 
     } catch (error: any) {
-        res.status(400).json({
-            message: error.message
+
+        if (error.name === "ZodError") {
+            return res.status(422).json({
+                message: "Validation failed",
+                errors: error.errors
+            })
+        }
+
+        return res.status(500).json({
+            message: "Internal server error"
         })
     }
 }
-
 
 export async function loginUser(req: Request, res: Response){
     try {
@@ -106,22 +102,22 @@ export async function loginUser(req: Request, res: Response){
         })
 
         if(!existingUser){
-            return res.status(400).json({
-                message: "User does not exists"
+            return res.status(401).json({
+                message: "Invalid Credentials"
             })
         }
 
         const validPassword = await bcrypt.compare(password, existingUser?.password)
 
         if(!validPassword){
-            return res.status(400).json({
-                message: "Password is not valid"
+            return res.status(401).json({
+                message: "Invalid Credentials"
             })
         }
 
         // Session Handling
 
-        const { sessionId, expiresAt } = await createSession(existingUser.id)
+        const { sessionId, expiresAt } = await createSession(existingUser._id.toString())
 
 
         res.cookie("user_session", sessionId, {
@@ -139,15 +135,22 @@ export async function loginUser(req: Request, res: Response){
                 name: existingUser.name,
                 email: existingUser.email,
                 role: existingUser.role,
-                userType: existingUser.userType
-            },
-            sessionId
+                accountType: existingUser.accountType
+            }
         })
         
 
     } catch (error: any) {
-        res.status(400).json({
-            message: error.message
+        if(error.name === "ZodError"){
+            return res.status(422).json({
+                message: "Validation Error",
+                errors: error.errors
+            })
+        }
+
+
+        return res.status(500).json({
+            message: "Internal Server Error"
         })
     }
 }
@@ -174,9 +177,11 @@ export async function logoutUser(req: Request, res: Response) {
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-    const user = (req as any).user
+    
 
     try {
+        const user = (req as any).user
+
         if(!user){
             return res.status(401).json({
                 message: "Unauthorized"
@@ -184,6 +189,7 @@ export async function getCurrentUser(req: Request, res: Response) {
         }
 
         return res.status(200).json({ user })
+
     } catch (error) {
         res.status(400).json({
             message: "Server Error"
