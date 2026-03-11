@@ -4,7 +4,6 @@ import mongoose, { Schema } from "mongoose";
 export interface ICompany extends Document {
     name: string,
     domain: string,
-    isVerified: boolean,
     primaryLeadId: mongoose.Types.ObjectId | null
 }
 
@@ -17,11 +16,6 @@ const CompanySchema = new Schema({
         type: String,
         required: true,
         unique: true,
-        index: true
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
     },
     primaryLeadId: {
         type: Schema.Types.ObjectId, 

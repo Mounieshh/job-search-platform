@@ -1,20 +1,17 @@
-import dotenv from "dotenv";
 
-dotenv.config();
+const getEnv = (key: string, defaultValue?: string): string => {
+  const value = process.env[key] || defaultValue;
 
-function getEnv(key: string): string {
-    const value = process.env[key];
-    if (!value) {
-        throw new Error(`Missing environment variable: ${key}`);
-    }
-    return value;
-}
+  if (value === undefined) {
+    throw Error(`Missing String environment variable for ${key}`);
+  }
 
-export const env = {
-    NODE_ENV: process.env.NODE_ENV || "development",
-
-    PORT: process.env.PORT || "5000",
-
-    MONGO_URI: getEnv("MONGO_URI"),
-    DATABASE_URL: getEnv("DATABASE_URL"),
+  return value;
 };
+
+
+export const PORT = getEnv("PORT", "5000")
+export const NODE_ENV = getEnv("NODE_ENV", "development")
+export const MONGO_URI = getEnv("MONGO_URI")
+export const DATABASE_URL = getEnv("DATABASE_URL")
+export const APP_ORIGIN = getEnv("APP_ORIGIN")

@@ -1,5 +1,5 @@
 
-import RoleNavbar from "@/components/rolenavbar"
+import RoleNavbar from "@/components/RoleNavbar"
 import { useAuth } from "@/context/AuthContext"
 
 export default function HomePage() {
@@ -15,6 +15,13 @@ export default function HomePage() {
           </>
         )}
 
+        {user && user.role === "USER" && (
+          <>
+            <div>
+              Show Job Listings 
+            </div>
+          </>
+        )}
         
     </div>
   )

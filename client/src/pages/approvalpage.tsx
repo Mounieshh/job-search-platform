@@ -1,5 +1,5 @@
-import ApprovalCard from "@/components/admin/approval-card"
-import ApprovalProcess from "@/components/user/approval-process"
+import ApprovalCard from "@/components/admin/ApprovalCard"
+import ApprovalProcess from "@/components/user/ApprovalProcess"
 import { useAuth } from "@/context/AuthContext"
 
 export default function ApprovalPage() {
@@ -18,6 +18,7 @@ export default function ApprovalPage() {
             <ApprovalProcess/>
           </div>
         )}
+
     </div>
   )
 }

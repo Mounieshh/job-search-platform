@@ -5,9 +5,9 @@ import User from "../models/user.schema.js";
 import bcrypt from "bcrypt"
 import { createSession } from "../config/session.js";
 import Session from "../models/session.schema.js";
-import { env } from "../config/env.js";
 import { isValidDomain } from "../utils/domain.js";
 import Company from "../models/company.schema.js";
+import { NODE_ENV } from "../config/env.js";
 
 
 const PERSONAL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
@@ -51,8 +51,7 @@ export async function registerUser(req: Request, res: Response){
             if(!company){
                 company = await Company.create({
                     name: emailDomain.split(".")[0],
-                    domain: emailDomain,
-                    isVerified: false
+                    domain: emailDomain
                 })
             }
 
@@ -127,7 +126,7 @@ export async function loginUser(req: Request, res: Response){
 
         res.cookie("user_session", sessionId, {
             httpOnly: true,
-            secure: env.NODE_ENV === "production",
+            secure: NODE_ENV === "production",
             sameSite: "lax",
             expires: expiresAt,
             path: "/"
@@ -164,7 +163,7 @@ export async function logoutUser(req: Request, res: Response) {
 
     res.clearCookie("user_session", {
         httpOnly: true,
-        secure: env.NODE_ENV === "production",
+        secure: NODE_ENV === "production",
         sameSite: "lax",
         path: "/"
     })

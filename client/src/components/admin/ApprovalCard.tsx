@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
-import type { Job } from "../job-list"
+import type { Job } from "../JobList"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
@@ -138,7 +138,7 @@ const ApprovalCard = () => {
                     <Badge variant="secondary" className="rounded-none">{pendingJobs.length}</Badge>
                 </div>
 
-            <Table className="w-full min-w-[980px]">
+            <Table className="w-full min-w-245">
                     <TableHeader>
                         <TableRow>
                             <TableHead>Sno</TableHead>

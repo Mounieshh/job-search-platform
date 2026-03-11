@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
-import type { Job } from "../job-list"
+import type { Job } from "../JobList"
 import { Badge } from "../ui/badge"
 
 const ApprovalProcess = () => {

@@ -1,4 +1,4 @@
-import ApprovedCard from "@/components/admin/approved-card"
+import ApprovedCard from "@/components/admin/ApprovedCard"
 import { useAuth } from "@/context/AuthContext"
 
 export default function ApprovePage() {

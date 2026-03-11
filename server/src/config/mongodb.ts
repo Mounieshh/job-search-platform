@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { env } from "./env.js";
+import { MONGO_URI } from "./env.js";
 
 export const connectToMongo = async () => {
 
     try {
-        await mongoose.connect(env.MONGO_URI)
+        await mongoose.connect(MONGO_URI)
         console.log(`MongoDb instance started..`)
     } catch (error) {
         console.error(error)
