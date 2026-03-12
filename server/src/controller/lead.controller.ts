@@ -75,16 +75,25 @@ export async function leadApprove(req: Request, res: Response){
             })
         }
 
-        const approval = await prisma.jobApproval.update({
-            where: {
-                jobId: id
-            },
-            data: {
+        const job = await prisma.job.findUnique({ where: { id } })
+        if(!job){
+            return res.status(404).json({ message: "Job not found" })
+        }
+
+        const approval = await prisma.jobApproval.upsert({
+            where: { jobId: id },
+            update: {
                 approvedById: user._id.toString(),
                 approvedRole: user.role,
                 approvedAt: new Date(),
                 rejectedReason: null,
                 rejectedAt: null
+            },
+            create: {
+                jobId: id,
+                approvedById: user._id.toString(),
+                approvedRole: user.role,
+                approvedAt: new Date()
             }
         })
 
@@ -113,7 +122,7 @@ export async function leadReject(req: Request, res: Response){
         const user = (req as any).user
 
         const { id } = req.params
-        const { reason } = req.params
+        const { reason } = req.body
 
         if(user.role !== "LEAD"){
             return res.status(401).json({
@@ -127,25 +136,38 @@ export async function leadReject(req: Request, res: Response){
             })
         }
 
-        const reasonString = Array.isArray(reason) ? reason[0] : reason
+        if(!reason || typeof reason !== "string" || !reason.trim()){
+            return res.status(400).json({ message: "Rejection reason is required" })
+        }
 
-        const rejection = await prisma.jobApproval.update({
-            where: {
-                jobId: id
-            },
-            data: {
+        const job = await prisma.job.findUnique({ where: { id } })
+        if(!job){
+            return res.status(404).json({ message: "Job not found" })
+        }
+
+        const rejection = await prisma.jobApproval.upsert({
+            where: { jobId: id },
+            update: {
                 approvedById: user._id.toString(),
                 approvedRole: user.role,
-                rejectedReason: reasonString,
+                rejectedReason: reason.trim(),
                 rejectedAt: new Date(),
                 approvedAt: null
+            },
+            create: {
+                jobId: id,
+                approvedById: user._id.toString(),
+                approvedRole: user.role,
+                rejectedReason: reason.trim(),
+                rejectedAt: new Date()
             }
         })
 
         await prisma.job.update({
             where: { id },
             data: {
-                status: "rejected"
+                status: "rejected",
+                rejectedReason: reason.trim()
             }
         })
 
@@ -194,7 +216,7 @@ export async function getLeadDetailListings(req: Request, res: Response){
 
         if(!job){
             return res.status(404).json({
-                message: "Jonb not found"
+                message: "Job not found"
             })
         }
 
@@ -211,6 +233,42 @@ export async function getLeadDetailListings(req: Request, res: Response){
                 ...job,
                 user
             }
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+export async function getLeadApprovedJobs(req: Request, res: Response){
+    try {
+        const user = (req as any).user
+
+        if(user.role !== "LEAD"){
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+
+        const approvedJobs = await prisma.job.findMany({
+            where: {
+                approval: {
+                    some: {
+                        approvedById: user._id.toString()
+                    }
+                }
+            },
+            include: {
+                approval: true
+            }
+        })
+
+        return res.status(200).json({
+            message: "Approved Jobs Fetched Successfully",
+            jobs: approvedJobs
         })
 
     } catch (error) {

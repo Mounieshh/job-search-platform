@@ -63,10 +63,10 @@ export default function JobDetailLeadPage() {
                 throw new Error("Failed to approve job")
             }
 
-            navigate("/newrequest")
+            navigate("/lead-approval")
 
         } catch (error: any) {
-            throw new Error(error.message || "Failed to Approve Jobs")
+            console.error(error.message || "Failed to Approve Jobs")
         } finally {
             setActionLoading(false)
         }
@@ -80,7 +80,7 @@ export default function JobDetailLeadPage() {
 
         try {
             setActionLoading(true)
-            const response = await fetch(`${baseUrl}/api/lead/reject${jobDetails.id}`, {
+            const response = await fetch(`${baseUrl}/api/lead/reject/${jobDetails.id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -93,9 +93,9 @@ export default function JobDetailLeadPage() {
                 throw new Error("Failed to Reject Jobs")
             }
 
-            navigate("/newrequest")
+            navigate("/lead-approval")
         } catch (error: any) {
-            throw new Error(error.message || "Failed to Reject Job")
+            console.error(error.message || "Failed to Reject Job")
         } finally {
             setActionLoading(false)
             setRejectDialogOpen(false)
@@ -116,7 +116,7 @@ export default function JobDetailLeadPage() {
 
     const isPending = jobDetails.status === "pending"
     const isRejected = jobDetails.status === "rejected"
-    const backLink = isPending ? "/lead-approval" : "/lead-approval"
+    const backLink = isPending ? "/lead-approval" : "/lead/approved-by-me"
 
   return (
     <>

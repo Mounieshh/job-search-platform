@@ -79,14 +79,26 @@ const RoleNavbar = () => {
             )}
 
             {user.role === "LEAD" && (
-              <li className="w-full">
-                <Link
-                  to="/lead-approval"
-                  className="flex items-center w-full h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-b border-border transition-colors whitespace-nowrap"
-                >
-                  Approval
-                </Link>
-              </li>
+
+              <>
+                <li className="w-full">
+                  <Link
+                    to="/lead-approval"
+                    className="flex items-center w-full h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-b border-border transition-colors whitespace-nowrap"
+                  >
+                    Pending Job Requests
+                  </Link>
+                </li>
+                <li className="w-full">
+                  <Link
+                    to="/lead/approved-by-me"
+                    className="flex items-center w-full h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-b border-border transition-colors whitespace-nowrap"
+                  >
+                    Approved by Me
+                  </Link>
+                </li>
+              </>
+              
             )}
           </>
         )}

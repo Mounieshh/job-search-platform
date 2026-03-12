@@ -16,7 +16,7 @@ const LeadApproval = () => {
         return title
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s-]/g, "")
+        .replace(/[^a-z0-9\s-]/g, "")
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
   } 
