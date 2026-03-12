@@ -52,7 +52,7 @@ export async function registerUser(req: Request, res: Response) {
             email,
             password: hashedPassword,
             accountType,
-            role: accountType === "company_employee" ? "LEAD" : role
+            role: accountType === "company_employee" ? "LEAD" : (role || "USER")
         }
 
         if (accountType === "company_employee") {
@@ -80,7 +80,7 @@ export async function registerUser(req: Request, res: Response) {
         if (error.name === "ZodError") {
             return res.status(422).json({
                 message: "Validation failed",
-                errors: error.errors
+                errors: error.issues
             })
         }
 

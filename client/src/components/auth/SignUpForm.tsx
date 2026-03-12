@@ -23,18 +23,32 @@ const SignUpForm = () => {
       password: "",
       accountType: "job_seeker",
       companyName: "",
-      position: "other",
+      position: undefined,
       role: "USER"
     }
   })
 
   const onSubmit = async (formData: ZodUserFormData) => {
     try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        accountType: userType,
+        role: userType === "company_employee" ? "LEAD" : "USER",
+        ...(userType === "company_employee"
+          ? {
+              companyName: formData.companyName,
+              position: formData.position,
+            }
+          : {})
+      }
+
       const response = await fetch(`${baseUrl}/api/auth/register`, {
         method: "POST",
         headers: { "Content-type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       const data = await response.json()
@@ -70,6 +84,9 @@ const SignUpForm = () => {
               onClick={() => {
                 setUserType("job_seeker")
                 form.setValue("accountType", "job_seeker")
+                form.setValue("companyName", "")
+                form.setValue("position", undefined)
+                form.setValue("role", "USER")
               }}
               className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
                 userType === "job_seeker" 
@@ -85,6 +102,7 @@ const SignUpForm = () => {
               onClick={() => {
                 setUserType("company_employee")
                 form.setValue("accountType", "company_employee")
+                form.setValue("role", "LEAD")
               }}
               className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
                 userType === "company_employee" 
@@ -175,6 +193,7 @@ const SignUpForm = () => {
                         className="rounded-none"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                   />
