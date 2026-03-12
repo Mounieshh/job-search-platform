@@ -9,34 +9,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { baseUrl } from "@/lib/base"
 
-type User = {
-  _id: string
-  name: string
-  email: string
-  emailDomain: string
-  userType: string
-  role: string
-}
-
-type JobDetail = {
-  id: string
-  title: string
-  summary?: string | null
-  description?: string | null
-  companyName?: string | null
-  location?: string | null
-  salary?: string | null
-  url?: string | null
-  employmentType?: string | null
-  source: string
-  status: string
-  createdAt: string
-  rejectedReason?: string | null
-  postedBy: string
-  requirements: string[]
-  duties: string[]
-  user: User | null
-}
 
 export default function JobDetailAdmin() {
   const { companyName, slugId } = useParams()
@@ -277,8 +249,8 @@ export default function JobDetailAdmin() {
                   {[
                     { label: "Name",      value: job.user.name },
                     { label: "Email",     value: job.user.email },
-                    { label: "Domain",    value: job.user.emailDomain },
-                    { label: "User Type", value: job.user.userType },
+                    { label: "Account Type",    value: job.user.accountType },
+      
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <p className="text-xs uppercase text-muted-foreground">{label}</p>

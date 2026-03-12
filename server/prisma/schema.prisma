@@ -37,7 +37,24 @@ model Job {
 
   rejectedReason String?
 
+  approval JobApproval[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+}
+
+model JobApproval {
+  id String @id @default(cuid())
+
+  jobId String @unique
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  approvedById String?
+  approvedRole String?
+
+  rejectedReason String?
+  
+  approvedAt DateTime?
+  rejectedAt DateTime?
 }

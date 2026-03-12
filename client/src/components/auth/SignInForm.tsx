@@ -43,13 +43,13 @@ const SignInForm = () => {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="border-2 border-b-0 p-2 w-[36%]">
-          <span className="text-sm font-medium text-foreground pb-1 px-3">
+        <div className="border-2 border-b-0 p-2 w-full flex flex-row justify-around uppercase font-mono">
+          <span className="text-lg font-medium text-foreground pb-1 px-3">
             Sign In
           </span>
           <Link
             to="/register"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
+            className="text-lg font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
           >
             Sign Up
           </Link>

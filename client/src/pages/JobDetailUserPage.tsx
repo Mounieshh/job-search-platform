@@ -4,22 +4,6 @@ import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { baseUrl } from "@/lib/base"
 
-type JobDetail = {
-  id: string
-  title: string
-  summary: string
-  description?: string | null
-  companyName?: string | null
-  location?: string | null
-  salary?: string | null
-  url?: string | null
-  status: string
-  source: string
-  employmentType: string
-  requirements: string[]
-  duties: string[]
-  createdAt: string
-}
 
 export default function JobDetailPage() {
   const { companyName, slugId } = useParams()

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
-import type { Job } from "../JobList"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"

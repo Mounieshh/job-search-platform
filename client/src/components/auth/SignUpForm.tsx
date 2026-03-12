@@ -52,19 +52,19 @@ const SignUpForm = () => {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="border-2 border-b-0 p-2 w-[36%]">
+        <div className="border-2 border-b-0 p-2 w-full flex flex-row justify-around uppercase font-mono">
           <Link
             to="/login"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
+            className="text-lg font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
           >
             Sign In
           </Link>
-          <span className="text-sm font-medium text-foreground pb-1 px-3">
+          <span className="text-lg font-medium text-foreground pb-1 px-3">
             Sign Up
           </span>
         </div>
 
-        <div className="flex gap-3 bg-muted p-2 rounded-none">
+        <div className="flex gap-3 rounded-none border-2 border-border bg-card">
             <Button
               type="button"
               onClick={() => {

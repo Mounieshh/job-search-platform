@@ -10,9 +10,11 @@ import JobsPage from "./pages/JobsPage"
 import CompanyList from "./pages/CompanyList"
 import ApprovalPage from "./pages/ApprovalPage"
 import ApprovePage from "./pages/ApprovedPage"
-import JobDetailPage from "./pages/JobDetailPage"
-import JobDetailAdmin from "./pages/JobDetailAdmin"
+import JobDetailPage from "./pages/JobDetailUserPage"
+import JobDetailAdmin from "./pages/JobDetailAdminPage"
 import CommunityPage from "./pages/CommunityPage"
+import LeadApprovalPage from "./pages/LeadApprovalPage"
+import JobDetailLeadPage from "./pages/JobDetailLeadPage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -42,6 +44,11 @@ function AppLayout() {
             <Route path="/approved" element={<ApprovePage/>}/>
 
             <Route path="/my-posts" element={<ApprovalPage/>}/>
+
+            {/* --LEADS ROUTE-- */}
+
+            <Route path="/lead-approval" element={<LeadApprovalPage/>}/>
+            <Route path="/lead/:companyName/:slugId" element={<JobDetailLeadPage/>}/>
           </Routes>
         </div>
       </main>

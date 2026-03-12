@@ -75,6 +75,12 @@ export async function createJob(req: Request, res: Response) {
       }
     })
 
+    await prisma.jobApproval.create({
+        data: {
+            jobId: newJob.id
+        }
+    })
+
     return res.status(201).json({
       message: isLead
         ? "Job Posted Successfully"
@@ -362,7 +368,7 @@ export async function getJobPostByIdAdmin(req: Request, res: Response){
         let user = null
         if(job.postedBy){
             user = await User.findById(job.postedBy).select(
-                "_id name email emailDomain role userType"
+                "_id name email accountType role company"
             )
         }
 
@@ -377,16 +383,5 @@ export async function getJobPostByIdAdmin(req: Request, res: Response){
         return res.status(500).json({
             message: "Internal Server Error"
         })
-    }
-}
-
-
-
-
-export async function getJobForLeadApproval(req: Request, res:Response){
-    try {
-        
-    } catch (error) {
-        
     }
 }
