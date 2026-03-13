@@ -62,11 +62,15 @@ model JobApproval {
 model CommunityPost {
   id String @id @default(cuid())
 
+  title String?
   content String
   images String[]
 
   postedUser String
+  anonymousName String
+  anonymousAvatar String
 
+  likes Int?
   comments CommentPost[]
 
   createdAt DateTime @default(now())

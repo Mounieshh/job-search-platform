@@ -28,6 +28,7 @@ export const fetchCommunityPosts = async () : Promise<CommunityPostItem[]> => {
 export const createCommunityPost = async (formData: CommunityFormData): Promise<CreateCommunityPostResponse> => {
     const payload = new FormData()
     payload.append("content", formData.content)
+    payload.append("title", formData.title)
 
     for (const image of formData.images || []) {
         payload.append("images", image)

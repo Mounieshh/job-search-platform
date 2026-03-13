@@ -48,12 +48,15 @@ declare global {
 
     type CommunityPostItem = {
         id: string
+        title: string
         content: string
         images: string[]
         postedUser: string
         createdAt: string
         updatedAt: string
-        user: User | null
+        user: User | null,
+        anonymousName: string,
+        anonymousAvatar: string
     }
     
 

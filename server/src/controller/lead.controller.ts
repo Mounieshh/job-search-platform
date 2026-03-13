@@ -32,6 +32,7 @@ export async function getJobsToApproveLead(req: Request, res: Response){
         }
 
         const company = await Company.findById(companyId)
+        
         if(!company){
             return res.status(404).json({
                 message: "Company not found"
@@ -49,6 +50,7 @@ export async function getJobsToApproveLead(req: Request, res: Response){
             message: "Fetched Lead Details Successfully",
             jobs: pendingJobs
         })
+
     } catch (error) {
         return res.status(500).json({
             message: "Internal Server Error"

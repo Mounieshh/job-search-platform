@@ -4,6 +4,8 @@ import cloudinary from "../config/cloudinary.js";
 import { prisma } from "../config/prisma.js";
 import fs from "fs/promises"
 import User from "../models/user.schema.js";
+import { generateName, generateAvatar } from "../utils/generator.js";
+
 
 export async function createCommunityPost(req: Request, res: Response){
     try {
@@ -33,11 +35,17 @@ export async function createCommunityPost(req: Request, res: Response){
             }
         }
 
+        const anonymousName = generateName()
+        const anonymousAvatar = generateAvatar(anonymousName)
+
         const post = await prisma.communityPost.create({
             data: {
+                title: parsedData.title,
                 content: parsedData.content.trim(),
                 images: imageUrls,
-                postedUser: user._id.toString()
+                postedUser: user._id.toString(),
+                anonymousName,
+                anonymousAvatar,
             }
         })
 
@@ -89,3 +97,4 @@ export async function getCommunityPost(req: Request, res: Response){
         })
     }
 }
+
