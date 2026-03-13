@@ -3,10 +3,10 @@ import type { CommunityFormData } from "@/validate/community.zod"
 
 
 export type CommunityPostsResponse = {
-    getPosts: CommunityPostItem[]
+    posts: CommunityPostItem[]
 }
 
-type CreateCommunityPostResponse = {
+export type CreateCommunityPostResponse = {
     message: string
     post: CommunityPostItem
 }
@@ -22,7 +22,7 @@ export const fetchCommunityPosts = async () : Promise<CommunityPostItem[]> => {
     }
 
     const data: CommunityPostsResponse = await response.json()
-    return data.getPosts ?? []
+    return data.posts ?? []
 }
 
 export const createCommunityPost = async (formData: CommunityFormData): Promise<CreateCommunityPostResponse> => {

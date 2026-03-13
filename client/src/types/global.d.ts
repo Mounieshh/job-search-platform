@@ -53,6 +53,7 @@ declare global {
         postedUser: string
         createdAt: string
         updatedAt: string
+        user: User | null
     }
     
 

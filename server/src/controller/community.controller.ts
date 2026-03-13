@@ -3,6 +3,7 @@ import { communitySchema } from "../validate/community.zod.js";
 import cloudinary from "../config/cloudinary.js";
 import { prisma } from "../config/prisma.js";
 import fs from "fs/promises"
+import User from "../models/user.schema.js";
 
 export async function createCommunityPost(req: Request, res: Response){
     try {
@@ -54,11 +55,33 @@ export async function createCommunityPost(req: Request, res: Response){
 
 export async function getCommunityPost(req: Request, res: Response){
     try {
-        const getPosts = await prisma.communityPost.findMany()
+        const posts = await prisma.communityPost.findMany({
+            orderBy: {
+                "createdAt" : "desc"
+            }
+        })
+
+
+        const userIds = posts.map((post) => post.postedUser)
+
+        const users = await User.find({
+            _id: {
+                $in: userIds
+            }
+        })
+
+        const userMap = new Map(
+            users.map(user => [user._id.toString(), user])
+        )
+
+        const postsWithUser = posts.map(post => ({
+            ...post,
+            user: userMap.get(post.postedUser) || null
+        }))
 
         return res.status(200).json({
             mesasge : "Community Posts Fetched",
-            getPosts
+            posts: postsWithUser
         })
     } catch (error) {
         return res.status(500).json({

@@ -6,6 +6,6 @@ import upload from "../middleware/multer.js";
 const communityRouter = Router()
 
 communityRouter.post("/", authorize, requireRoute("USER", "ADMIN", "LEAD"), upload.array("images", 3), createCommunityPost)
-communityRouter.get("/", authorize, requireRoute("USER"), getCommunityPost)
+communityRouter.get("/", authorize, requireRoute("USER", "LEAD", "ADMIN"), getCommunityPost)
 
 export default communityRouter

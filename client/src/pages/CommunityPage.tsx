@@ -1,13 +1,10 @@
 import CommunityPost from "@/components/community/CommunityPost"
 import CommunityPostList from "@/components/community/CommunityPostList"
-import { useAuth } from "@/context/AuthContext"
 
 export default function CommunityPage() {
-  const { user } = useAuth()
 
   return (
     <div className="min-h-screen bg-background">
-      {user && user.role === "USER" && (
         <div className="w-full max-w-2xl border-x-2 border-border bg-card min-h-screen flex flex-col">
           
           <div className="p-5 border-b-2 border-border"> 
@@ -26,7 +23,6 @@ export default function CommunityPage() {
           </div>
           
         </div>
-      )}
     </div>
   )
 }

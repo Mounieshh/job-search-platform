@@ -1,3 +1,4 @@
+import { Card, CardContent, CardFooter } from "../ui/card"
 import { Spinner } from "../ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/useCommunityPosts"
 
@@ -31,11 +32,14 @@ const CommunityPostList = () => {
         ): (
             <div>
                 {data.map((post) => (
-                    <div key={post.id}>
-                        <div>
+                    <Card key={post.id} className="h-50 rounded-none">
+                        <CardContent>
                             {post.content}
-                        </div>
-                    </div>
+                        </CardContent>
+                        <CardFooter>
+                            {post.user?.name}
+                        </CardFooter>
+                    </Card>
                 ))}
             </div>
         )}

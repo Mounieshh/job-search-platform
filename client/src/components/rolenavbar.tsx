@@ -19,17 +19,18 @@ const RoleNavbar = () => {
               </Link>
             </li>
 
-            {user.role === "USER" && (
-              <>
-
-              <li className="w-full">
+            <li className="w-full">
                   <Link
                     to="/"
                     className="flex items-center w-full h-12 px-6 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent border-b border-border transition-colors whitespace-nowrap"
                   >
                     Community
                   </Link>
-                </li>
+            </li>
+
+            {user.role === "USER" && (
+              <>
+
                 <li className="w-full">
                   <Link
                     to="/profile"
