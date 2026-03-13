@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react"
 import { Link } from "react-router"
 import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
-import { baseUrl } from "@/lib/base"
+import { useBrowseJobs } from "@/hooks/queries/job/useBrowseJobs"
 
 
 
@@ -19,38 +18,11 @@ function toSlug(value: string){
 
 const JobList = () => {
     
-    const [jobs, setJobs] = useState<Job[]>([])
-    const [loading, setLoading] = useState(false)
-
+    const { data, isPending, error } = useBrowseJobs()
     const { user } = useAuth()
 
-    useEffect(() => {
-        const getJobs = async () => {
-            try {
-                setLoading(true)
 
-                const response = await fetch(`${baseUrl}/api/jobs`, {
-                    method: "GET",
-                    credentials: "include"
-                })
-    
-                if(!response.ok){
-                    throw new Error("Failed to Fetch Jobs")
-                }
-    
-                const data = await response.json()
-                setJobs(data.jobs || data)
-            } catch (error: any) {
-                console.log(error.message);
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        getJobs()
-    }, [])
-
-    if(loading){
+    if(isPending){
         return  (
             <div className="min-h-screen flex justify-center pt-10">
                 <Spinner className="size-7"/>
@@ -58,15 +30,23 @@ const JobList = () => {
         )
     }
 
+    if(error){
+        return (
+            <div>
+                Something went wrong
+            </div>
+        )
+    }
+
   return (
     <div className="px-3 py-4 sm:px-6 sm:py-6">
-        {jobs.length === 0 ? (
+        {data.length === 0 ? (
             <div className="text-center font-semibold p-5 text-muted-foreground">
                 No Jobs Found
             </div>
         ): (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job, index) => (
+                {data.map((job, index) => (
                     <div
                         key={job.id}
                         className="min-h-52 border border-border bg-card p-5 sm:p-6 flex flex-col justify-between overflow-hidden"
