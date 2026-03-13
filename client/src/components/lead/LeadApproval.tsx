@@ -1,15 +1,12 @@
-import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
-import { baseUrl } from "@/lib/base"
 import { useAuth } from "@/context/AuthContext"
 import { Link } from "react-router"
 import { ArrowUpRight } from "lucide-react"
+import { useLeadRequests } from "@/hooks/queries/lead/useLeadRequests"
 
 const LeadApproval = () => {
 
-    const [data, setData] = useState<Job[]>([])
-    const [loading, setLoading] = useState(false)
-
+    const { data, isPending, error } = useLeadRequests()
     const { user } = useAuth()
 
     function toSlug(title: string): string {
@@ -21,37 +18,19 @@ const LeadApproval = () => {
         .replace(/-+/g, "-")
   } 
 
-    useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                setLoading(true)
-                const response = await fetch(`${baseUrl}/api/lead/requests`, {
-                    method: "GET",
-                    credentials: "include"
-                })
-    
-                if(!response.ok){
-                    throw new Error('Failed to fetch jobs')
-                }
-    
-                const data = await response.json()
-    
-                setData(data.jobs || [])
-            } catch (error: any) {
-                throw new Error(error.message)
-            } finally {
-                setLoading(false)
-            }
-        }
 
-        fetchJobs()
-    },[])
-
-
-    if(loading){
+    if(isPending){
         return (
             <div className="min-h-screen flex justify-center">
                 <Spinner className="size-7"/>
+            </div>
+        )
+    }
+
+    if(error){
+        return (
+            <div>
+                No Jobs Listed to Approve
             </div>
         )
     }

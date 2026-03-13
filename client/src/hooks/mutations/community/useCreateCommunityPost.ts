@@ -1,4 +1,4 @@
-import { createCommunityPost } from "@/api/community"
+import { COMMUNITY_POSTS_QUERY_KEY, createCommunityPost } from "@/api/community"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 export function useCreateCommunityPost() {
@@ -7,7 +7,7 @@ export function useCreateCommunityPost() {
   return useMutation({
     mutationFn: createCommunityPost,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["community_posts"] })
+      queryClient.invalidateQueries({ queryKey: COMMUNITY_POSTS_QUERY_KEY })
     }
   })
 }

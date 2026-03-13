@@ -1,41 +1,16 @@
-import { useEffect, useState } from 'react'
+
 import { Link } from 'react-router'
-import { toast } from 'sonner'
 import { Spinner } from '../ui/spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { baseUrl } from "@/lib/base"
+
+import { useLeadApprovedJobs} from '@/hooks/queries/lead/useLeadApprovedJobs'
+
 
 const ApprovedByMe = () => {
-  const [loading, setLoading] = useState(false)
-  const [jobs, setJobs] = useState<Job[]>([])
 
-  useEffect(() => {
-    const getJobs = async () => {
-      try {
-        setLoading(true)
-
-        const response = await fetch(`${baseUrl}/api/lead/approved-by-me`, {
-          method: "GET",
-          credentials: "include"
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch the approved/rejected jobs")
-        }
-
-        const data = await response.json()
-        setJobs(data.jobs || [])
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getJobs()
-  }, [])
+  const {data, error, isPending } = useLeadApprovedJobs()
 
   function toSlug(title: string): string {
     return title
@@ -46,7 +21,7 @@ const ApprovedByMe = () => {
       .replace(/-+/g, "-")
   } 
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex justify-center pt-10">
         <Spinner className="size-7"/>
@@ -54,9 +29,17 @@ const ApprovedByMe = () => {
     )
   }
 
+  if(error){
+    return (
+      <div>
+        No Jobs Approved
+      </div>
+    )
+  }
+
   return (
     <div className="px-3 py-4 sm:px-6 sm:py-6">
-      {jobs.length === 0 ? (
+      {data.length === 0 ? (
         <p className="text-center text-muted-foreground py-10">No approved or rejected jobs found</p>
       ) : (
         <Table className="w-full min-w-175 border-t-2">
@@ -70,7 +53,7 @@ const ApprovedByMe = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {jobs.map((job, index) => (
+            {data.map((job, index) => (
               <TableRow key={job.id}>
                 <TableCell>{String(index + 1).padStart(2, "0")}</TableCell>
                 <TableCell>{job.title}</TableCell>

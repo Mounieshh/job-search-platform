@@ -1,6 +1,8 @@
 import { baseUrl } from "@/lib/base"
 import type { CommunityFormData } from "@/validate/community.zod"
 
+export const COMMUNITY_POSTS_QUERY_KEY = ["community_posts"] as const
+
 
 export type CommunityPostsResponse = {
     posts: CommunityPostItem[]
@@ -10,6 +12,7 @@ export type CreateCommunityPostResponse = {
     message: string
     post: CommunityPostItem
 }
+
 
 export const fetchCommunityPosts = async () : Promise<CommunityPostItem[]> => {
     const response = await fetch(`${baseUrl}/api/community`, {
