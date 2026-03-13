@@ -45,6 +45,15 @@ declare global {
         duties: string[]
         user: User | null
     }
+
+    type CommunityPostItem = {
+        id: string
+        content: string
+        images: string[]
+        postedUser: string
+        createdAt: string
+        updatedAt: string
+    }
     
 
 }

@@ -17,6 +17,8 @@ import LeadApprovalPage from "./pages/LeadApprovalPage"
 import JobDetailLeadPage from "./pages/JobDetailLeadPage"
 import ApprovedByMe from "./components/lead/ApprovedByMe"
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
 const AUTH_ROUTES = ["/login", "/register"]
 
 function AppLayout() {
@@ -32,9 +34,14 @@ function AppLayout() {
 
         <div className="px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
+            {/* --COMMUNITY ROUTE-- */}
             <Route path="/" element={<CommunityPage />} />
+
+            {/* --AUTH-- */}
             <Route path="/login" element={<SignInPage />} />
             <Route path="/register" element={<SignUpPage />} />
+
+            
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
             <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
@@ -60,11 +67,16 @@ function AppLayout() {
   )
 }
 
+
+const queryClient = new QueryClient()
+
 function App() {
   return (
-    <AuthProvider>
-      <AppLayout />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppLayout />
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 
