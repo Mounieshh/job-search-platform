@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight } from "lucide-react"
-import { useJobDetails } from "@/hooks/queries/job/useJobDetails"
+import { useJobDetails } from "@/hooks/queries/job"
 
 
 export default function JobDetailPage() {

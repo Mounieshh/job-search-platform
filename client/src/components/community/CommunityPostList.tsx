@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Spinner } from "../ui/spinner"
-import { useCommunityPosts } from "@/hooks/queries/community/useCommunityPosts"
+import { useCommunityPosts } from "@/hooks/queries/community"
 
 
 const CommunityPostList = () => {

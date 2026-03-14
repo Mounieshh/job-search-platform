@@ -2,7 +2,7 @@ import { Link } from "react-router"
 import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
-import { useBrowseJobs } from "@/hooks/queries/job/useBrowseJobs"
+import { useBrowseJobs } from "@/hooks/queries/job"
 
 
 

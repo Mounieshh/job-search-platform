@@ -1,5 +1,5 @@
 import { communitySchema, type CommunityFormData } from "@/validate/community.zod"
-import { useCreateCommunityPost } from "@/hooks/mutations/community/useCreateCommunityPost"
+import { useCreateCommunityPost } from "@/hooks/mutations/community"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { useEffect, useMemo } from "react"

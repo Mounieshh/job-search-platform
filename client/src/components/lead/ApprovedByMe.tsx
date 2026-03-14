@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 
-import { useLeadApprovedJobs} from '@/hooks/queries/lead/useLeadApprovedJobs'
+import { useLeadApprovedJobs} from '@/hooks/queries/lead'
 
 
 const ApprovedByMe = () => {

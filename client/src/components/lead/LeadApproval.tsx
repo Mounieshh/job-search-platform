@@ -2,7 +2,7 @@ import { Spinner } from "../ui/spinner"
 import { useAuth } from "@/context/AuthContext"
 import { Link } from "react-router"
 import { ArrowUpRight } from "lucide-react"
-import { useLeadRequests } from "@/hooks/queries/lead/useLeadRequests"
+import { useLeadRequests } from "@/hooks/queries/lead"
 
 const LeadApproval = () => {
 
