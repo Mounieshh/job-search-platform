@@ -6,12 +6,12 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { Link, useNavigate } from "react-router"
-import { useAuth } from "@/context/AuthContext"
-import { baseUrl } from "@/lib/base"
+import { useSignIn } from "@/hooks/mutations/auth"
 
 const SignInForm = () => {
   const navigate = useNavigate()
-  const { setUser } = useAuth()
+  
+  const { mutateAsync: signIn } = useSignIn()
 
   const form = useForm<ZodUserLoginData>({
     resolver: zodResolver(zodLoginSchema),
@@ -20,17 +20,7 @@ const SignInForm = () => {
 
   const onSubmit = async (formData: ZodUserLoginData) => {
     try {
-      const response = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData)
-      })
-
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || "Login Failed")
-
-      setUser(data.user)
+      await signIn(formData)
       toast.success("Login Successful")
       form.reset()
       navigate("/")

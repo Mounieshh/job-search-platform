@@ -7,13 +7,15 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Link, useNavigate } from "react-router"
 import { useState } from "react"
-import { baseUrl } from "@/lib/base"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "../ui/select"
+import { useSignUp } from "@/hooks/mutations/auth"
 
 const SignUpForm = () => {
   const navigate = useNavigate()
 
   const[userType, setUserType] = useState<"job_seeker" | "company_employee">("job_seeker")
+
+  const { mutateAsync: signUp } = useSignUp()
 
   const form = useForm<ZodUserFormData>({
     resolver: zodResolver(zodRegisterSchema),
@@ -30,15 +32,7 @@ const SignUpForm = () => {
   const onSubmit = async (formData: ZodUserFormData) => {
     try {
   
-      const response = await fetch(`${baseUrl}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData)
-      })
-
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message || "Account Creation Failed")
+      await signUp(formData)
 
       toast.success("Account Created Successfully")
       form.reset()

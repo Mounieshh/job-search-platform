@@ -73,7 +73,9 @@ export async function registerUser(req: Request, res: Response) {
 
     await User.create(userData)
     
-    return res.status(201).json({ message: "User registered successfully" })
+    return res.status(201).json({ 
+        message: "User registered successfully",
+    })
 
   } catch (error: any) {
     console.error(error)

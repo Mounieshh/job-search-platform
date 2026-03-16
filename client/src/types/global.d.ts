@@ -76,4 +76,12 @@ declare global {
         }
     }
 
+    type UserResponse = {
+        id: string,
+        name: string,
+        email: string,
+        role: "USER" | "LEAD" | "ADMIN",
+        accountType: "job_seeker" | "company_employee"
+    }
+
 }

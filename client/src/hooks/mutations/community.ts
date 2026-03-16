@@ -19,7 +19,7 @@ export function useLikePost(){
   return useMutation({
     mutationFn: likePost,
     onSuccess: (data, postId) => {
-      queryClient.setQueryData(["community_posts"], (old: any) => 
+      queryClient.setQueryData(COMMUNITY_POSTS_QUERY_KEY, (old: any) => 
         old.map((post: any) => 
           post.id === postId ? { ...post, likedBy: data.likedBy } : post
         ) 

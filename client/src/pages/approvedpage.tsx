@@ -1,9 +1,9 @@
 import ApprovedCard from "@/components/admin/ApprovedCard"
-import { useAuth } from "@/context/AuthContext"
+import { useSession } from "@/hooks/queries/auth"
 
 export default function ApprovePage() {
 
-    const { user } = useAuth()
+    const { data: user } = useSession()
   return (
     <div>
         {user && user.role === "ADMIN" && (

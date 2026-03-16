@@ -1,13 +1,13 @@
 import { Spinner } from "../ui/spinner"
-import { useAuth } from "@/context/AuthContext"
 import { Link } from "react-router"
 import { ArrowUpRight } from "lucide-react"
 import { useLeadRequests } from "@/hooks/queries/lead"
+import { useSession } from "@/hooks/queries/auth"
 
 const LeadApproval = () => {
 
     const { data, isPending, error } = useLeadRequests()
-    const { user } = useAuth()
+    const { data: user } = useSession()
 
     function toSlug(title: string): string {
         return title

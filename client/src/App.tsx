@@ -3,7 +3,6 @@ import SignInPage from "./pages/SignInPage"
 import SignUpPage from "./pages/SignUpPage"
 import Navbar from "./components/Navbar"
 import { Toaster } from "./components/ui/sonner"
-import { AuthProvider } from "./context/AuthContext"
 import JobUploadForm from "./components/JobForm"
 import RoleNavbar from "./components/RoleNavbar"
 import JobsPage from "./pages/JobsPage"
@@ -78,9 +77,7 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
         <AppLayout />
-      </AuthProvider>
     </QueryClientProvider>
   )
 }

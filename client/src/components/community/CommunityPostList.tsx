@@ -3,14 +3,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card
 import { Spinner } from "../ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/community"
 import { useLikePost } from "@/hooks/mutations/community"
-import { useAuth } from "@/context/AuthContext"
+
+import { useSession } from "@/hooks/queries/auth"
 
 
 const CommunityPostList = () => {
 
     const { data = [], isPending, error } = useCommunityPosts()
     const { mutateAsync: likePost } = useLikePost()
-    const { user } = useAuth()
+    const { data: user } = useSession()
 
     if(isPending){
             return (

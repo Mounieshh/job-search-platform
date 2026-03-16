@@ -1,8 +1,8 @@
 import { Link } from "react-router"
 import { Spinner } from "./ui/spinner"
 import { ArrowUpRight } from "lucide-react"
-import { useAuth } from "@/context/AuthContext"
 import { useBrowseJobs } from "@/hooks/queries/job"
+import { useSession } from "@/hooks/queries/auth"
 
 
 
@@ -19,7 +19,7 @@ function toSlug(value: string){
 const JobList = () => {
     
     const { data, isPending, error } = useBrowseJobs()
-    const { user } = useAuth()
+    const {data: user} = useSession()
 
 
     if(isPending){

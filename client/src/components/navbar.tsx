@@ -1,9 +1,11 @@
-import { useAuth } from "@/context/AuthContext";
+
 import { Link, useNavigate } from "react-router";
 import { Button } from "./ui/button";
+import { useLogout, useSession } from "@/hooks/queries/auth";
 
 const Navbar = () => {
-  const { user, logout } = useAuth()
+  const { data: user } = useSession()
+  const { mutateAsync: logout } = useLogout()
   const navigate = useNavigate()
 
   const handleLogout = async () => {

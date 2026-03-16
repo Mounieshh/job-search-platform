@@ -1,9 +1,9 @@
 import ApprovalCard from "@/components/admin/ApprovalCard"
 import TrackMyPosts from "@/components/user/TrackMyPosts"
-import { useAuth } from "@/context/AuthContext"
+import { useSession } from "@/hooks/queries/auth"
 
 export default function ApprovalPage() {
-    const { user } = useAuth()
+    const { data: user } = useSession()
 
   return (
     <div>

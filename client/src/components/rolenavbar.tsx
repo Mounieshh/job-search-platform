@@ -1,8 +1,8 @@
-import { useAuth } from "@/context/AuthContext";
+import { useSession } from "@/hooks/queries/auth";
 import { Link } from "react-router";
 
 const RoleNavbar = () => {
-  const { user } = useAuth();
+  const { data: user } = useSession();
 
   return (
 
