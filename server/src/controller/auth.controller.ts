@@ -10,13 +10,20 @@ import Company from "../models/company.schema.js";
 import { NODE_ENV } from "../config/env.js";
 
 
+function escapeRegex(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+
 
 export async function registerUser(req: Request, res: Response) {
     
     try {
         const parsedData = zodRegisterSchema.parse(req.body)
 
-        const { name, email, password, accountType, companyName, position, role } = parsedData
+        const { name, email, password, accountType, role, company } = parsedData
+        const companyName = company?.companyName ?? parsedData.companyName
+        const position = company?.position ?? parsedData.position
 
 
         if (accountType === "company_employee") {
@@ -47,26 +54,48 @@ export async function registerUser(req: Request, res: Response) {
 
         const hashedPassword = await bcrypt.hash(password, 12)
 
+        let resolvedRole: "USER" | "LEAD" | "ADMIN" = role || "USER"
+
+        if (accountType === "company_employee") {
+            resolvedRole = "USER"
+        }
+
         const userData: any = {
             name,
             email,
             password: hashedPassword,
             accountType,
-            role: accountType === "company_employee" ? "LEAD" : (role || "USER")
+            role: resolvedRole
         }
 
         if (accountType === "company_employee") {
+            const normalizedCompanyName = companyName!.trim()
+            const companyNameMatcher = new RegExp(`^${escapeRegex(normalizedCompanyName)}$`, "i")
 
-            let company = await Company.findOne({ name: companyName })
+            let company = await Company.findOne({ name: companyNameMatcher })
 
             if (!company) {
-                company = await Company.create({ name: companyName })
+                company = await Company.create({ name: normalizedCompanyName })
             }
+
+            const isPrimaryLead = !company.primaryLeadId
+            userData.role = isPrimaryLead ? "LEAD" : "USER"
 
             userData.company = {
                 companyId: company._id,
                 position
             }
+
+            const createdUser = await User.create(userData)
+
+            if (isPrimaryLead) {
+                company.primaryLeadId = createdUser._id as any
+                await company.save()
+            }
+
+            return res.status(201).json({
+                message: "User registered successfully"
+            })
         }
 
         await User.create(userData)
