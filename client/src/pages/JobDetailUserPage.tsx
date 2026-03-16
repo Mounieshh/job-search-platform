@@ -63,11 +63,6 @@ export default function JobDetailPage() {
                   {data.employmentType}
                 </span>
               )}
-              {data.source && (
-                <span className="text-xs border border-border px-2 py-0.5 text-muted-foreground capitalize">
-                  {data.source}
-                </span>
-              )}
             </div>
           </div>
 

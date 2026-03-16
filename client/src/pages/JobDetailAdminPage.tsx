@@ -148,9 +148,7 @@ export default function JobDetailAdmin() {
                   {job.employmentType}
                 </span>
               )}
-              <span className="text-xs border border-border px-2 py-0.5 text-muted-foreground capitalize">
-                {job.source}
-              </span>
+
             </div>
           </div>
           <Badge
@@ -210,7 +208,6 @@ export default function JobDetailAdmin() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Source</p>
-                  <p className="text-sm text-card-foreground capitalize mt-0.5">{job.source}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Posted On</p>

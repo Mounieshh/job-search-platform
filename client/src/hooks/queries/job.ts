@@ -1,4 +1,4 @@
-import { JobDetailsLook, browseJobs } from "@/api/job"
+import { JobDetailsLook, browseJobs, getPendingJobs } from "@/api/job"
 import { useQuery } from "@tanstack/react-query"
 
 export function useBrowseJobs() {
@@ -13,5 +13,12 @@ export function useJobDetails(companyName: string | undefined, slugId: string | 
     queryKey: ["job_details", companyName, slugId],
     queryFn: () => JobDetailsLook(companyName, slugId),
     enabled: !!companyName && !!slugId
+  })
+}
+
+export function usePendingJobs(){
+  return useQuery({
+    queryKey: ["pending_jobs"],
+    queryFn: getPendingJobs
   })
 }

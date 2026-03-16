@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Spinner } from "../ui/spinner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
 import { Button } from "../ui/button"
@@ -7,67 +7,29 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "../ui/textarea"
 import { Label } from "../ui/label"
 import { Link } from "react-router"
-import { baseUrl } from "@/lib/base"
+import { useAdminApprove, useAdminReject } from "@/hooks/mutations/job"
+import { usePendingJobs } from "@/hooks/queries/job"
 
 
 const ApprovalCard = () => {
+    const { data: pendingJobs = [], isPending} = usePendingJobs()
 
-    const [pendingJobs, setPendingJobs] = useState<Job[]>([])
-    const [loading, setLoading] = useState(false)
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
     const [rejectReason, setRejectReason] = useState("")
-    const [rejecting, setRejecting] = useState(false)
 
-    useEffect(() => {
-        const pendingJobs = async () => {
-            try {
-                setLoading(true)
-                const response = await fetch(`${baseUrl}/api/jobs/admin/pending`, {
-                    method: "GET",
-                    credentials: "include"
-                })
-    
-                if(!response.ok){
-                    throw new Error("Failed to fetch Pending jobs")
-                }
-    
-                const data = await response.json()
-                const jobs = Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.pendingjobs)
-                        ? data.pendingjobs
-                        : Array.isArray(data?.jobs)
-                            ? data.jobs
-                            : []
-                setPendingJobs(jobs)
-            } catch (error: any) {
-                console.log(error.message);
-            } finally {
-                setLoading(false)
-            }
-        }
+    const approveMutation = useAdminApprove()
+    const rejectMutation = useAdminReject()
 
-        pendingJobs()
-    }, [])
+    
 
 
     const handleApprove = async (jobId: string) => {
-        try {
-            const response = await fetch(`${baseUrl}/api/jobs/admin/approve/${jobId}`, {
-                method: "PATCH",
-                credentials: "include"
-            })
-
-            if(!response.ok){
-                throw new Error("Failed to Approve Job")
-            }
-
-            setPendingJobs(prev => prev.filter(job => job.id !== jobId))
-
-        } catch (error: any) {
-            console.error(error.message)
+        if(approveMutation.isPending){
+            return
         }
+
+        await approveMutation.mutateAsync(jobId)
     }
 
     const handleReject = async (jobId: string) => {
@@ -77,31 +39,10 @@ const ApprovalCard = () => {
             return
          }
 
-         try {
-            setRejecting(true)
-            const response = await fetch(`${baseUrl}/api/jobs/admin/reject/${jobId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include"
-                ,body: JSON.stringify({ reason })
-            })
-
-            if(!response.ok){
-                throw new Error("Failed to Reject Jobs")
-            }
-
-            setPendingJobs(prev => prev.filter(job => job.id !== jobId))
+            await rejectMutation.mutateAsync({ jobId, reason })
             setRejectDialogOpen(false)
             setRejectReason("")
             setSelectedJobId(null)
-            
-        } catch (error: any) {
-            console.error(error.message)
-        } finally {
-            setRejecting(false)
-        }
     }
 
     const openRejectDialog = (jobId: string) => {
@@ -110,7 +51,7 @@ const ApprovalCard = () => {
         setRejectDialogOpen(true)
     }
     
-    if(loading){
+    if(isPending){
         return (
             <div className="min-h-screen flex justify-center pt-10">
                 <Spinner className="size-7"/>
@@ -180,7 +121,7 @@ const ApprovalCard = () => {
                                 </TableCell>
                                 <TableCell className="flex flex-row gap-1 whitespace-nowrap">
                                     <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => handleApprove(pending.id)}>
-                                        Approve
+                                        {approveMutation.isPending ? "Approving..." : "Approve"}
                                     </Button>
                                     <Button type="button" variant="outline" size="sm" className="cursor-pointer rounded-none w-20" onClick={() => openRejectDialog(pending.id)}>
                                         Reject
@@ -226,11 +167,11 @@ const ApprovalCard = () => {
                         <Button
                             type="button"
                             variant="destructive"
-                            disabled={!rejectReason.trim() || rejecting || !selectedJobId}
+                            disabled={!rejectReason.trim() || rejectMutation.isPending || !selectedJobId}
                             onClick={() => selectedJobId && handleReject(selectedJobId)}
                             className="rounded-none cursor-pointer"
                         >
-                            {rejecting ? "Rejecting..." : "Reject"}
+                            {rejectMutation.isPending ? "Rejecting..." : "Reject"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

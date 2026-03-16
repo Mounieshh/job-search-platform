@@ -110,9 +110,6 @@ export default function JobDetailLeadPage() {
                             {data.employmentType}
                             </span>
                         )}
-                        <span className="text-xs border border-border px-2 py-0.5 text-muted-foreground capitalize">
-                            {data.source}
-                        </span>
                         </div>
                     </div>
                     <Badge
