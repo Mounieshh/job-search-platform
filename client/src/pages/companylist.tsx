@@ -1,49 +1,13 @@
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
-import { baseUrl } from "@/lib/base"
-import { useEffect, useState } from "react"
-
-export type Company = {
-    id: string
-    name: string
-    companyUsers: number
-    postCount: number
-}
+import { useCompanyList } from "@/hooks/queries/company"
+import { Link } from "react-router"
 
 export default function CompanyList() {
 
-    const [company, setCompany] = useState<Company[]>([])
-    const [loading, setLoading] = useState(false)
+    const { data = [], isPending, error } = useCompanyList()
 
-    useEffect(() => {
-        const companyList = async () => {
-            try {
-                setLoading(true)
-
-                const response = await fetch(`${baseUrl}/api/company/list`, {
-                    method: "GET",
-                    credentials: "include"
-                })
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch companies")
-                }
-
-                const data = await response.json()
-
-                setCompany(data.result)
-
-            } catch (error: any) {
-                console.log(error.message)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        companyList()
-    }, [])
-
-    if (loading) {
+    if (isPending) {
         return (
             <div className="min-h-screen flex justify-center pt-10">
                 <Spinner className="size-7" />
@@ -51,13 +15,23 @@ export default function CompanyList() {
         )
     }
 
+    if (error) {
+        return (
+            <div className="min-h-screen flex justify-center pt-10">
+                <p className="text-sm text-destructive">Error fetching companies.</p>
+            </div>
+        )
+    }
+
     return (
         <div>
-            {company.length === 0 ? (
-                <div>No Companies Found</div>
+            {data.length === 0 ? (
+                <div className="min-h-screen flex justify-center pt-10 text-sm text-muted-foreground">
+                    No Companies Found
+                </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2 lg:grid-cols-3 sm:p-5">
-                    {company.map((com, index) => (
+                    {data.map((com, index) => (
                         <div
                             key={com.id}
                             className="border border-border bg-card p-5 sm:p-6 flex flex-col gap-3"
@@ -66,19 +40,23 @@ export default function CompanyList() {
                                 <span className="text-xs font-mono text-muted-foreground">
                                     {String(index + 1).padStart(2, "0")}
                                 </span>
-
-                                <span className="text-xs font-mono uppercase tracking-widest text-black font-semibold">
+                                <span className="font-bold uppercase tracking-wide text-foreground">
                                     {com.name}
                                 </span>
                             </div>
 
-                            <div className="text-xs font-medium">
-                                <span className="uppercase">
-                                    Users :
-                                </span>
-                                <Badge variant="ghost">
-                                    {com.companyUsers}
-                                </Badge>
+                            <div className="flex items-center justify-between">
+                                <div className="text-xs font-medium flex items-center gap-1">
+                                    <span className="uppercase">Users :</span>
+                                    <Badge variant="ghost">{com.companyUsers}</Badge>
+                                </div>
+
+                                <Link
+                                    to={`/${com.id}/users`}
+                                    className="text-xs border border-border px-3 py-1 hover:bg-muted transition-colors"
+                                >
+                                    View Users
+                                </Link>
                             </div>
 
                         </div>

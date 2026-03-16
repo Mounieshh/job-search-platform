@@ -18,6 +18,7 @@ import JobDetailLeadPage from "./pages/JobDetailLeadPage"
 import ApprovedByMe from "./components/lead/ApprovedByMe"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import CompanyUsers from "./components/admin/CompanyUsers"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -52,6 +53,10 @@ function AppLayout() {
             <Route path="/approved" element={<ApprovePage/>}/>
 
             <Route path="/my-posts" element={<ApprovalPage/>}/>
+
+            {/* --ADMIN ROUTE-- */}
+
+            <Route path="/:companyId/users" element={<CompanyUsers/>}/>
 
             {/* --LEADS ROUTE-- */}
 

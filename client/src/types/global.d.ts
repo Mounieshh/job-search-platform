@@ -58,6 +58,20 @@ declare global {
         anonymousName: string,
         anonymousAvatar: string
     }
+
+    type CompanyList = {
+        id:string,
+        name: string,
+        companyUsers: number,
+        totalJobs: number
+    }
     
+    type CompanyUsersList = User & {
+        company?: {
+            companyId?: string
+            companyName?: string
+            position?: string
+        }
+    }
 
 }
