@@ -1,228 +1,325 @@
-import { jobSchema, type JobFormData } from "@/validate/job.zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { toast } from "sonner";
-import { X } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { baseUrl } from "@/lib/base";
+import { useCreateJob } from "@/hooks/mutations/job"
+import { useSession } from "@/hooks/queries/auth"
+import { jobSchema, type JobFormData } from "@/validate/job.zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useFieldArray, useForm } from "react-hook-form"
+import { useNavigate } from "react-router"
+import { toast } from "sonner"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
+import { Input } from "./ui/input"
+import { Button } from "./ui/button"
+import { Textarea } from "./ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Trash2, Plus } from "lucide-react"
 
+export default function JobForm() {
+  const { mutateAsync: postJob } = useCreateJob()
+  const navigate = useNavigate()
+  const { data: user } = useSession()
 
-const textFields = [
-  { name: "title",          label: "Job Title",        type: "text", placeholder: "Enter job title" },
-  { name: "companyName",    label: "Company Name",     type: "text", placeholder: "Enter company name" },
-  { name: "summary",        label: "Summary",          type: "text", placeholder: "Brief job summary" },
-  { name: "description",    label: "Description",      type: "text", placeholder: "Job description" },
-  { name: "url",            label: "Job URL",          type: "url",  placeholder: "https://example.com" },
-  { name: "location",       label: "Location",         type: "text", placeholder: "City, Country" },
-  { name: "salary",         label: "Salary",           type: "text", placeholder: "e.g. $50,000" },
-  { name: "employmentType", label: "Employment Type",  type: "text", placeholder: "e.g. Full-time, Part-time" },
-] as const;
-
-// Reusable tag-input for string[] fields
-const TagInput = ({
-  label,
-  placeholder,
-  items,
-  onAdd,
-  onRemove,
-  error,
-}: {
-  label: string;
-  placeholder: string;
-  items: string[];
-  onAdd: (val: string) => void;
-  onRemove: (index: number) => void;
-  error?: string;
-}) => {
-  const [input, setInput] = useState("");
-
-  const handleAdd = () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    onAdd(trimmed);
-    setInput("");
-  };
-
-  return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-foreground">{label}</label>
-
-      <div className="flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={placeholder}
-          className="rounded-none"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAdd();
-            }
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          className="rounded-none shrink-0"
-          onClick={handleAdd}
-        >
-          Add
-        </Button>
-      </div>
-
-
-      {items.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {items.map((item, i) => (
-            <span
-              key={i}
-              className="flex items-center gap-1 bg-muted text-muted-foreground text-xs px-2 py-1 rounded-sm"
-            >
-              {item}
-              <button
-                type="button"
-                onClick={() => onRemove(i)}
-                className="hover:text-destructive transition-colors"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
-  );
-};
-
-const JobUploadForm = () => {
-  const form = useForm<JobFormData>({
+  const form = useForm({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      title:          "",
-      companyName:    "",
-      summary:        "",
-      description:    "",
-      url:            "",
-      location:       "",
-      salary:         "",
+      title: "",
+      companyName: "",
+      summary: "",
+      description: "",
+      url: "",
+      location: "",
+      salary: "",
       employmentType: "",
-      requirements:   [],
-      duties:         [],
-    },
-  });
+      requirements: [],
+      duties: []
+    }
+  })
+
+  const { fields: reqFields, append: addReq, remove: removeReq } = useFieldArray({
+    control: form.control,
+    name: "requirements" as never
+  })
+
+  const { fields: dutyFields, append: addDuty, remove: removeDuty } = useFieldArray({
+    control: form.control,
+    name: "duties" as never
+  })
 
   const onSubmit = async (formData: JobFormData) => {
     try {
-      const response = await fetch(`${baseUrl}/api/jobs/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Job not created");
-      toast.success("Job Created Successfully");
-      form.reset();
+      await postJob(formData)
+      toast.success("Job Created Successfully..")
+      form.reset()
+      if (user?.role === "USER") {
+        navigate("/my-posts")
+      } else {
+        navigate("/joblistings")
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-3 sm:px-4">
-      <div className="w-full max-w-xl">
-        <div className="rounded-none border border-border bg-card p-5 sm:p-8 shadow-sm">
-          <div className="mb-6">
-            <h1 className="text-xl font-semibold text-card-foreground">Post a Job</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Fill in the details below to post a new job listing
-            </p>
+    <div className="max-w-2xl mx-auto p-5">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+          {/* Job Info Section */}
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-widest font-mono">
+              Job Info
+            </h2>
+
+            <FormField
+              name="title"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Frontend Developer" {...field} className="rounded-none" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Two column row */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="companyName"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Google" {...field} className="rounded-none" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="employmentType"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employment Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="rounded-none w-full">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="full_time">Full Time</SelectItem>
+                        <SelectItem value="part_time">Part Time</SelectItem>
+                        <SelectItem value="contract">Contract</SelectItem>
+                        <SelectItem value="internship">Internship</SelectItem>
+                        <SelectItem value="freelance">Freelance</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              name="summary"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Summary</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Brief summary of the job..."
+                      {...field}
+                      rows={3}
+                      className="rounded-none resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="description"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Full job description..."
+                      {...field}
+                      rows={5}
+                      className="rounded-none resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Details Section */}
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-widest font-mono">
+              Details
+            </h2>
 
-              {/* Text fields */}
-              {textFields.map((field) => (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                name="location"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Remote" {...field} className="rounded-none" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="salary"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salary</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. 80000" {...field} className="rounded-none" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              name="url"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://..." {...field} className="rounded-none" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Requirements Section */}
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-widest font-mono">
+              Requirements
+            </h2>
+
+            {reqFields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
                 <FormField
-                  key={field.name}
-                  name={field.name}
+                  name={`requirements.${index}`}
                   control={form.control}
-                  render={({ field: f }) => (
-                    <FormItem>
-                      <FormLabel>{field.label}</FormLabel>
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
                       <FormControl>
-                        <Input
-                          {...f}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          className="rounded-none"
-                        />
+                        <Input placeholder="e.g. 3+ years React experience" {...field} className="rounded-none" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              ))}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeReq(index)}
+                  className="rounded-none shrink-0"
+                >
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
 
-              {/* Requirements */}
-              <FormField
-                name="requirements"
-                control={form.control}
-                render={({ field: f }) => (
-                  <TagInput
-                    label="Requirements"
-                    placeholder="e.g. 3+ years React experience"
-                    items={f.value}
-                    onAdd={(val) => f.onChange([...f.value, val])}
-                    onRemove={(i) => f.onChange(f.value.filter((_: string, idx: number) => idx !== i))}
-                    error={form.formState.errors.requirements?.message}
-                  />
-                )}
-              />
+            <button
+              type="button"
+              onClick={() => addReq("")}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Plus className="size-3" />
+              Add requirement
+            </button>
+          </div>
 
-              {/* Duties */}
-              <FormField
-                name="duties"
-                control={form.control}
-                render={({ field: f }) => (
-                  <TagInput
-                    label="Duties"
-                    placeholder="e.g. Build and maintain REST APIs"
-                    items={f.value}
-                    onAdd={(val) => f.onChange([...f.value, val])}
-                    onRemove={(i) => f.onChange(f.value.filter((_: string, idx: number) => idx !== i))}
-                    error={form.formState.errors.duties?.message}
-                  />
-                )}
-              />
+          {/* Duties Section */}
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-widest font-mono">
+              Duties
+            </h2>
 
-              <Button
-                type="submit"
-                className="w-full cursor-pointer rounded-none"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "Posting..." : "Post Job"}
-              </Button>
-            </form>
-          </Form>
-        </div>
-      </div>
+            {dutyFields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <FormField
+                  name={`duties.${index}`}
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input placeholder="e.g. Build reusable components" {...field} className="rounded-none" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeDuty(index)}
+                  className="rounded-none shrink-0"
+                >
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => addDuty("")}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Plus className="size-3" />
+              Add duty
+            </button>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-between border-t pt-5">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-none cursor-pointer"
+              onClick={() => form.reset()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="rounded-none cursor-pointer"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Posting..." : "Post Job"}
+            </Button>
+          </div>
+
+        </form>
+      </Form>
     </div>
-  );
-};
-
-export default JobUploadForm;
+  )
+}

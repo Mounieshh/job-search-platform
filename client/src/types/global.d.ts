@@ -36,7 +36,6 @@ declare global {
         salary?: string | null
         url?: string | null
         employmentType?: string | null
-        source: string
         status: string
         createdAt: string
         rejectedReason?: string | null
@@ -82,6 +81,31 @@ declare global {
         email: string,
         role: "USER" | "LEAD" | "ADMIN",
         accountType: "job_seeker" | "company_employee"
+    }
+
+    type PostJobDetail = {
+        id: string
+        title: string
+        summary?: string | null
+        description?: string | null
+        companyName?: string | null
+        location?: string | null
+        salary?: string | null
+        url?: string | null
+        employmentType?: string | null
+        status: string
+        createdAt: string
+        rejectedReason?: string | null
+        postedBy: string
+        requirements: string[]
+        duties: string[]
+    }
+
+    type JobUser = {
+        _id: string,
+        name: string,
+        email: string,
+        role: "USER" | "ADMIN" | "LEAD"
     }
 
 }

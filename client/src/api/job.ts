@@ -1,4 +1,5 @@
 import { baseUrl } from "@/lib/base"
+import type { JobFormData } from "@/validate/job.zod"
 
 
 export type BrowseJobs = {
@@ -8,6 +9,13 @@ export type BrowseJobs = {
 
 export type JobDetails = {
     job: JobDetail
+}
+
+
+export type PostJobResponse = {
+    message: string,
+    job: JobDetail,
+    user: JobUser
 }
 
 export async function browseJobs(){
@@ -37,4 +45,22 @@ export async function JobDetailsLook(companyName: string | undefined, slugId: st
 
     const data: JobDetails = await response.json()
     return data.job ?? null
+}
+
+export async function postJob(formData: JobFormData){
+    const response = await fetch(`${baseUrl}/api/jobs/add`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify(formData)
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if(!response.ok){
+        throw new Error(data.message || "Failed to create jobs")
+    }
+
+    return data as PostJobResponse ?? null
 }
