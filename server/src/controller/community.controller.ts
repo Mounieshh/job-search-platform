@@ -123,18 +123,20 @@ export async function likePost(req: Request, res: Response) {
 
         const alreadyLiked = post.likedBy.includes(user.id)
 
+        const updateLikedBy = alreadyLiked ? post.likedBy.filter(id => id !== user.id) : [...post.likedBy, user.id]
         await prisma.communityPost.update({
             where: { id: postId },
             data: {
                 likedBy: alreadyLiked
-                    ? { set: post.likedBy.filter(id => id !== user.id) }  // unlike
+                    ? { set: updateLikedBy }                                // unlike
                     : { push: user.id }                                    // like
             }
         })
 
         return res.status(200).json({
             message: alreadyLiked ? "Post unliked" : "Post liked",
-            likes: alreadyLiked ? post.likedBy.length - 1 : post.likedBy.length + 1
+            likes: updateLikedBy.length,
+            likedBy: updateLikedBy
         })
 
     } catch (error) {

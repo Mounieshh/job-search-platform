@@ -18,10 +18,12 @@ export function useLikePost(){
 
   return useMutation({
     mutationFn: likePost,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["community_posts"]
-      })
+    onSuccess: (data, postId) => {
+      queryClient.setQueryData(["community_posts"], (old: any) => 
+        old.map((post: any) => 
+          post.id === postId ? { ...post, likedBy: data.likedBy } : post
+        ) 
+      )
     }
   })
 }

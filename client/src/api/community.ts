@@ -16,6 +16,7 @@ export type CreateCommunityPostResponse = {
 export type LikePostResponse = {
     message: string,
     likes: number
+    likedBy: string[]
 }
 
 export const fetchCommunityPosts = async () : Promise<CommunityPostItem[]> => {
