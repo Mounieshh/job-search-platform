@@ -1,11 +1,16 @@
+import { Heart } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Spinner } from "../ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/community"
+import { useLikePost } from "@/hooks/mutations/community"
+import { useAuth } from "@/context/AuthContext"
 
 
 const CommunityPostList = () => {
 
     const { data = [], isPending, error } = useCommunityPosts()
+    const { mutateAsync: likePost } = useLikePost()
+    const { user } = useAuth()
 
     if(isPending){
             return (
@@ -31,7 +36,12 @@ const CommunityPostList = () => {
             </div>
         ): (
             <div className="space-y-4">
-                {data.map((post) => (
+                {data.map((post) => {
+                    const likedBy = post.likedBy ?? []
+                    const hasLiked = Boolean(user?.id && likedBy.includes(user.id))
+                    const likeCount = likedBy.length
+
+                    return (
                     <Card key={post.id} className="rounded-none">
                         <CardHeader>
                             <CardTitle>
@@ -57,9 +67,15 @@ const CommunityPostList = () => {
                         </CardContent>
                         <CardFooter className="border-t pt-4">
                             <div className="flex w-full items-center justify-between gap-4">
-                                <div className="text-sm text-muted-foreground">
-                                    Likes
-                                </div>
+                                <button
+                                onClick={() => likePost(post.id)}
+                                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-500 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <Heart
+                                    className={`size-4 ${hasLiked ? "fill-red-500 text-red-500" : ""}`}
+                                />
+                                <span>{likeCount}</span>
+                            </button>
                                 <div className="flex items-center gap-2">
                                     <div className="max-w-44 truncate text-sm font-medium">
                                         {post.anonymousName}
@@ -78,7 +94,8 @@ const CommunityPostList = () => {
                         </CardFooter>
                      
                     </Card>
-                ))}
+                    )
+                })}
             </div>
         )}
     </div>

@@ -48,7 +48,7 @@ declare global {
 
     type CommunityPostItem = {
         id: string
-        title: string
+        title: string | null
         content: string
         images: string[]
         postedUser: string
@@ -56,7 +56,9 @@ declare global {
         updatedAt: string
         user: User | null,
         anonymousName: string,
-        anonymousAvatar: string
+        anonymousAvatar: string,
+        likes: number | null,
+        likedBy: string[]
     }
 
     type CompanyList = {

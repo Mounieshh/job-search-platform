@@ -72,6 +72,7 @@ model CommunityPost {
 
   likes Int?
   comments CommentPost[]
+  likedBy String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

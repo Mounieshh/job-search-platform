@@ -98,3 +98,47 @@ export async function getCommunityPost(req: Request, res: Response){
     }
 }
 
+
+export async function likePost(req: Request, res: Response) {
+    try {
+        let { postId } = req.params
+        const user = (req as any).user
+
+        if (!postId) {
+                return res.status(400).json({ message: "Post ID is required" })
+        }
+
+        if (Array.isArray(postId)) {
+            postId = postId[0];
+        }
+        
+        const post = await prisma.communityPost.findUnique({
+            where: { id: postId }
+        })
+
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" })
+        }
+
+        const alreadyLiked = post.likedBy.includes(user.id)
+
+        await prisma.communityPost.update({
+            where: { id: postId },
+            data: {
+                likedBy: alreadyLiked
+                    ? { set: post.likedBy.filter(id => id !== user.id) }  // unlike
+                    : { push: user.id }                                    // like
+            }
+        })
+
+        return res.status(200).json({
+            message: alreadyLiked ? "Post unliked" : "Post liked",
+            likes: alreadyLiked ? post.likedBy.length - 1 : post.likedBy.length + 1
+        })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}

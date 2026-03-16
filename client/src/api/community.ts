@@ -13,6 +13,10 @@ export type CreateCommunityPostResponse = {
     post: CommunityPostItem
 }
 
+export type LikePostResponse = {
+    message: string,
+    likes: number
+}
 
 export const fetchCommunityPosts = async () : Promise<CommunityPostItem[]> => {
     const response = await fetch(`${baseUrl}/api/community`, {
@@ -52,3 +56,16 @@ export const createCommunityPost = async (formData: CommunityFormData): Promise<
     return data as CreateCommunityPostResponse
 }
 
+export async function likePost(postId: string | undefined){
+    const response = await fetch(`${baseUrl}/api/community/${postId}/like`, {
+        method: "PATCH",
+        credentials: "include"
+    })
+
+    if(!response.ok){
+        throw new Error("Failed to like the post")
+    }
+
+    const data: LikePostResponse = await response.json()
+    return data
+}
