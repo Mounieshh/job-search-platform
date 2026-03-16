@@ -11,112 +11,78 @@ import { NODE_ENV } from "../config/env.js";
 
 
 function escapeRegex(value: string) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
-
-
 export async function registerUser(req: Request, res: Response) {
-    
-    try {
-        const parsedData = zodRegisterSchema.parse(req.body)
-
-        const { name, email, password, accountType, role, company } = parsedData
-        const companyName = company?.companyName ?? parsedData.companyName
-        const position = company?.position ?? parsedData.position
+  try {
+    const parsedData = zodRegisterSchema.parse(req.body)
+    const { name, email, password, accountType } = parsedData
+    const companyName = parsedData.companyName
+    const position = parsedData.position
 
 
-        if (accountType === "company_employee") {
-            const domainMatch = email.match(/@([a-zA-Z0-9.-]+)$/)
-            if (!domainMatch) {
-                return res.status(400).json({
-                    message: "Invalid email format"
-                })
-            }
-
-            const domain = domainMatch[1]
-            const personalDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "mail.com", "protonmail.com", "aol.com"]
-            
-            if (personalDomains.includes(domain.toLowerCase())) {
-                return res.status(400).json({
-                    message: "Company employees must register with a company email address, not personal email"
-                })
-            }
-        }
-
-        const existingUser = await User.findOne({ email })
-
-        if (existingUser) {
-            return res.status(409).json({
-                message: "User already exists"
-            })
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 12)
-
-        let resolvedRole: "USER" | "LEAD" | "ADMIN" = role || "USER"
-
-        if (accountType === "company_employee") {
-            resolvedRole = "USER"
-        }
-
-        const userData: any = {
-            name,
-            email,
-            password: hashedPassword,
-            accountType,
-            role: resolvedRole
-        }
-
-        if (accountType === "company_employee") {
-            const normalizedCompanyName = companyName!.trim()
-            const companyNameMatcher = new RegExp(`^${escapeRegex(normalizedCompanyName)}$`, "i")
-
-            let company = await Company.findOne({ name: companyNameMatcher })
-
-            if (!company) {
-                company = await Company.create({ name: normalizedCompanyName })
-            }
-
-            const isPrimaryLead = !company.primaryLeadId
-            userData.role = isPrimaryLead ? "LEAD" : "USER"
-
-            userData.company = {
-                companyId: company._id,
-                position
-            }
-
-            const createdUser = await User.create(userData)
-
-            if (isPrimaryLead) {
-                company.primaryLeadId = createdUser._id as any
-                await company.save()
-            }
-
-            return res.status(201).json({
-                message: "User registered successfully"
-            })
-        }
-
-        await User.create(userData)
-
-        return res.status(201).json({
-            message: "User registered successfully"
-        })
-
-    } catch (error: any) {
-
-        if (error.name === "ZodError") {
-            return res.status(422).json({
-                message: "Validation failed",
-                errors: error.issues
-            })
-        }
-
-        return res.status(500).json({
-            message: "Internal server error"
-        })
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" })
     }
+
+
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    const userData: any = {
+      name,
+      email,
+      password: hashedPassword,
+      accountType,
+      role: "USER",
+    }
+
+    if (accountType === "company_employee") {
+        
+      const normalizedCompanyName = companyName!.trim()
+      const companyNameMatcher = new RegExp(`^${escapeRegex(normalizedCompanyName)}$`, "i")
+
+      let findCompany = await Company.findOne({ name: companyNameMatcher })
+
+      if (!findCompany) {
+          findCompany = await Company.create({ name: normalizedCompanyName })
+        }
+
+      const isPrimaryLead = !findCompany.primaryLeadId
+      userData.role = isPrimaryLead ? "LEAD" : "USER"
+
+
+      userData.company = {
+        companyId: findCompany._id,
+        companyName: normalizedCompanyName,
+        position,
+      }
+
+      const createdUser = await User.create(userData)
+
+      const companyUpdate: any = { $addToSet: { userIds: createdUser._id } }
+      if (isPrimaryLead) {
+        companyUpdate.$set = { primaryLeadId: createdUser._id }
+      }
+
+      console.log(createdUser)
+      await Company.updateOne({ _id: findCompany._id }, companyUpdate)
+      return res.status(201).json({ message: "User registered successfully" })
+    }
+
+    await User.create(userData)
+    
+    return res.status(201).json({ message: "User registered successfully" })
+
+  } catch (error: any) {
+    console.error(error)
+    if (error.name === "ZodError") {
+      return res.status(422).json({ message: "Validation failed", errors: error.issues })
+    }
+    return res.status(500).json({ message: "Internal server error" })
+
+  }
 }
 
 export async function loginUser(req: Request, res: Response){

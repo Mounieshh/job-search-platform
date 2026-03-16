@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { required } from "zod/mini";
 
 export interface IUser extends Document {
   name: string;
@@ -9,7 +10,8 @@ export interface IUser extends Document {
   role: "USER" | "LEAD" | "ADMIN";
 
   company?: {
-    name: string;
+    companyId: mongoose.Types.ObjectId;
+    companyName: string
     position:
       | "software_engineer"
       | "frontend_developer"
@@ -60,6 +62,10 @@ const userSchema = new Schema<IUser>(
       companyId: {
         type: Schema.Types.ObjectId,
         ref: "Company"
+      },
+      companyName: {
+        type: String,
+        required: false
       },
       position: {
         type: String,

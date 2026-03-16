@@ -43,8 +43,17 @@ export async function getCompanyUsersList(req: Request, res: Response){
     try {
         const { companyId } = req.params
 
+        const company = await Company.findById(companyId).select("userIds")
+        if (!company) {
+            return res.status(404).json({
+                message: "Company not found"
+            })
+        }
+
         const users = await User.find({
-            "company.companyId": companyId
+            _id: {
+                $in: company.userIds
+            }
         }).select("-password")
 
         return res.status(200).json({
