@@ -9,7 +9,7 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { Card, CardContent } from "../ui/card"
-import { ImageIcon } from "lucide-react"
+import { ImageIcon, PlusIcon } from "lucide-react"
 
 const CommunityPost = () => {
   const { mutateAsync: createPost, isPending } = useCreateCommunityPost()
@@ -34,116 +34,133 @@ const CommunityPost = () => {
     }
   }, [previewUrls])
 
-
   const handleCommunityPost: SubmitHandler<CommunityFormData> = async (formData) => {
     try {
       await createPost(formData)
-
       toast.success("Community post created")
       form.reset({ title: "", content: "", images: [] })
-
     } catch (error: any) {
-        toast.error(error.message || "Unable to create the community post")
+      toast.error(error.message || "Unable to create the community post")
     }
   }
 
   return (
-    <>
-      <div>
-        <Card className="rounded-none">
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleCommunityPost)} className="space-y-4">
-                <FormField
-                name="title"
-                control={form.control}
-                render={({field}) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                      placeholder="Title"
+    <Card className="rounded-none">
+      <CardContent className="space-y-5 p-5 sm:p-6">
+        <div className="space-y-1 border-b border-border pb-4">
+          <h3 className="text-base font-semibold text-card-foreground">Share with the community</h3>
+          <p className="text-sm text-muted-foreground">
+            Post a thought, update, or question. Keep it clear and easy to read.
+          </p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleCommunityPost)} className="space-y-5">
+            <FormField
+              name="title"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                    Title
+                  </div>
+                  <FormControl>
+                    <Input
+                      placeholder="Add a short title"
                       className="rounded-none border-0 border-b px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       {...field}
-                      />
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                )}
-                />
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
-                name="content"
-                control={form.control}
-                render={({field}) => (
-                  <FormItem className="space-y-0">
-                    <FormControl>
-                      <Textarea
-                      placeholder="Share your thoughts here.."
-                      value={field.value}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                      ref={field.ref}
-                      onChange={field.onChange}
+            <FormField
+              name="content"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <div className="flex items-center justify-between gap-3 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                    <span>Post Content</span>
+                    <span>{field.value.length} chars</span>
+                  </div>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Share your thoughts here..."
                       rows={8}
                       className="resize-none rounded-none border-0 border-b px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                      />
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                )}
-                />
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
-                name="images"
-                control={form.control}
-                render={({field}) => (
-                  <FormItem className="space-y-3">
-                    <div className="flex items-center justify-between pt-3">
+            <FormField
+              name="images"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <div className="">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 text-muted-foreground">
-                        <label htmlFor="community-images" className="cursor-pointer">
+                        <label htmlFor="community-images" className="flex cursor-pointer items-center gap-2 text-sm font-medium hover:text-foreground transition-colors">
                           <ImageIcon className="size-5" />
+                          <span><PlusIcon className="size-4"/></span>
                         </label>
-                        {previewUrls.length > 0 ? (
-                          <div className="flex items-center gap-2">
-                            {previewUrls.map((url, index) => (
-                              <img
-                              key={`${url}-${index}`}
-                              src={url}
-                              alt={`Selected preview ${index + 1}`}
-                              className="size-8 rounded border object-cover"
-                              />
-                            ))}
-                          </div>
-                        ) : null}
+                        {previewUrls.length > 0 && (
+                          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            {previewUrls.length} selected
+                          </span>
+                        )}
                       </div>
+
                       <Button type="submit" className="rounded-none cursor-pointer" disabled={isPending}>
                         {isPending ? "Posting..." : "Post"}
                       </Button>
                     </div>
 
-                    <FormControl>
-                      <Input
+                    {previewUrls.length > 0 ? (
+                      <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                        {previewUrls.map((url, index) => (
+                          <img
+                            key={`${url}-${index}`}
+                            src={url}
+                            alt={`Selected preview ${index + 1}`}
+                            className="h-20 w-full rounded border object-cover"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Images are optional. Add a few if they help explain the post.
+                      </p>
+                    )}
+                  </div>
+
+                  <FormControl>
+                    <Input
                       id="community-images"
                       type="file"
                       multiple
                       accept="image/*"
+                      ref={field.ref}
                       name={field.name}
                       onBlur={field.onBlur}
-                      ref={field.ref}
                       onChange={(e) => field.onChange(Array.from(e.target.files || []))}
                       className="hidden"
-                      />
-                    </FormControl>
-                    <FormMessage/>
-                  </FormItem>
-                )}
-                />
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   )
 }
 

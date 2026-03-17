@@ -9,6 +9,14 @@ import { useSession } from "@/hooks/queries/auth"
 
 const PREVIEW_LENGTH = 150
 
+function formatPostDate(value: string) {
+    return new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+    })
+}
+
 const CommunityPostList = () => {
 
     const { data = [], isPending, error } = useCommunityPosts()
@@ -26,8 +34,8 @@ const CommunityPostList = () => {
 
      if (error) {
         return (
-            <div>
-                Nothing to show
+            <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+                Unable to load community posts right now.
             </div>
         )
      }
@@ -35,9 +43,19 @@ const CommunityPostList = () => {
   return (
     <>
     <div className="space-y-4">
-        {data.length === 0 ? (
+        <div className="flex items-end justify-between border-b border-border pb-3">
             <div>
-                Nothing to Show
+                <h3 className="text-base font-semibold text-card-foreground">Recent Posts</h3>
+                <p className="text-sm text-muted-foreground">See what the community is sharing.</p>
+            </div>
+            <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                {data.length} posts
+            </div>
+        </div>
+
+        {data.length === 0 ? (
+            <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+                No community posts yet.
             </div>
         ): (
             <div className="space-y-4">
@@ -47,14 +65,39 @@ const CommunityPostList = () => {
                     const likeCount = likedBy.length
 
                     return (
-                    <Card key={post.id} className="rounded-none">
-                        <CardHeader>
-                            <CardTitle>
-                                {post.title}
+                    <Card key={post.id} className="rounded-none overflow-hidden">
+                        <CardHeader className="space-y-4 border-b border-border pb-4">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <img 
+                                    src={post.anonymousAvatar} 
+                                    alt="Anonymous Image" 
+                                    className="size-10 rounded-full border object-cover"
+                                    height={40}
+                                    width={40}
+                                    />
+                                    <div className="min-w-0">
+                                        <div className="truncate text-sm font-medium text-card-foreground">
+                                            {post.anonymousName}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {formatPostDate(post.createdAt)}
+                                        </div>
+                                    </div>
+                                </div>
+                                {post.images?.length > 0 ? (
+                                    <span className="shrink-0 border border-border px-2 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                                        {post.images.length} images
+                                    </span>
+                                ) : null}
+                            </div>
+
+                            <CardTitle className="text-lg leading-snug">
+                                {post.title || "Untitled post"}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-sm leading-6">
+                        <CardContent className="space-y-4 pt-5">
+                            <div className="text-sm leading-6 text-card-foreground/90">
                                 {post.content.length > PREVIEW_LENGTH
                                     ? post.content.slice(0, PREVIEW_LENGTH).trimEnd() + "…"
                                     : post.content}
@@ -84,26 +127,15 @@ const CommunityPostList = () => {
                             <div className="flex w-full items-center justify-between gap-4">
                                 <button
                                 onClick={() => likePost(post.id)}
-                                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-red-500 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex items-center gap-1.5 border border-border px-2.5 py-1.5 text-sm text-muted-foreground hover:text-red-500 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <Heart
                                     className={`size-4 ${hasLiked ? "fill-red-500 text-red-500" : ""}`}
                                 />
-                                <span>{likeCount}</span>
+                                <span>{likeCount} likes</span>
                             </button>
-                                <div className="flex items-center gap-2">
-                                    <div className="max-w-44 truncate text-sm font-medium">
-                                        {post.anonymousName}
-                                    </div>
-                                    <div>
-                                        <img 
-                                        src={post.anonymousAvatar} 
-                                        alt="Anonymous Image" 
-                                        className="size-8 rounded-full border object-cover"
-                                        height={32}
-                                        width={32}
-                                        />
-                                    </div>
+                                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                                    community
                                 </div>
                             </div>
                         </CardFooter>

@@ -1,4 +1,4 @@
-import { Spinner } from "../ui/spinner"
+ import { Spinner } from "../ui/spinner"
 import { Badge } from "../ui/badge"
 import { useTrackMyPostsUser } from "@/hooks/queries/profile"
 
