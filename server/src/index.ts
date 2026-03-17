@@ -10,6 +10,8 @@ import { APP_ORIGIN, PORT } from "./config/env.js"
 import leadRouter from "./routes/lead.route.js"
 import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
+import dns from "node:dns/promises"
+import { setServers } from "node:dns"
 
 const app = express()
 
@@ -28,6 +30,9 @@ app.use("/api/company", companyRouter)
 app.use("/api/lead", leadRouter)
 app.use("/api/community", communityRouter)
 app.use("/api/user", userRouter)
+
+
+setServers(["1.1.1.1"])
 
 app.listen(PORT, async () => {
     console.log(`Server started running at ${PORT}`);

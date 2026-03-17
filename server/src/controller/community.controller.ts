@@ -1,63 +1,54 @@
 import { Request, Response } from "express";
 import { communitySchema } from "../validate/community.zod.js";
-import cloudinary from "../config/cloudinary.js";
 import { prisma } from "../config/prisma.js";
-import fs from "fs/promises"
 import User from "../models/user.schema.js";
 import { generateName, generateAvatar } from "../utils/generator.js";
+import { uploadToCloudinary } from "../utils/upload.js";
 
 
-export async function createCommunityPost(req: Request, res: Response){
-    try {
+export async function createCommunityPost(req: Request, res: Response) {
+  try {
+    const parsedData = communitySchema.parse(req.body)
 
-        const parsedData = communitySchema.parse(req.body)
-
-        const user = (req as any).user
-
-        if(!user){
-            return res.status(401).json({
-                message: "Unauthorized"
-            })
-        }
-
-        let imageUrls : string[] = []
-
-        if(req.files) {
-            const files = req.files as Express.Multer.File[]
-
-            for(const file of files) {
-                const result = await cloudinary.uploader.upload(file.path, {
-                    folder: "community_posts"
-                })
-
-                imageUrls.push(result.secure_url)
-                await fs.unlink(file.path).catch(() => null)
-            }
-        }
-
-        const anonymousName = generateName()
-        const anonymousAvatar = generateAvatar(anonymousName)
-
-        const post = await prisma.communityPost.create({
-            data: {
-                title: parsedData.title,
-                content: parsedData.content.trim(),
-                images: imageUrls,
-                postedUser: user._id.toString(),
-                anonymousName,
-                anonymousAvatar,
-            }
-        })
-
-        return res.status(201).json({
-            message: "Community post Created",
-            post
-        })
-    } catch (error: any) {
-        return res.status(400).json({
-            message: error.message || "Invalid Request"
-        })
+    const user = (req as any).user
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" })
     }
+
+    let imageUrls: string[] = []
+
+    if (req.files) {
+      const files = req.files as Express.Multer.File[]
+
+      imageUrls = await Promise.all(
+        files.map(file => uploadToCloudinary(file.buffer))
+      )
+    }
+
+    const anonymousName = generateName()
+    const anonymousAvatar = generateAvatar(anonymousName)
+
+    const post = await prisma.communityPost.create({
+      data: {
+        title: parsedData.title,
+        content: parsedData.content.trim(),
+        images: imageUrls,
+        postedUser: user._id.toString(),
+        anonymousName,
+        anonymousAvatar,
+      }
+    })
+
+    return res.status(201).json({
+      message: "Community post Created",
+      post
+    })
+
+  } catch (error: any) {
+    return res.status(400).json({
+      message: error.message || "Invalid Request"
+    })
+  }
 }
 
 
