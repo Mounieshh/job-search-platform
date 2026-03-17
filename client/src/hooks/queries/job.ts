@@ -1,4 +1,4 @@
-import { JobDetailsLook, browseJobs, getAdminApprovedJobs, getPendingJobs } from "@/api/job"
+import { JobDetailsLook, browseJobs, getAdminApprovedJobs, getAdminJobDetail, getPendingJobs } from "@/api/job"
 import { useQuery } from "@tanstack/react-query"
 
 export function useBrowseJobs() {
@@ -24,10 +24,19 @@ export function usePendingJobs(){
 }
 
 
-
 export function useAdminApprovedJobs(){
   return useQuery({
     queryKey: ["admin_approved_jobs"],
     queryFn: getAdminApprovedJobs
   })
 }
+
+
+export function useAdminJobDetails(companyName: string | undefined, slugId: string | undefined){
+  return useQuery({
+    queryKey: ["admin_job_details", companyName, slugId],
+    queryFn: () => getAdminJobDetail(companyName, slugId),
+    enabled: !!companyName && !!slugId
+  })
+}
+

@@ -31,6 +31,10 @@ type AdminApprovedJobResponse = {
     jobs: Job[]
 }
 
+type AdminJobsDetail = {
+    job: JobDetail
+}
+
 export async function browseJobs(){
     const response = await fetch(`${baseUrl}/api/jobs`, {
         method: "GET",
@@ -138,4 +142,20 @@ export async function getAdminApprovedJobs(){
 
     const data: AdminApprovedJobResponse = await response.json()
     return data.jobs ?? []
+}
+
+
+export async function getAdminJobDetail(companyName: string | undefined, slugId: string | undefined){
+    const response = await fetch(`${baseUrl}/api/jobs/admin/${companyName}/${slugId}`, {
+        method: "GET",
+        credentials: "include"
+    })
+
+    if(!response.ok){
+        throw new Error("Failed to fetch job details")
+    }
+
+    const data: AdminJobsDetail = await response.json()
+
+    return data.job ?? null
 }

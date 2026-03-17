@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, useParams, useNavigate } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight, ArrowLeft } from "lucide-react"
@@ -7,94 +7,60 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { baseUrl } from "@/lib/base"
+import { useAdminJobDetails } from "@/hooks/queries/job"
+import { useAdminApprove, useAdminReject } from "@/hooks/mutations/job"
+import { toast } from "sonner"
 
 
 export default function JobDetailAdmin() {
   const { companyName, slugId } = useParams()
   const navigate = useNavigate()
 
-
-  const [job, setJob] = useState<JobDetail | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const { data: job, isPending, error} = useAdminJobDetails(companyName, slugId)
 
   
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
-  const [actionLoading, setActionLoading] = useState(false)
 
-  useEffect(() => {
-    if (!companyName || !slugId) {
-      setError("Invalid job link")
-      return
-    }
+  const approveMutation = useAdminApprove()
+  const rejectMutation = useAdminReject()
 
-    const getJobBySlug = async () => {
-      try {
-        setLoading(true)
-        setError("")
-        const response = await fetch(
-          `${baseUrl}/api/jobs/admin/${companyName}/${slugId}`,
-          { method: "GET", credentials: "include" }
-        )
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}))
-          throw new Error(data.message || "Failed to fetch job")
-        }
-        const data = await response.json()
-        setJob(data.job)
-      } catch (err: any) {
-        setError(err.message || "Something went wrong")
-      } finally {
-        setLoading(false)
+  const handleApprove = async (jobId: string) => {
+      if(approveMutation.isPending){
+        return
       }
-    }
+      
+      try {
+        await approveMutation.mutateAsync(jobId)
+        
+        toast.success("Job approved successfully")
+        navigate("/approved")
 
-    getJobBySlug()
-  }, [companyName, slugId])
-
-  const handleApprove = async () => {
-    if (!job) return
-    try {
-      setActionLoading(true)
-      const response = await fetch(`${baseUrl}/api/jobs/admin/approve/${job.id}`, {
-        method: "PATCH",
-        credentials: "include"
-      })
-      if (!response.ok) throw new Error("Failed to approve job")
-      navigate("/newrequest")
-    } catch (error: any) {
-      setError(error.message || "Failed to approve job")
-    } finally {
-      setActionLoading(false)
-    }
+      } catch (error) {
+        toast.error("Failed to approve job. Please try again.")
+      }
   }
 
-  const handleReject = async () => {
-    if (!job) return
-    const reason = rejectReason.trim()
-    if (!reason) return
-    try {
-      setActionLoading(true)
-      const response = await fetch(`${baseUrl}/api/jobs/admin/reject/${job.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ reason })
-      })
-      if (!response.ok) throw new Error("Failed to reject job")
-      navigate("/newrequest")
-    } catch (error: any) {
-      setError(error.message || "Failed to reject job")
-    } finally {
-      setActionLoading(false)
-      setRejectDialogOpen(false)
-      setRejectReason("")
-    }
+  const handleReject = async (jobId: string) => {
+      const reason = rejectReason.trim()
+
+      if(!reason){
+        return
+      }
+
+      try {
+        await rejectMutation.mutateAsync({ jobId, reason })
+        
+        toast.success("Job rejected successfully")
+        setRejectDialogOpen(false)
+        setRejectReason("")
+        navigate("/approved")
+      } catch (error) {
+        toast.error("Failed to reject the job. Please try again")
+      }
   }
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex justify-center pt-10">
         <Spinner className="size-7" />
@@ -105,16 +71,18 @@ export default function JobDetailAdmin() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="border border-border bg-card p-6 text-sm text-destructive">{error}</div>
+        <div className="border border-border bg-card p-6 text-sm text-destructive">
+          Nothing to show
+        </div>
       </div>
     )
   }
 
   if (!job) return null
 
-  const isPending = job.status === "pending"
+  const isPendingJob = job.status === "pending"
   const isRejected = job.status === "rejected"
-  const backLink = isPending ? "/newrequest" : "/approved"
+  const backLink = isPendingJob ? "/newrequest" : "/approved"
 
   return (
     <>
@@ -124,7 +92,7 @@ export default function JobDetailAdmin() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-4" />
-          {isPending ? "Back to Pending Jobs" : "Back to Approved / Rejected Jobs"}
+          {isPendingJob ? "Back to Pending Jobs" : "Back to Approved / Rejected Jobs"}
         </Link>
       </div>
 
@@ -156,7 +124,7 @@ export default function JobDetailAdmin() {
             </div>
           </div>
           <Badge
-            variant={isPending ? "outline" : isRejected ? "destructive" : "secondary"}
+            variant={isPendingJob ? "outline" : isRejected ? "destructive" : "secondary"}
             className="uppercase font-semibold text-xs"
           >
             {job.status}
@@ -266,24 +234,22 @@ export default function JobDetailAdmin() {
               )}
             </div>
 
-            {isPending && (
+            {isPendingJob && (
               <div className="border border-border bg-card p-5 space-y-2">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Actions</p>
                 <Button
                   type="button"
                   variant="default"
                   className="w-full rounded-none cursor-pointer"
-                  onClick={handleApprove}
-                  disabled={actionLoading}
+                  onClick={() => handleApprove(job.id)}
                 >
-                  {actionLoading ? "Approving..." : "Approve Job"}
+                  Approve Job
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full rounded-none cursor-pointer"
                   onClick={() => { setRejectReason(""); setRejectDialogOpen(true) }}
-                  disabled={actionLoading}
                 >
                   Reject Job
                 </Button>
@@ -317,18 +283,17 @@ export default function JobDetailAdmin() {
               variant="outline"
               onClick={() => setRejectDialogOpen(false)}
               className="rounded-none cursor-pointer"
-              disabled={actionLoading}
             >
               Cancel
             </Button>
             <Button
               type="button"
               variant="destructive"
-              disabled={!rejectReason.trim() || actionLoading}
-              onClick={handleReject}
+              disabled={!rejectReason.trim()}
               className="rounded-none cursor-pointer"
+              onClick={() => handleReject(job.id)}
             >
-              {actionLoading ? "Rejecting..." : "Reject"}
+              Reject
             </Button>
           </DialogFooter>
         </DialogContent>
