@@ -1,4 +1,4 @@
-import ApprovedCard from "@/components/admin/ApprovedCard"
+import JobApproved from "@/components/admin/JobApproved"
 import { useSession } from "@/hooks/queries/auth"
 
 export default function ApprovePage() {
@@ -8,7 +8,7 @@ export default function ApprovePage() {
     <div>
         {user && user.role === "ADMIN" && (
             <div>
-                <ApprovedCard/>
+                <JobApproved/>
             </div>
         )}
     </div>

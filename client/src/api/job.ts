@@ -27,6 +27,10 @@ type AdminJobActionResponse = {
     job?: JobDetail
 }
 
+type AdminApprovedJobResponse = {
+    jobs: Job[]
+}
+
 export async function browseJobs(){
     const response = await fetch(`${baseUrl}/api/jobs`, {
         method: "GET",
@@ -119,4 +123,19 @@ export async function adminRejectJob(jobId: string, reason: string){
     }
 
     return data as AdminJobActionResponse
+}
+
+
+export async function getAdminApprovedJobs(){
+    const response = await fetch(`${baseUrl}/api/jobs/approved-rejected`, {
+        method: "GET",
+        credentials: "include"
+    })
+
+    if(!response.ok){
+        throw new Error("Failed to fetch Admin Approved Jobs")
+    }
+
+    const data: AdminApprovedJobResponse = await response.json()
+    return data.jobs ?? []
 }

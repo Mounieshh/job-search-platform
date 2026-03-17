@@ -1,4 +1,4 @@
-import ApprovalCard from "@/components/admin/ApprovalCard"
+import PendingJobApprovalCard from "@/components/admin/PendingJobApprovals"
 import TrackMyPosts from "@/components/user/TrackMyPosts"
 import { useSession } from "@/hooks/queries/auth"
 
@@ -9,7 +9,7 @@ export default function ApprovalPage() {
     <div>
         {user && user.role === "ADMIN" && (
             <div>
-                <ApprovalCard/>
+                <PendingJobApprovalCard/>
             </div>
         )}
 

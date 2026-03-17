@@ -13,9 +13,13 @@ import { baseUrl } from "@/lib/base"
 export default function JobDetailAdmin() {
   const { companyName, slugId } = useParams()
   const navigate = useNavigate()
+
+
   const [job, setJob] = useState<JobDetail | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
   const [actionLoading, setActionLoading] = useState(false)
@@ -206,9 +210,7 @@ export default function JobDetailAdmin() {
 
             <div className="border border-border bg-card p-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Source</p>
-                </div>
+
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Posted On</p>
                   <p className="text-sm text-card-foreground mt-0.5">

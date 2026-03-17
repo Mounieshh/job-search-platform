@@ -1,41 +1,14 @@
-import { useEffect, useState } from 'react'
+
 import { Link } from 'react-router'
-import { toast } from 'sonner'
 import { Spinner } from '../ui/spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { baseUrl } from "@/lib/base"
+import { useAdminApprovedJobs } from '@/hooks/queries/job'
 
-const ApprovedCard = () => {
-  const [loading, setLoading] = useState(false)
-  const [jobs, setJobs] = useState<Job[]>([])
-
-  useEffect(() => {
-    const getJobs = async () => {
-      try {
-        setLoading(true)
-
-        const response = await fetch(`${baseUrl}/api/jobs/approved-rejected`, {
-          method: "GET",
-          credentials: "include"
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch the approved/rejected jobs")
-        }
-
-        const data = await response.json()
-        setJobs(data.jobs || [])
-      } catch (error: any) {
-        toast.error(error.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getJobs()
-  }, [])
+const JobApproved = () => {
+  
+  const { data: jobs = [], isPending } = useAdminApprovedJobs()
 
   function toSlug(title: string): string {
     return title
@@ -46,7 +19,7 @@ const ApprovedCard = () => {
       .replace(/-+/g, "-")
   } 
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex justify-center pt-10">
         <Spinner className="size-7"/>
@@ -96,4 +69,4 @@ const ApprovedCard = () => {
   )
 }
 
-export default ApprovedCard
+export default JobApproved

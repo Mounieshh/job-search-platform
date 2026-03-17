@@ -11,7 +11,7 @@ import { useAdminApprove, useAdminReject } from "@/hooks/mutations/job"
 import { usePendingJobs } from "@/hooks/queries/job"
 
 
-const ApprovalCard = () => {
+const PendingJobApprovalCard = () => {
     const { data: pendingJobs = [], isPending} = usePendingJobs()
 
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
@@ -180,4 +180,4 @@ const ApprovalCard = () => {
   )
 }
 
-export default ApprovalCard
+export default PendingJobApprovalCard
