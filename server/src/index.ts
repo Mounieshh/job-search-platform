@@ -16,7 +16,7 @@ import { setServers } from "node:dns"
 const app = express()
 
 app.use(cors({
-    origin: APP_ORIGIN,
+    origin: APP_ORIGIN === "*" ? true : APP_ORIGIN,
     credentials: true
 }))
 app.use(cookieParser())
