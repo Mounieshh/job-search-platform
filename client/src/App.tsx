@@ -29,10 +29,10 @@ function AppLayout() {
     <>
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "" : "pt-22 pl-48"}>
+      <main className={hideNavbar ? "" : "pt-26 md:flex md:min-h-[calc(100vh-3rem)] md:pt-12"}>
         {!hideNavbar && <RoleNavbar />}
 
-        <div className="px-3 py-4 sm:px-6 sm:py-6">
+        <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}
             <Route path="/" element={<CommunityPage />} />

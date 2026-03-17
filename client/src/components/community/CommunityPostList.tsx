@@ -118,9 +118,9 @@ const CommunityPostList = () => {
     <Dialog open={!!selectedPost} onOpenChange={(open) => { if (!open) setSelectedPost(null) }}>
         <DialogContent className="rounded-none max-w-lg max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>{selectedPost?.title}</DialogTitle>
+                <DialogTitle className="font-semibold italic">{selectedPost?.title}</DialogTitle>
             </DialogHeader>
-            <p className="text-sm leading-7 whitespace-pre-line text-card-foreground">
+            <p className="text-sm leading-7 whitespace-pre-line text-card-foreground text-justify">
                 {selectedPost?.content}
             </p>
             {selectedPost?.images && selectedPost.images.length > 0 && (
