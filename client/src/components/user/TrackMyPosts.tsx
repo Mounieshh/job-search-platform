@@ -1,49 +1,12 @@
-import { useEffect, useState } from "react"
 import { Spinner } from "../ui/spinner"
 import { Badge } from "../ui/badge"
-import { baseUrl } from "@/lib/base"
+import { useTrackMyPostsUser } from "@/hooks/queries/profile"
 
 const TrackMyPosts = () => {
 
-    const [loading, setLoading] = useState(false)
-    const [users, setUser] = useState<Job[]>([])
+    const { data: users = [] , isPending } = useTrackMyPostsUser()
 
-    useEffect(() => {
-        const getUserJobs = async () => {
-            try {
-
-                setLoading(true)
-                const response = await fetch(`${baseUrl}/api/jobs/user/post`, {
-                    method: "GET",
-                    credentials: "include"
-                })
-    
-                if(!response.ok){
-                    throw new Error("Failed to fetch the data")
-                }
-    
-                const data = await response.json()
-
-                const userJobs = Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.userPostedJobs)
-                        ? data.userPostedJobs
-                        : Array.isArray(data?.jobs)
-                            ? data.jobs
-                            : []
-
-                setUser(userJobs)
-            } catch (error: any) {
-                console.error(error.message)
-            } finally {
-                setLoading(false)
-            }
-        }
-        getUserJobs()
-    }, [])
-
-
-    if(loading){
+    if(isPending){
         return (
             <div className="min-h-screen flex justify-center pt-10">
                 <Spinner className="size-7"/>
@@ -120,6 +83,28 @@ const TrackMyPosts = () => {
                             <div className="mt-2 rounded-none border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
                                 Rejection reason: {user.rejectedReason}
                             </div>
+                        )}
+
+                        {user.status === "approved" && user.approvedBy && (
+                            <p className="text-xs text-muted-foreground">
+                                Approved by: <span className="font-semibold text-foreground">{user.approvedBy}</span>
+                                {user.companyName && (
+                                    <>
+                                        {" "}for <span className="font-semibold text-foreground">{user.companyName}</span>
+                                    </>
+                                )}
+                            </p>
+                        )}
+
+                        {user.status === "rejected" && user.rejectedBy && (
+                            <p className="text-xs text-muted-foreground">
+                                Rejected by: <span className="font-semibold text-foreground">{user.rejectedBy}</span>
+                                {user.companyName && (
+                                    <>
+                                        {" "}for <span className="font-semibold text-foreground">{user.companyName}</span>
+                                    </>
+                                )}
+                            </p>
                         )}
 
                         

@@ -86,14 +86,18 @@ export async function leadApprove(req: Request, res: Response){
             where: { jobId: id },
             update: {
                 approvedById: user._id.toString(),
+                approvedByName: user.name,
                 approvedRole: user.role,
                 approvedAt: new Date(),
+                rejectedById: null,
+                rejectedByName: null,
                 rejectedReason: null,
                 rejectedAt: null
             },
             create: {
                 jobId: id,
                 approvedById: user._id.toString(),
+                approvedByName: user.name,
                 approvedRole: user.role,
                 approvedAt: new Date()
             }
@@ -150,16 +154,19 @@ export async function leadReject(req: Request, res: Response){
         const rejection = await prisma.jobApproval.upsert({
             where: { jobId: id },
             update: {
-                approvedById: user._id.toString(),
-                approvedRole: user.role,
+                rejectedById: user._id.toString(),
+                rejectedByName: user.name,
                 rejectedReason: reason.trim(),
                 rejectedAt: new Date(),
+                approvedById: null,
+                approvedByName: null,
+                approvedRole: null,
                 approvedAt: null
             },
             create: {
                 jobId: id,
-                approvedById: user._id.toString(),
-                approvedRole: user.role,
+                rejectedById: user._id.toString(),
+                rejectedByName: user.name,
                 rejectedReason: reason.trim(),
                 rejectedAt: new Date()
             }

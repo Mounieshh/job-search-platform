@@ -36,7 +36,6 @@ model Job {
   companyId String?
 
   rejectedReason String?
-
   approval JobApproval[]
 
   createdAt DateTime @default(now())
@@ -52,6 +51,12 @@ model JobApproval {
 
   approvedById String?
   approvedRole String?
+
+  rejectedById String?
+  rejectedByName String?
+  approvedByName String?
+  
+
 
   rejectedReason String?
   

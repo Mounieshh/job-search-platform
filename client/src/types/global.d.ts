@@ -22,6 +22,10 @@ declare global {
         url?: string,
         status: string,
         rejectedReason?: string | null,
+        approvedBy?: string | null,
+        rejectedBy?: string | null,
+        approvedAt?: string | null,
+        rejectedAt?: string | null,
         postedBy: string,
         user: User | null
     }
