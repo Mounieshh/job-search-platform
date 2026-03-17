@@ -1,9 +1,9 @@
 
 import { Link } from 'react-router'
-import { Spinner } from '../ui/spinner'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { Spinner } from '@/components/ui/spinner'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 import { useLeadApprovedJobs} from '@/hooks/queries/lead'
 

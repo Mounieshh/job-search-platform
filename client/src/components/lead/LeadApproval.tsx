@@ -1,4 +1,4 @@
-import { Spinner } from "../ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 import { Link } from "react-router"
 import { ArrowUpRight } from "lucide-react"
 import { useLeadRequests } from "@/hooks/queries/lead"

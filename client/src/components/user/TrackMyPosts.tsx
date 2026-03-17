@@ -1,5 +1,5 @@
- import { Spinner } from "../ui/spinner"
-import { Badge } from "../ui/badge"
+ import { Spinner } from "@/components/ui/spinner"
+import { Badge } from "@/components/ui/badge"
 import { useTrackMyPostsUser } from "@/hooks/queries/profile"
 
 const TrackMyPosts = () => {

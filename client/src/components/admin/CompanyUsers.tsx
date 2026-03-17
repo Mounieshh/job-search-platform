@@ -1,8 +1,8 @@
 import { useCompanyUsers } from "@/hooks/queries/company"
 import { Link, useParams } from "react-router"
-import { Spinner } from "../ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 import { ArrowLeft } from "lucide-react"
-import { Badge } from "../ui/badge"
+import { Badge } from "@/components/ui/badge"
 
 const CompanyUsers = () => {
     const { companyId } = useParams()

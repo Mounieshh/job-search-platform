@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import { Spinner } from "./ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight } from "lucide-react"
 import { useBrowseJobs } from "@/hooks/queries/job"
 import { useSession } from "@/hooks/queries/auth"

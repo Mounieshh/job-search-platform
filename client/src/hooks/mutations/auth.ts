@@ -1,6 +1,6 @@
 import { signIn, signUp } from "@/api/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SESSION_KEY } from "../queries/auth";
+import { SESSION_KEY } from "@/hooks/queries/auth";
 
 export function useSignIn(){
     const queryClient = useQueryClient()
