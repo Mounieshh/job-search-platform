@@ -9,6 +9,7 @@ import companyRouter from "./routes/company.route.js"
 import { APP_ORIGIN, PORT } from "./config/env.js"
 import leadRouter from "./routes/lead.route.js"
 import communityRouter from "./routes/community.route.js"
+import userRouter from "./routes/profile.route.js"
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use("/api/jobs", jobRouter)
 app.use("/api/company", companyRouter)
 app.use("/api/lead", leadRouter)
 app.use("/api/community", communityRouter)
+app.use("/api/user", userRouter)
 
 app.listen(PORT, async () => {
     console.log(`Server started running at ${PORT}`);

@@ -1,10 +1,19 @@
+import UserProfile from "@/components/user/UserProfile"
+import { useSession } from "@/hooks/queries/auth"
 
-function ProfilePage() {
+export default function ProfilePage() {
+
+  const { data: user } = useSession()
+
   return (
     <div>
-        User or Lead Profile
+        {user?.role === "USER" && (
+          <>
+            <div>
+              <UserProfile/>
+            </div>
+          </>
+        )}
     </div>
   )
 }
-
-export default ProfilePage

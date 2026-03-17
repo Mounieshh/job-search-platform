@@ -18,6 +18,7 @@ import ApprovedByMe from "./components/lead/ApprovedByMe"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import CompanyUsers from "./components/admin/CompanyUsers"
+import ProfilePage from "./pages/ProfilePage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
@@ -35,27 +36,33 @@ function AppLayout() {
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}
+            
             <Route path="/" element={<CommunityPage />} />
 
             {/* --AUTH-- */}
+
             <Route path="/login" element={<SignInPage />} />
             <Route path="/register" element={<SignUpPage />} />
 
+            {/* --USER ROUTE-- */}
+
+            <Route path="/profile" element={<ProfilePage/>}/>
+            <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
             
+            {/* --COMMON ROUTE-- */}
+
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
-            <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
-            <Route path="/admin/jobs/:companyName/:slugId" element={<JobDetailAdmin/>}/>
-            <Route path="/company" element={<CompanyList/>}/>
-
             <Route path="/newrequest" element={<ApprovalPage/>}/>
-            <Route path="/approved" element={<ApprovePage/>}/>
-
             <Route path="/my-posts" element={<ApprovalPage/>}/>
+            
 
             {/* --ADMIN ROUTE-- */}
 
             <Route path="/:companyId/users" element={<CompanyUsers/>}/>
+            <Route path="/admin/jobs/:companyName/:slugId" element={<JobDetailAdmin/>}/>
+            <Route path="/company" element={<CompanyList/>}/>
+            <Route path="/approved" element={<ApprovePage/>}/>
 
             {/* --LEADS ROUTE-- */}
 
