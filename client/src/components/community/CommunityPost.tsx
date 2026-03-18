@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Card, CardContent } from "@/components/ui/card"
 import { ImageIcon, PlusIcon } from "lucide-react"
 
 const CommunityPost = () => {
@@ -45,15 +44,7 @@ const CommunityPost = () => {
   }
 
   return (
-    <Card className="rounded-none">
-      <CardContent className="space-y-5 p-5 sm:p-6">
-        <div className="space-y-1 border-b border-border pb-4">
-          <h3 className="text-base font-semibold text-card-foreground">Share with the community</h3>
-          <p className="text-sm text-muted-foreground">
-            Post a thought, update, or question. Keep it clear and easy to read.
-          </p>
-        </div>
-
+    <div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleCommunityPost)} className="space-y-5">
             <FormField
@@ -159,8 +150,9 @@ const CommunityPost = () => {
             />
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      
+  </div>
+        
   )
 }
 

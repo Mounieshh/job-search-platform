@@ -11,7 +11,14 @@ export const zodRegisterSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(6).max(20),
   accountType: z.enum(["job_seeker", "company_employee"]),
-  companyName: z.string().trim().min(1).max(50).optional(),
+  companyName: z.preprocess(
+    (value) => {
+      if (typeof value !== "string") return value;
+      const trimmed = value.trim();
+      return trimmed === "" ? undefined : trimmed;
+    },
+    z.string().max(50).optional()
+  ),
   position: optionalPosition,
 }).superRefine((data, ctx) => {
   if (data.accountType === "company_employee") {

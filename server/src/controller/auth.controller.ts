@@ -49,7 +49,7 @@ export async function registerUser(req: Request, res: Response) {
       accountType,
       role: "USER",
     }
-
+    console.log("before: ",userData);
     if (accountType === "company_employee") {
         
       const normalizedCompanyName = companyName!.trim()
@@ -84,6 +84,7 @@ export async function registerUser(req: Request, res: Response) {
     }
 
     await User.create(userData)
+    console.log("after: ",userData);
     
     return res.status(201).json({ 
         message: "User registered successfully",
