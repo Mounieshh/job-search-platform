@@ -9,7 +9,5 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "module": "esnext",
-    "moduleResolution": "bundler"
   }
 }
