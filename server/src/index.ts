@@ -18,9 +18,26 @@ dns.setServers(["1.1.1.1"])
 
 const app = express()
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://job-search-community.vercel.app",
+    APP_ORIGIN
+]
+
 app.use(cors({
-    origin: APP_ORIGIN === "*" ? true : [APP_ORIGIN],
-    credentials: true
+    origin: function (origin, callback) {
+        if(!origin) return callback(null, true)
+
+        if (allowedOrigins.includes(origin) || process.env.APP_ORIGIN === "*") {
+            callback(null, true);
+        } else {
+            console.log("Blocked by CORS:", origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 app.use(cookieParser())
