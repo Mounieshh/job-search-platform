@@ -19,25 +19,32 @@ import ApprovedByMe from "@/components/lead/ApprovedByMe"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import CompanyUsers from "@/components/admin/CompanyUsers"
 import ProfilePage from "@/pages/ProfilePage"
+import { useSession } from "./hooks/queries/auth"
+import HeroPage from "./pages/HeroPage"
 
 const AUTH_ROUTES = ["/login", "/register"]
 
 function AppLayout() {
   const { pathname } = useLocation()
   const hideNavbar = AUTH_ROUTES.includes(pathname)
+  const { data: user } = useSession()
 
   return (
     <>
       {!hideNavbar && <Navbar />}
 
       <main className={hideNavbar ? "" : "pt-26 md:flex md:min-h-[calc(100vh-3rem)] md:pt-12"}>
-        {!hideNavbar && <RoleNavbar />}
+        { user && (
+          <div>
+              {!hideNavbar && <RoleNavbar />}
+          </div>
+        )}
 
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}
             
-            <Route path="/" element={<CommunityPage />} />
+            <Route path="/community" element={<CommunityPage />} />
 
             {/* --AUTH-- */}
 
@@ -51,6 +58,7 @@ function AppLayout() {
             
             {/* --COMMON ROUTE-- */}
 
+            <Route path="/" element={<HeroPage/>}/>
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
             <Route path="/newrequest" element={<ApprovalPage/>}/>

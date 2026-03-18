@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Heart } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/community"
 import { useLikePost } from "@/hooks/mutations/community"
@@ -110,18 +110,32 @@ const CommunityPostList = () => {
                                     Read More
                                 </button>
                             )}
-                            {post.images?.length > 0 ? (
-                                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                                    {post.images.map((image, index) => (
-                                        <img
-                                        key={`${post.id}-image-${index}`}
-                                        src={image}
-                                        alt={`Post image ${index + 1}`}
-                                        className="h-28 w-full rounded border object-cover"
-                                        />
-                                    ))}
-                                </div>
-                            ) : null}
+
+                            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                {post.images?.map((image, index) => (
+                                    <Dialog key={`${post.id}-image-${index}`}>
+                                        <DialogTrigger asChild>
+                                            <div className="group relative cursor-zoom-in">
+                                            <img
+                                                src={image}
+                                                alt={`Post image ${index + 1}`}
+                                                className="h-28 w-full rounded-none border object-cover transition-all group-hover:brightness-90 sm:h-36 lg:h-40"
+                                            />
+                                            </div>
+                                        </DialogTrigger>
+
+                                        <DialogContent className="max-w-[95vw] border-none bg-transparent p-0 shadow-none sm:max-w-3xl lg:max-w-5xl">
+                                            <div className="relative flex items-center justify-center p-2">
+                                            <img
+                                                src={image}
+                                                alt="Full size preview"
+                                                className="h-auto max-h-[85vh] w-full rounded-md object-contain shadow-2xl"
+                                            />
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                ))}
+                            </div>
                         </CardContent>
                         <CardFooter className="border-t pt-4">
                             <div className="flex w-full items-center justify-between gap-4">

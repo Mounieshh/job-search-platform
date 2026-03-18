@@ -11,7 +11,7 @@ export const jobSchema = z.object({
   salary:      z.string().optional(),
   employmentType: z.string().optional(),
   requirements: z.array(z.string()).optional().default([]),
-  duties: z.array(z.string()).optional().default([])
+  duties: z.array(z.string()).optional().default([]),
 })
 
 export type JobFormData = z.infer<typeof jobSchema>

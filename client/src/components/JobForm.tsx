@@ -213,9 +213,10 @@ export default function JobForm() {
                 </FormItem>
               )}
             />
+
           </div>
 
-          {/* Requirements Section */}
+
           <div className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-widest font-mono">
               Requirements

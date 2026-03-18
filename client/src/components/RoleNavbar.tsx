@@ -37,7 +37,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { to: "/postjob", label: "Post Job", icon: BriefcaseBusiness, roles: ["USER", "ADMIN", "LEAD"] },
-  { to: "/", label: "Community", icon: Users, roles: ["USER", "ADMIN", "LEAD"] },
+  { to: "/community", label: "Community", icon: Users, roles: ["USER", "ADMIN", "LEAD"] },
   { to: "/profile", label: "Profile", icon: CircleUserRound, roles: ["USER"] },
   { to: "/my-posts", label: "Track My Posts", icon: Files, roles: ["USER"] },
   { to: "/newrequest", label: "Job Requests", icon: Newspaper, roles: ["ADMIN"] },
