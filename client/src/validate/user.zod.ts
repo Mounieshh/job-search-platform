@@ -6,23 +6,27 @@ const optionalPosition = z.enum([
   "team_lead", "engineering_manager", "other",
 ]).optional();
 
+const optionalCompanyName = z
+  .string()
+  .optional()
+  .transform((value) => {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
+  })
+  .refine((value) => !value || value.length <= 50, {
+    message: "String must contain at most 50 character(s)",
+  });
+
 export const zodRegisterSchema = z.object({
   name: z.string().min(1).max(50),
   email: z.string().trim().email(),
   password: z.string().min(6).max(20),
   accountType: z.enum(["job_seeker", "company_employee"]),
-  companyName: z.preprocess(
-    (value) => {
-      if (typeof value !== "string") return value;
-      const trimmed = value.trim();
-      return trimmed === "" ? undefined : trimmed;
-    },
-    z.string().max(50).optional()
-  ),
+  companyName: optionalCompanyName,
   position: optionalPosition,
 }).superRefine((data, ctx) => {
   if (data.accountType === "company_employee") {
-    if (!data.companyName || data.companyName.trim() === "") {
+    if (!data.companyName) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Company name is required", path: ["companyName"] });
     }
     if (!data.position) {
@@ -36,5 +40,6 @@ export const zodLoginSchema = z.object({
 })
 
 
-export type ZodUserFormData = z.infer<typeof zodRegisterSchema>
+export type ZodUserRegisterInput = z.input<typeof zodRegisterSchema>
+export type ZodUserFormData = z.output<typeof zodRegisterSchema>
 export type ZodUserLoginData = z.infer<typeof zodLoginSchema>

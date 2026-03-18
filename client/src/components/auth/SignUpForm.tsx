@@ -1,4 +1,4 @@
-import { zodRegisterSchema, type ZodUserFormData } from "@/validate/user.zod"
+import { zodRegisterSchema, type ZodUserFormData, type ZodUserRegisterInput } from "@/validate/user.zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -17,7 +17,7 @@ const SignUpForm = () => {
 
   const { mutateAsync: signUp } = useSignUp()
 
-  const form = useForm<ZodUserFormData>({
+  const form = useForm<ZodUserRegisterInput, any, ZodUserFormData>({
     resolver: zodResolver(zodRegisterSchema),
     defaultValues: {
       name: "",
