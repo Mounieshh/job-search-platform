@@ -89,7 +89,7 @@ const JobList = () => {
                             {user && (
                                 <Link
                                     to={`/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}
-                                    className="flex items-center gap-1 text-sm font-medium border-t border-l border-border px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
+                                    className="flex items-center gap-1 text-sm font-medium border-t border-l border-b border-border px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
                                 >
                                     View Job <ArrowUpRight className="size-4" />
                                 </Link>
