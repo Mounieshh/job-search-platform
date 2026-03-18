@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query"
 export function useLeadApprovedJobs() {
   return useQuery({
     queryKey: LEAD_QUERY_KEYS.approved,
-    queryFn: getLeadApproved
+    queryFn: getLeadApproved,
+    retry: false
   })
 }
 
@@ -12,13 +13,15 @@ export function useLeadJobDetails(companyName: string | undefined, slugId: strin
   return useQuery({
     queryKey: LEAD_QUERY_KEYS.detail(companyName, slugId),
     queryFn: () => leadJobDetails(companyName, slugId),
-    enabled: !!companyName && !!slugId
+    enabled: !!companyName && !!slugId,
+    retry: false
   })
 }
 
 export function useLeadRequests() {
   return useQuery({
     queryKey: LEAD_QUERY_KEYS.requests,
-    queryFn: listLeadRequests
+    queryFn: listLeadRequests,
+    retry: false
   })
 }

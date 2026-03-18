@@ -14,6 +14,18 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
+function getAuthCookieOptions(expiresAt?: Date) {
+    const isProduction = NODE_ENV === "production"
+
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" as const : "lax" as const,
+        expires: expiresAt,
+        path: "/"
+    }
+}
+
 export async function registerUser(req: Request, res: Response) {
   try {
     const parsedData = zodRegisterSchema.parse(req.body)
@@ -117,13 +129,7 @@ export async function loginUser(req: Request, res: Response){
         const { sessionId, expiresAt } = await createSession(existingUser._id.toString())
 
 
-        res.cookie("user_session", sessionId, {
-            httpOnly: true,
-            secure: NODE_ENV === "production",
-            sameSite: "lax",
-            expires: expiresAt,
-            path: "/"
-        })
+        res.cookie("user_session", sessionId, getAuthCookieOptions(expiresAt))
 
         return res.status(200).json({
             message: "Login Successful",
@@ -161,12 +167,7 @@ export async function logoutUser(req: Request, res: Response) {
         })
     }
 
-    res.clearCookie("user_session", {
-        httpOnly: true,
-        secure: NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/"
-    })
+    res.clearCookie("user_session", getAuthCookieOptions())
 
     return res.status(200).json({
         message: "Logout successful"

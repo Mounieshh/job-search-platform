@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 export function useCommunityPosts() {
   return useQuery({
     queryKey: COMMUNITY_POSTS_QUERY_KEY,
-    queryFn: fetchCommunityPosts
+    queryFn: fetchCommunityPosts,
+    retry: false
   })
 }
