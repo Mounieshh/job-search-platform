@@ -2,9 +2,9 @@ import { Toaster } from "@/components/ui/sonner"
 import { Route, Routes, useLocation } from "react-router"
 import SignInPage from "@/pages/SignInPage"
 import SignUpPage from "@/pages/SignUpPage"
-import Navbar from "@/components/Navbar"
-import JobUploadForm from "@/components/JobForm"
-import RoleNavbar from "@/components/RoleNavbar"
+import Navbar from "@/components/shared/Navbar"
+import JobUploadForm from "@/components/shared/JobForm"
+import RoleNavbar from "@/components/shared/RoleNavbar"
 import JobsPage from "@/pages/JobsPage"
 import CompanyList from "@/pages/CompanyList"
 import ApprovalPage from "@/pages/ApprovalPage"
@@ -21,8 +21,9 @@ import CompanyUsers from "@/components/admin/CompanyUsers"
 import ProfilePage from "@/pages/ProfilePage"
 import { useSession } from "./hooks/queries/auth"
 import HeroPage from "./pages/HeroPage"
+import Footer from "./components/shared/Footer"
 
-const AUTH_ROUTES = ["/login", "/register"]
+const AUTH_ROUTES = ["/auth/login", "/auth/register"]
 
 function AppLayout() {
   const { pathname } = useLocation()
@@ -48,8 +49,8 @@ function AppLayout() {
 
             {/* --AUTH-- */}
 
-            <Route path="/login" element={<SignInPage />} />
-            <Route path="/register" element={<SignUpPage />} />
+            <Route path="/auth/login" element={<SignInPage />} />
+            <Route path="/auth/register" element={<SignUpPage />} />
 
             {/* --USER ROUTE-- */}
 
@@ -80,7 +81,7 @@ function AppLayout() {
           </Routes>
         </div>
       </main>
-
+        {!hideNavbar && <Footer/>}
       <Toaster />
     </>
   )

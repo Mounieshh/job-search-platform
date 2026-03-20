@@ -33,21 +33,9 @@ const SignInForm = () => {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="border-2 border-b-0 p-2 w-full flex flex-row justify-around uppercase font-mono">
-          <span className="text-lg font-medium text-foreground pb-1 px-3">
-            Sign In
-          </span>
-          <Link
-            to="/register"
-            className="text-lg font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
-          >
-            Sign Up
-          </Link>
-        </div>
-
-        <div className="rounded-none border border-border bg-card p-8 shadow-sm">
+        <div className="rounded-none p-8">
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-card-foreground">Sign In</h1>
+            <h1 className="text-2xl italic font-semibold text-card-foreground">Sign In</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Enter your email below to login to your account
             </p>
@@ -100,6 +88,18 @@ const SignInForm = () => {
               >
                 {form.formState.isSubmitting ? "Signing in..." : "Login"}
               </Button>
+
+
+              <footer>
+                <h2>
+                  Don't Have an Account? 
+                  <span className="ml-2 underline text-blue-400">
+                      <Link to="/auth/register">
+                          Signup
+                      </Link>
+                  </span>
+                </h2>
+              </footer>
             </form>
           </Form>
 

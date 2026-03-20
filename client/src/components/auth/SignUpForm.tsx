@@ -46,19 +46,9 @@ const SignUpForm = () => {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="border-2 border-b-0 p-2 w-full flex flex-row justify-around uppercase font-mono">
-          <Link
-            to="/login"
-            className="text-lg font-medium text-muted-foreground hover:text-foreground pb-1 px-3 transition-colors"
-          >
-            Sign In
-          </Link>
-          <span className="text-lg font-medium text-foreground pb-1 px-3">
-            Sign Up
-          </span>
-        </div>
 
-        <div className="flex gap-3 rounded-none border-2 border-border bg-card">
+          {/* Toggle Button */}
+        <div className="flex gap-3 rounded-none border-2 border-border">
             <Button
               type="button"
               onClick={() => {
@@ -92,9 +82,9 @@ const SignUpForm = () => {
             </Button>
         </div>
 
-        <div className="rounded-none border border-border bg-card p-8 shadow-sm">
+        <div className="rounded-none p-8">
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-card-foreground">Sign Up</h1>
+            <h1 className="text-2xl font-semibold text-card-foreground italic">Sign Up</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create your account to get started
             </p>
@@ -247,6 +237,18 @@ const SignUpForm = () => {
               >
                 {form.formState.isSubmitting ? "Creating account..." : "Create account"}
               </Button>
+
+
+              <footer>
+                <h2>
+                  Already Having an Account? 
+                  <span className="ml-2 underline text-blue-400">
+                    <Link to="/auth/login">
+                        Signin
+                    </Link>
+                  </span>
+                </h2>
+              </footer>
             </form>
           </Form>
         </div>
