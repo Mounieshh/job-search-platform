@@ -1,7 +1,6 @@
 import { baseUrl } from "@/lib/base";
 import type { ZodUserFormData, ZodUserLoginData } from "@/validate/user.zod";
 
-
 type UserSession = {
     user: UserResponse
 }
@@ -30,7 +29,6 @@ export async function getSession(){
     const data: UserSession = await response.json()
     return data.user ?? null
 }
-
 
 export async function doLogout() {
     await fetch(`${baseUrl}/api/auth/logout`, {

@@ -1,38 +1,88 @@
 import { useProfile } from "@/hooks/queries/profile"
 
 const UserProfile = () => {
-    const { data: user } = useProfile()
+    const { data: user, isPending, error } = useProfile()
+
+    const prettyAccountType = user?.accountType
+        ? user.accountType
+            .replaceAll("_", " ")
+            .split(" ")
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(" ")
+        : "-"
 
     const profileFields = [
-        { label: "Name", value: user?.name },
-        { label: "Registered Email", value: user?.email },
-        { label: "Role Logged in", value: user?.role },
-        { label: "Account Type", value: user?.accountType },
+        { label: "Name", value: user?.name || "-" },
+        { label: "Registered Email", value: user?.email || "-" },
+        { label: "Role", value: user?.role || "-" },
+        { label: "Account Type", value: prettyAccountType || "-" },
     ]
 
-  return (
-        <div className="mx-auto w-full max-w-3xl">
-            <div className="overflow-hidden border-2 border-border bg-card shadow-sm">
-                <div className="border-b border-border bg-muted/40 px-4 py-3 sm:px-5">
-                    <h1 className="text-lg font-semibold tracking-tight">My Profile</h1>
-                    <p className="text-sm text-muted-foreground">Your account details</p>
+    if (isPending) {
+        return (
+            <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6">
+                <div className="space-y-4">
+                    <div className="h-24 animate-pulse rounded-xl border border-border bg-muted/40" />
+                    <div className="h-56 animate-pulse rounded-xl border border-border bg-muted/40" />
                 </div>
+            </div>
+        )
+    }
 
-                <div className="p-3 sm:p-5">
-                    <div className="space-y-2.5">
+    if (error) {
+        return (
+            <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6">
+                <div className="rounded-xl border border-border bg-card px-4 py-6 text-sm text-muted-foreground">
+                    Unable to load profile details right now.
+                </div>
+            </div>
+        )
+    }
+
+    const initial = user?.name?.charAt(0)?.toUpperCase() || "U"
+
+  return (
+        <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6">
+            <div className="space-y-4 rounded-xl bg-muted/25 p-2 sm:p-3">
+                <section className="rounded-xl border border-border bg-card px-4 py-4 shadow-sm sm:px-6">
+                    <h1 className="mb-4 text-lg font-semibold tracking-tight text-foreground">My Profile</h1>
+
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-xl font-semibold text-foreground">
+                            {initial}
+                        </div>
+
+                        <div className="min-w-0 space-y-1">
+                            <p className="truncate text-base font-semibold text-foreground">{user?.name || "User"}</p>
+                            <p className="text-sm text-muted-foreground">{user?.role || "-"}</p>
+                            <p className="text-sm text-muted-foreground">{user?.email || "-"}</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="rounded-xl border border-border bg-card shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+                        <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
+                        <span className="rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                            Read only
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-x-8 gap-y-6 px-4 py-5 sm:grid-cols-2 sm:px-6">
                         {profileFields.map((field) => (
-                            <div
-                                key={field.label}
-                                className="grid gap-2 border border-border bg-card p-3 sm:grid-cols-[12rem_1fr] sm:items-center"
-                            >
-                                <h2 className="text-sm font-semibold text-foreground">{field.label}</h2>
-                                <p className="wrap-break-word text-sm text-muted-foreground">{field.value || "-"}</p>
+                            <div key={field.label} className="space-y-1">
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    {field.label}
+                                </p>
+                                <p className="wrap-break-word text-sm font-medium text-foreground">
+                                    {field.value}
+                                </p>
                             </div>
                         ))}
                     </div>
-                </div>
+                </section>
             </div>
-    </div>
+        </div>
   )
 }
 

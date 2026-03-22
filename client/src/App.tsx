@@ -4,7 +4,6 @@ import SignInPage from "@/pages/SignInPage"
 import SignUpPage from "@/pages/SignUpPage"
 import Navbar from "@/components/shared/Navbar"
 import JobUploadForm from "@/components/shared/JobForm"
-import RoleNavbar from "@/components/shared/RoleNavbar"
 import JobsPage from "@/pages/JobsPage"
 import CompanyList from "@/pages/CompanyList"
 import ApprovalPage from "@/pages/ApprovalPage"
@@ -19,7 +18,6 @@ import ApprovedByMe from "@/components/lead/ApprovedByMe"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import CompanyUsers from "@/components/admin/CompanyUsers"
 import ProfilePage from "@/pages/ProfilePage"
-import { useSession } from "./hooks/queries/auth"
 import HeroPage from "./pages/HeroPage"
 import Footer from "./components/shared/Footer"
 
@@ -28,19 +26,12 @@ const AUTH_ROUTES = ["/auth/login", "/auth/register"]
 function AppLayout() {
   const { pathname } = useLocation()
   const hideNavbar = AUTH_ROUTES.includes(pathname)
-  const { data: user } = useSession()
 
   return (
     <>
       {!hideNavbar && <Navbar />}
 
       <main className={hideNavbar ? "" : "pt-26 md:flex md:min-h-[calc(100vh-3rem)] md:pt-12"}>
-        { user && (
-          <div>
-              {!hideNavbar && <RoleNavbar />}
-          </div>
-        )}
-
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}

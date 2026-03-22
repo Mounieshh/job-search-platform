@@ -7,7 +7,7 @@ export default function ProfilePage() {
 
   return (
     <div>
-        {user?.role === "USER" && (
+        {user && (
           <>
             <div>
               <UserProfile/>

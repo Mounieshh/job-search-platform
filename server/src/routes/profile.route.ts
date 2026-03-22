@@ -5,7 +5,7 @@ import { authorize, requireRoute } from "../middleware/auth.middleware.js";
 const userRouter = Router()
 
 
-userRouter.get("/profile", authorize, requireRoute("USER"), getUserProfile)
+userRouter.get("/profile", authorize, requireRoute("USER", "LEAD"), getUserProfile)
 
 
 export default userRouter
