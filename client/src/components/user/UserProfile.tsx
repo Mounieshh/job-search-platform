@@ -43,11 +43,11 @@ const UserProfile = () => {
 
   return (
         <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6">
-            <div className="space-y-4 rounded-xl bg-muted/25 p-2 sm:p-3">
-                <section className="rounded-xl border border-border bg-card px-4 py-4 shadow-sm sm:px-6">
-                    <h1 className="mb-4 text-lg font-semibold tracking-tight text-foreground">My Profile</h1>
+            <h1 className="mb-6 border-b pb-5 text-lg font-semibold tracking-tight text-foreground">My Profile</h1>
+            <div className="w-full flex flex-col gap-6 lg:flex-row">
+                <section className="w-full lg:w-1/3 min-w-0">
 
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="flex flex-row gap-4 items-center">
                         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-xl font-semibold text-foreground">
                             {initial}
                         </div>
@@ -55,15 +55,14 @@ const UserProfile = () => {
                         <div className="min-w-0 space-y-1">
                             <p className="truncate text-base font-semibold text-foreground">{user?.name || "User"}</p>
                             <p className="text-sm text-muted-foreground">{user?.role || "-"}</p>
-                            <p className="text-sm text-muted-foreground">{user?.email || "-"}</p>
                         </div>
                     </div>
                 </section>
 
-                <section className="rounded-xl border border-border bg-card shadow-sm">
+                <section className="w-full lg:w-2/3 min-w-0 rounded-xl">
                     <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
                         <h2 className="text-base font-semibold text-foreground">Personal Information</h2>
-                        <span className="rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                        <span className="rounded-md border border-[#D4903A] px-2.5 py-1 text-xs text-muted-foreground">
                             Read only
                         </span>
                     </div>

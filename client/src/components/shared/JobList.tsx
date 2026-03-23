@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
 import { ArrowUpRight, Search } from "lucide-react"
@@ -6,7 +6,7 @@ import { useBrowseJobs } from "@/hooks/queries/job"
 import { useSession } from "@/hooks/queries/auth"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-
+import { JobPagination } from "./JobPagination"
 
 
 function toSlug(value: string) {
@@ -19,21 +19,31 @@ function toSlug(value: string) {
 }
 
 const JobList = () => {
-    const { data = [], isPending, error } = useBrowseJobs()
+    const [page, setPage] = useState(1)
+    const limit = 10
+    const { data, isPending, error } = useBrowseJobs(page, limit)
     const { data: user } = useSession()
     const [searchText, setSearchText] = useState("")
+
+    const jobs = data?.jobs ?? []
+    const currentPage = data?.currentPage ?? 1
+    const totalPages = data?.totalPages ?? 1
+
+    useEffect(() => {
+        setPage(1)
+    }, [searchText])
 
     const filteredJobs = useMemo(() => {
         const normalizedQuery = searchText.trim().toLowerCase()
 
-        return data.filter((job) => {
+        return jobs.filter((job) => {
             const combined = [job.title, job.companyName, job.location, job.summary]
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase()
             return !normalizedQuery || combined.includes(normalizedQuery)
         })
-    }, [data, searchText])
+    }, [jobs, searchText])
 
     if (isPending) {
         return (
@@ -71,7 +81,7 @@ const JobList = () => {
                     </div>
                 </aside>
 
-                <section className="w-full lg:w-[72%] space-y-4">
+                <section className="w-full lg:w-[72%] space-y-6">
                     {filteredJobs.length === 0 ? (
                         <div className="border border-dashed border-border p-8 text-center bg-card">
                             <p className="text-base font-semibold">No matching jobs yet</p>
@@ -80,6 +90,7 @@ const JobList = () => {
                             </p>
                         </div>
                     ) : (
+                        <>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {filteredJobs.map((job, index) => (
                                 <article
@@ -131,6 +142,16 @@ const JobList = () => {
                                 </article>
                         ))}
                         </div>
+                        {totalPages > 0 && (
+                            <div className="pt-2">
+                                <JobPagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setPage}
+                                />
+                            </div>
+                        )}
+                        </>
                     )}
                 </section>
             </div>

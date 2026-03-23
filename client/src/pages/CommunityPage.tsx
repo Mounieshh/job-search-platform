@@ -4,17 +4,13 @@ import { useCommunityPosts } from "@/hooks/queries/community"
 
 export default function CommunityPage() {
   const { data = [] } = useCommunityPosts()
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  })
 
   return (
     <main className="min-h-screen bg-[#fcfcfb] text-zinc-800">
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[220px_minmax(0,1fr)_220px] xl:gap-8">
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 space-y-3 rounded-md border border-zinc-200 bg-white p-4">
+      <div className="mx-auto w-full max-w-7xl flex flex-col gap-5 lg:flex-row lg:items-start">
+
+        <aside className="hidden lg:block lg:basis-1/4 lg:max-w-xs lg:shrink-0">
+          <div className="sticky top-24 space-y-3 rounded-md border bg-white p-4">
             <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Community</h2>
             <p className="text-sm leading-6 text-zinc-600">
               A simple feed for shared job-search notes, wins, and lessons.
@@ -28,16 +24,14 @@ export default function CommunityPage() {
           </div>
         </aside>
 
-        <section className="mx-auto w-full max-w-3xl space-y-6">
-          <header className="rounded-md border border-zinc-200 bg-white px-5 py-4">
-            <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Community Feed</p>
-            <div className="mt-2 flex items-center justify-between gap-4">
-              <h1 className="text-xl font-semibold text-zinc-900 italic">Write and read together</h1>
-              <span className="text-sm text-zinc-500">{today}</span>
-            </div>
+        <section className="w-full min-w-0 lg:flex-1 lg:max-w-3xl space-y-6">
+          <header className="rounded-md px-5 py-4">
+              <h2 className="font-bold text-3xl italic">
+                Community Feed
+              </h2>
           </header>
 
-          <div className="rounded-md border border-zinc-200 bg-white p-4 sm:p-5">
+          <div className="rounded-md border bg-white p-4 sm:p-5">
             <CommunityPost/>
           </div>
 
@@ -46,8 +40,8 @@ export default function CommunityPage() {
           <CommunityPostList/>
         </section>
 
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 space-y-4 rounded-md border border-zinc-200 bg-white p-4">
+        <aside className="hidden lg:block lg:basis-1/4 lg:max-w-xs lg:shrink-0">
+          <div className="sticky top-24 space-y-4 rounded-md border bg-white p-4">
             <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">How To Use</h2>
             <ul className="space-y-2 text-sm text-zinc-600">
               <li>Create a post with a title and content.</li>

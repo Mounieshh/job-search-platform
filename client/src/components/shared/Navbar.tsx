@@ -1,7 +1,7 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
 import { Link, useNavigate } from "react-router"
 import { Button } from "../ui/button"
-import { ArrowRight, UserCircleIcon, Menu, X } from "lucide-react"
+import { ArrowRight, Menu, X } from "lucide-react"
 import { getTopNavJobItems, NavigationDropdown, type Role } from "./NavigationDropdown"
 import { useState } from "react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
@@ -19,6 +19,8 @@ const Navbar = () => {
     navigate("/auth/login")
   }
 
+  const initial = user?.name?.charAt(0)?.toUpperCase() || "U"
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/10 backdrop-blur-3xl supports-backdrop-filter:bg-white/10 shadow-sm">
       <div className="flex flex-row justify-between items-center p-5">
@@ -34,7 +36,11 @@ const Navbar = () => {
               <Link to="/" className="hover:text-gray-600 transition-colors">Home</Link>
             </li>
             <li>
-              <NavigationDropdown role={role} />
+              {user && (
+                <>
+                  <NavigationDropdown role={role} />
+                </>
+              )}
             </li>
             <li>
               <Link to="/community" className="hover:text-gray-600 transition-colors">Community</Link>
@@ -56,8 +62,9 @@ const Navbar = () => {
           {user ? (
             <>
               <Link to="/profile"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D4903A] bg-muted text-xl font-semibold text-foreground"
               >
-                <UserCircleIcon className="size-6" />
+                {initial}
               </Link>
               <div>
                   <AlertDialog>
@@ -88,7 +95,7 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/auth/register"
-                className="px-3 rounded-sm flex flex-row p-1 text-white bg-black hover:bg-gray-800 transition-colors"
+                className="px-3 rounded-sm flex flex-row p-1 text-white bg-primary hover:bg-gray-800 transition-colors"
               >
                 Get started it's free
                 <ArrowRight className="size-4 flex justify-center items-center mt-1 ml-1" />

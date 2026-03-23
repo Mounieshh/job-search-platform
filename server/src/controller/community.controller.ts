@@ -67,7 +67,7 @@ export async function getCommunityPost(req: Request, res: Response){
             _id: {
                 $in: userIds
             }
-        })
+        }).select("_id accountType role")
 
         const userMap = new Map(
             users.map(user => [user._id.toString(), user])

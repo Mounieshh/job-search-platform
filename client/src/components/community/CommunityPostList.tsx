@@ -1,11 +1,12 @@
-import { useState } from "react"
-import { Heart } from "lucide-react"
+import { useMemo, useState } from "react"
+import { Heart, Search } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/community"
 import { useLikePost } from "@/hooks/mutations/community"
 import { useSession } from "@/hooks/queries/auth"
+import { Input } from "../ui/input"
 
 const PREVIEW_LENGTH = 150
 
@@ -17,12 +18,42 @@ function formatPostDate(value: string) {
     })
 }
 
+function formatAccountType(post: CommunityPostItem) {
+    const userValue = post.user?.accountType
+    const rawValue = userValue || (post as any)?.accountType || (post as any)?.user?.account_type
+
+    if (rawValue === "company_employee") {
+        return "Company Employee"
+    }
+
+    if (rawValue === "job_seeker") {
+        return "Job Seeker"
+    }
+
+    return "Community Member"
+}
+
 const CommunityPostList = () => {
 
     const { data = [], isPending, error } = useCommunityPosts()
     const { mutateAsync: likePost } = useLikePost()
     const { data: user } = useSession()
     const [selectedPost, setSelectedPost] = useState<CommunityPostItem | null>(null)
+
+
+    const [searchText, setSearchText] = useState("")
+
+    const filteredJobs = useMemo(() => {
+        const normalizedQuery = searchText.trim().toLowerCase()
+
+        return data.filter((job) => {
+            const combined = [job.title, job.content]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+            return !normalizedQuery || combined.includes(normalizedQuery)
+        })
+    }, [data, searchText])
 
     if(isPending){
             return (
@@ -43,23 +74,25 @@ const CommunityPostList = () => {
   return (
     <>
     <div className="space-y-4">
-        <div className="flex items-end justify-between border-b border-border pb-3">
-            <div>
-                <h3 className="text-base font-semibold text-card-foreground italic">Recent Posts</h3>
-                <p className="text-sm text-muted-foreground">See what the community is sharing.</p>
-            </div>
-            <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                {data.length} posts
+        <div className="flex items-end justify-between pb-3">
+            <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                    value={searchText}
+                    onChange={(event) => setSearchText(event.target.value)}
+                    placeholder="Search by title or content keyword"
+                    className="pl-9 h-10 w-full"
+                />
             </div>
         </div>
 
-        {data.length === 0 ? (
+        {filteredJobs.length === 0 ? (
             <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
                 No community posts yet.
             </div>
         ): (
             <div className="space-y-4">
-                {data.map((post) => {
+                {filteredJobs.map((post) => {
                     const likedBy = post.likedBy ?? []
                     const hasLiked = Boolean(user?.id && likedBy.includes(user.id))
                     const likeCount = likedBy.length
@@ -81,15 +114,13 @@ const CommunityPostList = () => {
                                             {post.anonymousName}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
-                                            {formatPostDate(post.createdAt)}
+                                            {formatAccountType(post)}
                                         </div>
                                     </div>
                                 </div>
-                                {post.images?.length > 0 ? (
-                                    <span className="shrink-0 border border-border px-2 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                                        {post.images.length} images
-                                    </span>
-                                ) : null}
+                                <span className="shrink-0 border border-border px-2 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                                        {formatPostDate(post.createdAt)}
+                                </span>
                             </div>
 
                             <CardTitle className="text-lg leading-snug">

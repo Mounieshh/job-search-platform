@@ -4,6 +4,9 @@ import type { JobFormData } from "@/validate/job.zod"
 
 export type BrowseJobs = {
     jobs: Job[]
+    currentPage: number
+    totalPages: number
+    total: number
 }
 
 
@@ -35,8 +38,13 @@ type AdminJobsDetail = {
     job: JobDetail
 }
 
-export async function browseJobs(){
-    const response = await fetch(`${baseUrl}/api/jobs`, {
+export async function browseJobs(page = 1, limit = 10){
+    const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString()
+    })
+
+    const response = await fetch(`${baseUrl}/api/jobs?${params.toString()}`, {
         method: "GET",
         credentials: "include"
     })
@@ -46,7 +54,7 @@ export async function browseJobs(){
     }
 
     const data: BrowseJobs = await response.json()
-    return data.jobs ?? []
+    return data
 }
 
 

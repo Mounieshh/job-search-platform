@@ -31,7 +31,7 @@ function AppLayout() {
     <div className="min-h-screen flex flex-col">
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "flex-1" : "flex-1 pt-25 md:pt-20"}>
+      <main className={hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-30"}>
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}

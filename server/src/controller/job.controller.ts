@@ -104,18 +104,34 @@ export async function createJob(req: Request, res: Response) {
 
 export async function getJobListing(req: Request, res: Response){
     try {
-        const jobs = await prisma.job.findMany({
-            where: {
-                status: "approved"
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
+        const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1)
+        const limit = Math.max(1, Math.min(50, Number.parseInt(req.query.limit as string, 10) || 10))
+        const skip = (page - 1) * limit
+
+        const [jobs, total] = await prisma.$transaction([
+            prisma.job.findMany({
+                where: {
+                    status: "approved"
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+                skip,
+                take: limit
+            }),
+            prisma.job.count({
+                where: {
+                    status: "approved"
+                }
+            })
+        ])
 
         return res.status(200).json({
             message: "Job Listings Created",
-            jobs
+            jobs,
+            currentPage: page,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+            total
         })
     } catch (error) {
         return res.status(500).json({

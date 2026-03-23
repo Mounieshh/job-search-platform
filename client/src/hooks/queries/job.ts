@@ -1,10 +1,10 @@
 import { JobDetailsLook, browseJobs, getAdminApprovedJobs, getAdminJobDetail, getPendingJobs } from "@/api/job"
 import { useQuery } from "@tanstack/react-query"
 
-export function useBrowseJobs() {
+export function useBrowseJobs(page = 1, limit = 10) {
   return useQuery({
-    queryKey: ["browse_jobs"],
-    queryFn: browseJobs
+    queryKey: ["browse_jobs", page, limit],
+    queryFn: () => browseJobs(page, limit)
   })
 }
 
