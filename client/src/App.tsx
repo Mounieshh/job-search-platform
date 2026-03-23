@@ -28,10 +28,10 @@ function AppLayout() {
   const hideNavbar = AUTH_ROUTES.includes(pathname)
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "" : "pt-26 md:flex md:min-h-[calc(100vh-3rem)] md:pt-12"}>
+      <main className={hideNavbar ? "flex-1" : "flex-1 pt-25 md:pt-20"}>
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}
@@ -72,9 +72,9 @@ function AppLayout() {
           </Routes>
         </div>
       </main>
-        {!hideNavbar && <Footer/>}
+      {!hideNavbar && <Footer/>}
       <Toaster />
-    </>
+    </div>
   )
 }
 

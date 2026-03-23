@@ -32,7 +32,7 @@ export default function CommunityPage() {
           <header className="rounded-md border border-zinc-200 bg-white px-5 py-4">
             <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Community Feed</p>
             <div className="mt-2 flex items-center justify-between gap-4">
-              <h1 className="text-xl font-semibold text-zinc-900">Write and read together</h1>
+              <h1 className="text-xl font-semibold text-zinc-900 italic">Write and read together</h1>
               <span className="text-sm text-zinc-500">{today}</span>
             </div>
           </header>

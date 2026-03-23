@@ -4,6 +4,7 @@ import { Button } from "../ui/button"
 import { ArrowRight, UserCircleIcon, Menu, X } from "lucide-react"
 import { getTopNavJobItems, NavigationDropdown, type Role } from "./NavigationDropdown"
 import { useState } from "react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 
 const Navbar = () => {
   const { data: user } = useSession()
@@ -19,7 +20,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="flex flex-col">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/10 backdrop-blur-3xl supports-backdrop-filter:bg-white/10 shadow-sm">
       <div className="flex flex-row justify-between items-center p-5">
         <div>
           <h1 className="text-2xl ml-2 font-semibold uppercase italic">
@@ -38,25 +39,47 @@ const Navbar = () => {
             <li>
               <Link to="/community" className="hover:text-gray-600 transition-colors">Community</Link>
             </li>
+            <li>
+              <Link to="/joblistings" className="hover:text-gray-600 transition-colors">Browse Jobs</Link>
+            </li>
+            { user && (
+              <>
+                <li>
+                  <Link to="/postjob" className="hover:text-gray-600 transition-colors">Post</Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 
         <div className="hidden md:flex gap-5 items-center">
           {user ? (
             <>
-              <button
-                onClick={() => navigate("/profile")}
-                className="p-1 hover:opacity-70 transition-opacity cursor-pointer"
-                aria-label="Go to profile"
+              <Link to="/profile"
               >
                 <UserCircleIcon className="size-6" />
-              </button>
-              <Button
-                onClick={handleLogout}
-                className="rounded-sm flex flex-row p-3 text-white bg-black cursor-pointer hover:bg-gray-800 transition-colors"
-              >
-                Logout
-              </Button>
+              </Link>
+              <div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild className="cursor-pointer">
+                      <Button> Logout </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="font-bold italic">
+                          Sure to Logout
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You will be signed out of your account.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleLogout} className="cursor-pointer">Logout</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+              </div>
             </>
           ) : (
             <>

@@ -45,7 +45,7 @@ const CommunityPostList = () => {
     <div className="space-y-4">
         <div className="flex items-end justify-between border-b border-border pb-3">
             <div>
-                <h3 className="text-base font-semibold text-card-foreground">Recent Posts</h3>
+                <h3 className="text-base font-semibold text-card-foreground italic">Recent Posts</h3>
                 <p className="text-sm text-muted-foreground">See what the community is sharing.</p>
             </div>
             <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">

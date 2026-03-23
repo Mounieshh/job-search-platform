@@ -21,18 +21,6 @@ export type TopNavMenuItem = {
 
 const jobItems: TopNavMenuItem[] = [
   {
-    title: "Post a Job",
-    href: "/postjob",
-    description: "Create and publish a new job post.",
-    roles: ["USER", "ADMIN", "LEAD"],
-  },
-  {
-    title: "Browse Jobs",
-    href: "/joblistings",
-    description: "Explore available job listings.",
-    roles: ["USER", "ADMIN", "LEAD"],
-  },
-  {
     title: "Track My Posts",
     href: "/my-posts",
     description: "Review the jobs you submitted.",
