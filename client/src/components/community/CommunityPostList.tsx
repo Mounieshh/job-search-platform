@@ -35,7 +35,7 @@ const CommunityPostList = () => {
      if (error) {
         return (
             <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-                Unable to load community posts right now.
+                Please Sign in to see post 
             </div>
         )
      }

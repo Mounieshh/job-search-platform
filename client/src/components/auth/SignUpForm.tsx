@@ -47,39 +47,39 @@ const SignUpForm = () => {
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
 
-          {/* Toggle Button */}
-        <div className="flex gap-3 rounded-none border-2 border-border">
-            <Button
-              type="button"
-              onClick={() => {
-                setUserType("job_seeker")
-                form.setValue("accountType", "job_seeker")
-                form.setValue("companyName", "")
-                form.setValue("position", undefined)
-              }}
-              className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
-                userType === "job_seeker" 
-                  ? "bg-primary text-white shadow-md" 
-                  : "bg-transparent text-foreground hover:bg-muted-foreground/10"
-              }`}
-            >
-              Normal
-            </Button>
+        {/* Toggle Button */}
+        <div className="flex rounded-none border-2 border-border overflow-hidden">
+          <Button
+            type="button"
+            onClick={() => {
+              setUserType("job_seeker")
+              form.setValue("accountType", "job_seeker")
+              form.setValue("companyName", "")
+              form.setValue("position", undefined)
+            }}
+            className={`flex-1 rounded-none cursor-pointer font-medium transition-all border-r border-border ${
+              userType === "job_seeker"
+                ? "bg-primary text-white shadow-md"
+                : "bg-transparent text-foreground hover:bg-muted-foreground/10"
+            }`}
+          >
+            Normal
+          </Button>
 
-            <Button
-              type="button"
-              onClick={() => {
-                setUserType("company_employee")
-                form.setValue("accountType", "company_employee")
-              }}
-              className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
-                userType === "company_employee" 
-                  ? "bg-primary text-white shadow-md" 
-                  : "bg-transparent text-foreground hover:bg-muted-foreground/10"
-              }`}
-            >
-              Business
-            </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              setUserType("company_employee")
+              form.setValue("accountType", "company_employee")
+            }}
+            className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
+              userType === "company_employee"
+                ? "bg-primary text-white shadow-md"
+                : "bg-transparent text-foreground hover:bg-muted-foreground/10"
+            }`}
+          >
+            Business
+          </Button>
         </div>
 
         <div className="rounded-none p-8">
