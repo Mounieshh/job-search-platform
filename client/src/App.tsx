@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/sonner"
-import { Route, Routes, useLocation } from "react-router"
+import { Navigate, Route, Routes, useLocation } from "react-router"
 import SignInPage from "@/pages/SignInPage"
 import SignUpPage from "@/pages/SignUpPage"
 import Navbar from "@/components/shared/Navbar"
@@ -20,18 +20,28 @@ import CompanyUsers from "@/components/admin/CompanyUsers"
 import ProfilePage from "@/pages/ProfilePage"
 import HeroPage from "./pages/HeroPage"
 import Footer from "./components/shared/Footer"
+import { useSession } from "@/hooks/queries/auth"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register"]
 
 function AppLayout() {
   const { pathname } = useLocation()
   const hideNavbar = AUTH_ROUTES.includes(pathname)
+  const { data: user, isPending } = useSession()
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-30"}>
+      <main className={hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-24"}>
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
             {/* --COMMUNITY ROUTE-- */}
@@ -40,8 +50,8 @@ function AppLayout() {
 
             {/* --AUTH-- */}
 
-            <Route path="/auth/login" element={<SignInPage />} />
-            <Route path="/auth/register" element={<SignUpPage />} />
+            <Route path="/auth/login" element={user ? <Navigate to="/community" replace /> : <SignInPage />} />
+            <Route path="/auth/register" element={user ? <Navigate to="/community" replace /> : <SignUpPage />} />
 
             {/* --USER ROUTE-- */}
 
@@ -50,10 +60,14 @@ function AppLayout() {
             
             {/* --COMMON ROUTE-- */}
             
-            <Route path="/" element={<HeroPage/>}/>
+            <Route path="/" element={user ? <Navigate to="/community" replace /> : <HeroPage />} />
 
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
+
+            <Route path="/joblistings/:companyName/:slugId" element={<JobsPage/>}/>
+
+
             <Route path="/newrequest" element={<ApprovalPage/>}/>
             <Route path="/my-posts" element={<ApprovalPage/>}/>
             

@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
-import { ArrowUpRight, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { useBrowseJobs } from "@/hooks/queries/job"
-import { useSession } from "@/hooks/queries/auth"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { JobPagination } from "./JobPagination"
+import { Link } from "react-router"
 
 
 function toSlug(value: string) {
@@ -18,11 +16,14 @@ function toSlug(value: string) {
         .replace(/-+/g, "-")
 }
 
+function toJobPath(companyName: string, title: string) {
+    return `/joblistings/${encodeURIComponent(companyName)}/${encodeURIComponent(toSlug(title))}`
+}
+
 const JobList = () => {
     const [page, setPage] = useState(1)
     const limit = 10
     const { data, isPending, error } = useBrowseJobs(page, limit)
-    const { data: user } = useSession()
     const [searchText, setSearchText] = useState("")
 
     const jobs = data?.jobs ?? []
@@ -47,7 +48,7 @@ const JobList = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
+            <div className="min-h-[40vh] flex justify-center pt-10">
                 <Spinner className="size-7" />
             </div>
         )
@@ -59,16 +60,8 @@ const JobList = () => {
 
     return (
         <div className="px-3 py-3 sm:px-6 sm:py-4">
-            <div className="mx-auto max-w-6xl w-full flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
-                
-                <aside className="w-full lg:w-[28%] lg:sticky lg:top-20">
-                    <div className="border border-border bg-card p-5 sm:p-6 space-y-3">
-                        <h1 className="text-lg sm:text-md font-semibold text-card-foreground italic">
-                            Browse job listings
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Find roles by title, company, or location.
-                        </p>
+            
+                <aside className="w-full mb-5">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                             <Input
@@ -77,70 +70,40 @@ const JobList = () => {
                                 placeholder="Search by title, company, or location"
                                 className="pl-9 h-10"
                             />
-                        </div>
                     </div>
                 </aside>
-
-                <section className="w-full lg:w-[72%] space-y-6">
+            
+                <section className="w-full lg:w-full space-y-6">
                     {filteredJobs.length === 0 ? (
                         <div className="border border-dashed border-border p-8 text-center bg-card">
                             <p className="text-base font-semibold">No matching jobs yet</p>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Try removing one filter or broadening your search keyword.
+                                Try broadening your search keyword.
                             </p>
                         </div>
                     ) : (
                         <>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        {filteredJobs.map((job, index) => (
-                                <article
-                                    key={job.id}
-                                    className="group min-h-60 border border-border bg-card p-5 sm:p-6 flex flex-col justify-between transition hover:-translate-y-0.5 hover:shadow-md"
-                                >
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <span className="text-xs font-mono text-muted-foreground">
-                                                {String(index + 1).padStart(2, "0")}
-                                            </span>
-                                            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground truncate">
+                        <div className="w-full">
+                            {filteredJobs.map((job) => (
+                                    <article
+                                        key={job.id}
+                                        className="min-h-15 border border-border bg-card p-5 sm:p-6 flex flex-col justify-between transition hover:-translate-y-0.5 hover:shadow-md"
+                                    >
+                                        <Link to={toJobPath(job.companyName, job.title)} className="space-y-1">
+                                            <h2 className="text-lg font-semibold text-card-foreground leading-tight line-clamp-2">
+                                                {job.title}
+                                            </h2>
+                                            <p>
                                                 {job.companyName}
-                                            </span>
-                                        </div>
+                                            </p>
+                                            <h4>
+                                                {job.location}
+                                            </h4>
 
-                                        <h2 className="text-lg font-semibold text-card-foreground leading-tight line-clamp-2">
-                                            {job.title}
-                                        </h2>
+                                        </Link>
 
-                                        {job.summary && (
-                                            <p className="text-sm text-muted-foreground line-clamp-3">{job.summary}</p>
-                                        )}
-
-                                    </div>
-
-                                    <div className="mt-4 space-y-4">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            {job.location && <Badge variant="outline">{job.location}</Badge>}
-                                            {job.salary && <Badge variant="outline">{job.salary}</Badge>}
-                                        </div>
-
-                                        {user ? (
-                                            <Link
-                                                to={`/jobs/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}
-                                                className="inline-flex items-center gap-1 text-sm font-medium border border-border px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                            >
-                                                Open Details <ArrowUpRight className="size-4" />
-                                            </Link>
-                                        ) : (
-                                            <Link
-                                                to="/auth/login"
-                                                className="inline-flex items-center gap-1 text-sm font-medium border border-border px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                            >
-                                                Sign In to View <ArrowUpRight className="size-4" />
-                                            </Link>
-                                        )}
-                                    </div>
-                                </article>
-                        ))}
+                                    </article>
+                            ))}
                         </div>
                         {totalPages > 1 && (
                             <div className="pt-2">
@@ -154,7 +117,6 @@ const JobList = () => {
                         </>
                     )}
                 </section>
-            </div>
         </div>
     )
 }
