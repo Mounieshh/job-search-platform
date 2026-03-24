@@ -8,20 +8,21 @@ import { Link } from "react-router"
 
 export default function CompanyList() {
 
-    const { data = [], isPending, error } = useCompanyList()
+    const { data = [] as const, isPending, error } = useCompanyList()
+    const companies = Array.isArray(data) ? data : []
     const [searchText, setSearchText] = useState("")
 
     const filteredCompanies = useMemo(() => {
             const normalizedQuery = searchText.trim().toLowerCase()
     
-            return data.filter((job) => {
+            return companies.filter((job) => {
                 const combined = [job.companyUsers, job.name]
                     .filter(Boolean)
                     .join(" ")
                     .toLowerCase()
                 return !normalizedQuery || combined.includes(normalizedQuery)
             })
-        }, [data, searchText])
+        }, [companies, searchText])
 
     if (isPending) {
         return (

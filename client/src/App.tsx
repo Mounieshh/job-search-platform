@@ -5,7 +5,7 @@ import SignUpPage from "@/pages/SignUpPage"
 import Navbar from "@/components/shared/Navbar"
 import JobUploadForm from "@/components/shared/JobForm"
 import JobsPage from "@/pages/JobsPage"
-import CompanyList from "@/pages/CompanyList"
+import CompanyList from "@/components/admin/CompanyList"
 import ApprovalPage from "@/pages/ApprovalPage"
 import ApprovePage from "@/pages/ApprovedPage"
 import JobDetailPage from "@/pages/JobDetailUserPage"
@@ -49,8 +49,9 @@ function AppLayout() {
             <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
             
             {/* --COMMON ROUTE-- */}
-
+            
             <Route path="/" element={<HeroPage/>}/>
+
             <Route path="/postjob" element={<JobUploadForm />} />
             <Route path="/joblistings" element={<JobsPage/>}/>
             <Route path="/newrequest" element={<ApprovalPage/>}/>
@@ -60,6 +61,7 @@ function AppLayout() {
             {/* --ADMIN ROUTE-- */}
 
             <Route path="/:companyId/users" element={<CompanyUsers/>}/>
+            <Route path="/:companyId/users/:userId" element={<CompanyUsers/>}/>
             <Route path="/admin/jobs/:companyName/:slugId" element={<JobDetailAdmin/>}/>
             <Route path="/company" element={<CompanyList/>}/>
             <Route path="/approved" element={<ApprovePage/>}/>

@@ -1,12 +1,30 @@
 import { useCompanyUsers } from "@/hooks/queries/company"
 import { Link, useParams } from "react-router"
 import { Spinner } from "@/components/ui/spinner"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useMemo, useState } from "react"
+import { Input } from "../ui/input"
 
 const CompanyUsers = () => {
-    const { companyId } = useParams()
+    const { companyId, userId } = useParams()
     const { data = [], isPending, error } = useCompanyUsers(companyId)
+
+    const [searchText, setSearchText] = useState("")
+
+    const selectedUser = useMemo(() => data.find((u) => u._id === userId), [data, userId])
+
+    const filteredUsers = useMemo(() => {
+        const normalizedQuery = searchText.trim().toLowerCase()
+
+        return data.filter((user) => {
+            const combined = [user.name, user.accountType, user.email]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+            return !normalizedQuery || combined.includes(normalizedQuery)
+        })
+    }, [data, searchText])
 
     if (isPending) {
         return (
@@ -15,6 +33,7 @@ const CompanyUsers = () => {
             </div>
         )
     }
+
 
     if (error) {
         return (
@@ -25,58 +44,79 @@ const CompanyUsers = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-5 space-y-5">
-
-            <Link
-                to="/company"
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
-            >
-                <ArrowLeft className="size-4" />
-                <span>Back to Company List</span>
-            </Link>
-
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold uppercase font-mono tracking-wide">
-                    Company Users
-                </h1>
-                <Badge variant="ghost" className="font-mono">
-                    {data.length} {data.length === 1 ? "user" : "users"}
-                </Badge>
-            </div>
-
-            {data.length === 0 ? (
-                <div className="border border-border p-6 text-center text-sm text-muted-foreground">
-                    No users found for this company.
+        <main className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
+            <section className="md:col-span-1 bg-card border border-border min-h-max">
+                <div className="p-3 border-b border-border flex items-center justify-between gap-2">
+                    <h2 className="font-semibold">Users</h2>
+                    <Link to="/company" className="text-xs inline-flex items-center gap-1 hover:underline">
+                        <ArrowLeft className="size-3" />
+                        Back
+                    </Link>
                 </div>
-            ) : (
-                <div className="flex flex-col gap-3">
-                    {data.map((user, index) => (
-                        <div
-                            key={user._id}
-                            className="border border-border bg-card p-4 flex items-center justify-between"
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-xs font-mono text-muted-foreground">
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
 
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="text-sm font-medium">{user.name}</span>
-                                    <span className="text-xs text-muted-foreground">{user.email}</span>
-                                    <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                                        {user.company?.position ?? "N/A"}
-                                    </span>
-                                </div>
-                            </div>
+                <div className="p-3 border-b border-border">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+                        <Input
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            placeholder="Search users..."
+                            className="pl-10 h-9 rounded-none focus-visible:ring-1 text-sm"
+                        />
+                    </div>
+                </div>
 
-                            <Badge variant="ghost" className="text-xs font-mono uppercase">
-                                {user.role}
-                            </Badge>
+                {filteredUsers.length === 0 ? (
+                    <div className="p-4 text-sm text-muted-foreground">
+                        No users signed in yet
+                    </div>
+                ) : (
+                    <div className="divide-y divide-border">
+                        {filteredUsers.map((user) => {
+                            const isActive = user._id === userId
+
+                            return (
+                                <Link
+                                    key={user._id}
+                                    to={`/${companyId}/users/${user._id}`}
+                                    className={`block p-3 text-sm border-b border-border/50 last:border-b-0 transition-colors hover:bg-primary/10 ${isActive ? "bg-muted/70" : ""}`}
+                                >
+                                    <p className="font-medium text-foreground">{user.name}</p>
+                                    <p className="text-xs text-muted-foreground">{user.role}</p>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                )}
+            </section>
+
+            <section className="md:col-span-2 bg-card border border-border p-4 sm:p-5">
+                {!userId && (
+                    <p className="text-sm text-muted-foreground">
+                        Select a user from the left to view details.
+                    </p>
+                )}
+
+                {userId && !selectedUser && (
+                    <p className="text-sm text-destructive">User not found.</p>
+                )}
+
+                {selectedUser && (
+                    <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">{selectedUser.name}</h3>
+                        <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
+                        <Badge variant="secondary">{selectedUser.role}</Badge>
+
+                        <div className="pt-3 mt-3 border-t border-border/50 space-y-2 text-sm">
+                            <div><span className="font-medium">Account type:</span> <span className="text-muted-foreground">{selectedUser.accountType.replace("_", " ")}</span></div>
+                            <div><span className="font-medium">User ID:</span> <span className="text-muted-foreground">{selectedUser._id}</span></div>
+                            <div><span className="font-medium">Company:</span> <span className="text-muted-foreground">{selectedUser.company?.companyName ?? "-"}</span></div>
+                            <div><span className="font-medium">Position:</span> <span className="text-muted-foreground">{selectedUser.company?.position ?? "-"}</span></div>
                         </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                    </div>
+                )}
+            </section>
+        </main>
     )
 }
 
