@@ -142,7 +142,7 @@ const Navbar = () => {
                 <Link to="/auth/login" onClick={() => setMobileOpen(false)}>Sign in</Link>
                 <Link
                   to="/auth/register"
-                  className="px-3 rounded-sm flex flex-row p-1 text-white bg-black w-fit"
+                  className="px-3 rounded-sm flex flex-row p-1 text-white bg-primary w-fit"
                   onClick={() => setMobileOpen(false)}
                 >
                   Get started it's free

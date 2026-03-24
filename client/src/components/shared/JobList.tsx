@@ -142,7 +142,7 @@ const JobList = () => {
                                 </article>
                         ))}
                         </div>
-                        {totalPages > 0 && (
+                        {totalPages > 1 && (
                             <div className="pt-2">
                                 <JobPagination
                                     currentPage={currentPage}
