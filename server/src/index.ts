@@ -8,11 +8,11 @@ import { connectToMongo } from "./config/mongodb.js"
 import { APP_ORIGIN, PORT } from "./config/env.js"
 
 import authRouter from "./routes/auth.route.js"
-import jobRouter from "./routes/job.route.js"
 import companyRouter from "./routes/company.route.js"
 import leadRouter from "./routes/lead.route.js"
 import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
+import postJobRouter from "./routes/postjob.route.js"
 
 dns.setServers(["1.1.1.1"])
 
@@ -48,11 +48,11 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/auth", authRouter)
-app.use("/api/jobs", jobRouter)
 app.use("/api/company", companyRouter)
 app.use("/api/lead", leadRouter)
 app.use("/api/community", communityRouter)
 app.use("/api/user", userRouter)
+app.use("/api/jobs", postJobRouter)
 
 async function startServer() {
     try {

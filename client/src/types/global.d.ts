@@ -11,43 +11,21 @@ declare global {
         role: string
     }
 
-    type Job = {
+    // job types
+    type JobData = {
         id: string,
-        title: string,
-        summary: string,
-        description: string,
+        roleTitle: string,
         companyName: string,
-        location?: string,
-        salary?: string,
-        url?: string,
+        employmentType: string,
+        location: string,
+        url: string,
+        description: string,
+        userId: string,
+        companyId: string,
+        draftStats: string,
         status: string,
-        rejectedReason?: string | null,
-        approvedBy?: string | null,
-        rejectedBy?: string | null,
-        approvedAt?: string | null,
-        rejectedAt?: string | null,
-        postedBy: string,
-        user: User | null
     }
 
-    type JobDetail = {
-        id: string
-        title: string
-        summary?: string | null
-        description?: string | null
-        companyName?: string | null
-        location?: string | null
-        salary?: string | null
-        url?: string | null
-        employmentType?: string | null
-        status: string
-        createdAt: string
-        rejectedReason?: string | null
-        postedBy: string
-        requirements: string[]
-        duties: string[]
-        user: User | null
-    }
 
     type CommunityPostItem = {
         id: string
@@ -85,31 +63,6 @@ declare global {
         email: string,
         role: "USER" | "LEAD" | "ADMIN",
         accountType: "job_seeker" | "company_employee"
-    }
-
-    type PostJobDetail = {
-        id: string
-        title: string
-        summary?: string | null
-        description?: string | null
-        companyName?: string | null
-        location?: string | null
-        salary?: string | null
-        url?: string | null
-        employmentType?: string | null
-        status: string
-        createdAt: string
-        rejectedReason?: string | null
-        postedBy: string
-        requirements: string[]
-        duties: string[]
-    }
-
-    type JobUser = {
-        _id: string,
-        name: string,
-        email: string,
-        role: "USER" | "ADMIN" | "LEAD"
     }
 
 }

@@ -44,12 +44,13 @@ const Navbar = () => {
             </li>
             
             <li>
-              <Link to="/joblistings" className="hover:text-gray-600 transition-colors">Browse Jobs</Link>
+              <Link to="/browseJobs" className="hover:text-gray-600 transition-colors">Browse Jobs</Link>
             </li>
             { user && (
               <>
+
                 <li>
-                  <Link to="/postjob" className="hover:text-gray-600 transition-colors">Post</Link>
+                  <Link to="/job-basic-details" className="hover:text-gray-600 transition-colors">Post</Link>
                 </li>
               </>
             )}

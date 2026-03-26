@@ -1,26 +1,24 @@
 import { Toaster } from "@/components/ui/sonner"
 import { Navigate, Route, Routes, useLocation } from "react-router"
-import SignInPage from "@/pages/SignInPage"
-import SignUpPage from "@/pages/SignUpPage"
+import SignInPage from "@/pages/auth/SignInPage"
+import SignUpPage from "@/pages/auth/SignUpPage"
 import Navbar from "@/components/shared/Navbar"
-import JobUploadForm from "@/components/shared/JobForm"
-import JobsPage from "@/pages/JobsPage"
 import CompanyList from "@/components/admin/CompanyList"
 import ApprovalPage from "@/pages/ApprovalPage"
 import ApprovePage from "@/pages/ApprovedPage"
-import JobDetailPage from "@/pages/JobDetailUserPage"
-import JobDetailAdmin from "@/pages/JobDetailAdminPage"
 import CommunityPage from "@/pages/CommunityPage"
 import LeadApprovalPage from "@/pages/LeadApprovalPage"
-import JobDetailLeadPage from "@/pages/JobDetailLeadPage"
 import ApprovedByMe from "@/components/lead/ApprovedByMe"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import CompanyUsers from "@/components/admin/CompanyUsers"
 import ProfilePage from "@/pages/ProfilePage"
 import HeroPage from "./pages/HeroPage"
-import Footer from "./components/shared/Footer"
+
 import { useSession } from "@/hooks/queries/auth"
+import PostJobPage from "./pages/job/PostJobPage"
+import TrackMyPosts from "./components/user/TrackMyPosts"
+import BrowseJobsPage from "./pages/BrowseJobsPage"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register"]
 
@@ -56,39 +54,42 @@ function AppLayout() {
             {/* --USER ROUTE-- */}
 
             <Route path="/profile" element={<ProfilePage/>}/>
-            <Route path="/jobs/:companyName/:slugId" element={<JobDetailPage/>}/>
             
             {/* --COMMON ROUTE-- */}
             
             <Route path="/" element={user ? <Navigate to="/community" replace /> : <HeroPage />} />
-
-            <Route path="/postjob" element={<JobUploadForm />} />
-            <Route path="/joblistings" element={<JobsPage/>}/>
-
-            <Route path="/joblistings/:companyName/:slugId" element={<JobsPage/>}/>
-
+            <Route path="/browseJobs" element={<BrowseJobsPage/>}/>
+            <Route path="/browseJobs/:jobId" element={<BrowseJobsPage/>}/>
 
             <Route path="/newrequest" element={<ApprovalPage/>}/>
-            <Route path="/my-posts" element={<ApprovalPage/>}/>
             
 
             {/* --ADMIN ROUTE-- */}
 
             <Route path="/:companyId/users" element={<CompanyUsers/>}/>
             <Route path="/:companyId/users/:userId" element={<CompanyUsers/>}/>
-            <Route path="/admin/jobs/:companyName/:slugId" element={<JobDetailAdmin/>}/>
             <Route path="/company" element={<CompanyList/>}/>
             <Route path="/approved" element={<ApprovePage/>}/>
 
             {/* --LEADS ROUTE-- */}
 
             <Route path="/lead-approval" element={<LeadApprovalPage/>}/>
-            <Route path="/lead/:companyName/:slugId" element={<JobDetailLeadPage/>}/>
             <Route path="/lead/approved-by-me" element={<ApprovedByMe/>}/>
+
+
+            {/* --JOB ROUTE COMMON-- */}
+            <Route path="/job-basic-details" element={<PostJobPage/>}>
+                <Route index element={<Navigate to="?step=1" replace />} />
+            </Route>
+
+
+            {/* --NEW JOB POST ROUTES-- */}
+            <Route path="/my-posts" element={<TrackMyPosts/>}/>
+
           </Routes>
         </div>
       </main>
-      {!hideNavbar && <Footer/>}
+      {/* {!hideNavbar && <Footer/>} */}
       <Toaster />
     </div>
   )

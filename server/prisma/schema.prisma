@@ -14,55 +14,29 @@ datasource db {
 }
 
 
-model Job {
+// Main Job Creation Schema 
+model PostJob {
   id String @id @default(cuid())
-  title String
+  roleTitle String
+  companyName String
+  employmentType String
+  location String
 
-  summary String?
+  url String?
+
+  //tip tap field
   description String?
-  url String
-  location String?
-  salary String?
-  companyName String? 
 
-  employmentType String?
+  userId String? //comes from mongodb
+  companyId String? //comes from mongodb
 
-  requirements String[]
-  duties String[]
-
-  status String @default("pending")
-
-  postedBy String
-  companyId String?
-
-  rejectedReason String?
-  approval JobApproval[]
+  draftStats String? @default("draft")
+  status String? @default("pending")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
 }
 
-model JobApproval {
-  id String @id @default(cuid())
-
-  jobId String @unique
-  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  approvedById String?
-  approvedRole String?
-
-  rejectedById String?
-  rejectedByName String?
-  approvedByName String?
-  
-
-
-  rejectedReason String?
-  
-  approvedAt DateTime?
-  rejectedAt DateTime?
-}
 
 model CommunityPost {
   id String @id @default(cuid())

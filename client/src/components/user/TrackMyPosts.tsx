@@ -1,119 +1,54 @@
- import { Spinner } from "@/components/ui/spinner"
-import { Badge } from "@/components/ui/badge"
-import { useTrackMyPostsUser } from "@/hooks/queries/profile"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Spinner } from "@/components/ui/spinner"
+import { useGetpostJobs } from "@/hooks/queries/postjob"
+import StatusBadge from "../shared/StatusBadge"
 
-const TrackMyPosts = () => {
+export default function TrackMyPosts() {
+    const { data, isPending, error } = useGetpostJobs()
 
-    const { data: users = [] , isPending } = useTrackMyPostsUser()
-
-    if(isPending){
+    if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
-                <Spinner className="size-7"/>
+            <div className="min-h-screen flex items-center justify-center">
+                <Spinner className="size-7" />
             </div>
         )
     }
 
-    
-  return (
-    <div className="px-3 py-4 sm:px-6 sm:py-6">
-        {users.length === 0 ? (
-            <div className="text-center font-semibold p-5 text-muted-foreground">
-                No Jobs Found
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-muted-foreground">Something went wrong</p>
             </div>
-        ): (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {users.map((user, index) => (
-                    <div
-                        key={user.id}
-                        className="min-h-60 border border-border bg-card p-5 sm:p-6 flex flex-col justify-between gap-4"
-                    >
-                        <div>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="text-xs font-mono text-muted-foreground">
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
-                                <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-                                    {user.companyName}
-                                </span>
-                            </div>
+        )
+    }
 
-                            <h2 className="text-lg font-bold text-card-foreground leading-tight">
-                                {user.title}
-                            </h2>
-
-                            {user.summary && (
-                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                    {user.summary}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="flex flex-row justify-between items-end">
-                            <div className="flex flex-wrap items-center gap-2 mb-6">
-                                {user.location && (
-                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
-                                        {user.location}
-                                    </span>
-                                )}
-                                {user.salary && (
-                                    <span className="text-xs border border-border rounded-none px-2 py-0.5 text-muted-foreground">
-                                        {user.salary}
-                                    </span>
-                                )}
-
-                                <Badge
-                                    className={`uppercase font-semibold rounded-none 
-                                        ${
-                                            user.status === "approved"
-                                            ? "bg-green-600"
-                                            : user.status === "rejected"
-                                            ? "bg-red-600"
-                                            : "bg-amber-700"
-                                        }`}
-                                    >
-                                    {user.status}
-                                </Badge>
-                            </div>
-
-                            
-                        </div>
-
-                        {user.status === "rejected" && user.rejectedReason && (
-                            <div className="mt-2 rounded-none border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
-                                Rejection reason: {user.rejectedReason}
-                            </div>
-                        )}
-
-                        {user.status === "approved" && user.approvedBy && (
-                            <p className="text-xs text-muted-foreground">
-                                Approved by: <span className="font-semibold text-foreground">{user.approvedBy}</span>
-                                {user.companyName && (
-                                    <>
-                                        {" "}for <span className="font-semibold text-foreground">{user.companyName}</span>
-                                    </>
-                                )}
-                            </p>
-                        )}
-
-                        {user.status === "rejected" && user.rejectedBy && (
-                            <p className="text-xs text-muted-foreground">
-                                Rejected by: <span className="font-semibold text-foreground">{user.rejectedBy}</span>
-                                {user.companyName && (
-                                    <>
-                                        {" "}for <span className="font-semibold text-foreground">{user.companyName}</span>
-                                    </>
-                                )}
-                            </p>
-                        )}
-
-                        
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
-  )
+    return (
+        <div className="p-6">
+            {data.jobs.length === 0 ? (
+                <div className="min-h-screen flex items-center justify-center">
+                    <p className="text-muted-foreground">No jobs found</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {data.jobs.map((job) => (
+                        <Card key={job.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                            <CardHeader>
+                                <CardTitle>{job.roleTitle}</CardTitle>
+                                <CardDescription>{job.companyName}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-2 flex flex-row justify-between">
+                                <div>
+                                    <p className="text-sm text-muted-foreground">{job.location}</p>
+                                    <p className="text-sm text-muted-foreground">{job.employmentType}</p>
+                                </div>
+                                <div>
+                                    <StatusBadge status={job.status}/>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
 }
-
-export default TrackMyPosts
