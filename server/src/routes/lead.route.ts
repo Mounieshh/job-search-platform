@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { authorize, requireRoute } from "../middleware/auth.middleware.js";
-import { getJobsToApproveLead, getLeadApprovedJobs, getLeadDetailListings, leadApprove, leadReject } from "../controller/lead.controller.js";
+import { getJobApprovalInfo, getLeadApprovedJobs, getPendingJobApprovals, leadReviewJob } from "../controller/lead.controller.js";
 
 
 const leadRouter = Router()
 
+// lead approval
+leadRouter.get("/job-requests/pending", authorize, requireRoute("LEAD"), getPendingJobApprovals)
+leadRouter.patch("/review/:jobId", authorize, requireRoute("LEAD"), leadReviewJob)
+leadRouter.get("/approval-info/:jobId", authorize, requireRoute("LEAD"), getJobApprovalInfo)
 
-leadRouter.get("/requests", authorize, requireRoute("LEAD", "ADMIN"), getJobsToApproveLead)
-leadRouter.patch("/approve/:id", authorize, requireRoute("LEAD"), leadApprove)
-leadRouter.patch("/reject/:id", authorize, requireRoute("LEAD"), leadReject)
-leadRouter.get("/:companyName/:slugId", authorize, requireRoute("LEAD"), getLeadDetailListings)
+// lead approved job listing
 leadRouter.get("/approved-by-me", authorize, requireRoute("LEAD"), getLeadApprovedJobs)
 
 export default leadRouter

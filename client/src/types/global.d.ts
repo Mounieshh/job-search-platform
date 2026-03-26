@@ -11,7 +11,7 @@ declare global {
         role: string
     }
 
-    // job types
+    // job details types
     type JobData = {
         id: string,
         roleTitle: string,
@@ -26,6 +26,21 @@ declare global {
         status: string,
     }
 
+    //job details type with user
+    type JobDataWithUser = {
+        id: string,
+        roleTitle: string,
+        companyName: string,
+        employmentType: string,
+        location: string,
+        url: string,
+        description: string,
+        userId: string,
+        companyId: string,
+        draftStats: string,
+        status: string,
+        user : User
+    }
 
     type CommunityPostItem = {
         id: string

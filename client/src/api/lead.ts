@@ -1,45 +1,26 @@
 import { baseUrl } from "@/lib/base"
 
-export const LEAD_QUERY_KEYS = {
-    requests: ["lead_requests"] as const,
-    approved: ["lead_approved_jobs"] as const,
-    detail: (companyName?: string, slugId?: string) => ["lead_detail", companyName, slugId] as const
-}
-
-export type LeadApproved = {
-    jobs: Job[]
-}
-
-export type LeadRequests = {
-    jobs: Job[]
-}
-
-export type LeadDetails = {
-    job: JobDetail
-}
 
 export type RejectLeadJobPayload = {
     jobId: string
     reason: string
 }
 
-export const getLeadApproved = async (): Promise<Job[]> => {
-    const response = await fetch(`${baseUrl}/api/lead/approved-by-me`, {
-        method: "GET",
-        credentials: "include"
-    })
 
-    if(!response.ok){
-        throw new Error("Failed to fetch the Jobs approved by you..")
-    }
-
-    const data: LeadApproved = await response.json()
-    return data.jobs ?? []
+type LeadPendingResponse = {
+    jobs: JobDataWithUser[]
 }
 
+type LeadReviewResponse = {
+    job: JobData
+}
+
+type LeadApprovedResponse = {
+    jobs: JobData[]
+}
 
 export const listLeadRequests = async () => {
-    const response = await fetch(`${baseUrl}/api/lead/requests`, {
+    const response = await fetch(`${baseUrl}/api/lead/job-requests/pending`, {
         method: "GET",
         credentials: "include"
     })
@@ -48,55 +29,49 @@ export const listLeadRequests = async () => {
         throw new Error("Failed to fetch Requests")
     }
 
-    const data: LeadRequests = await response.json()
+    const data: LeadPendingResponse = await response.json()
     return data.jobs ?? []
 }
 
 
-export const leadJobDetails = async (companyName: string | undefined, slugId: string | undefined) => {
-    const response = await fetch(`${baseUrl}/api/lead/${companyName}/${slugId}`, {
+export async function reviewJob(jobId: string, action: string, reason?: string) {
+    const response = await fetch(`${baseUrl}/api/lead/review/${jobId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reason })
+    })
+
+    const data: LeadReviewResponse = await response.json()
+    if (!response.ok) throw new Error("Failed to review job")
+
+    return data.job ?? null
+}
+
+export async function fetchJobApprovalInfo(jobId: string) {
+    const response = await fetch(`${baseUrl}/api/lead/approval-info/${jobId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message || "Failed to fetch approval info")
+
+    return data.approval
+}
+
+export async function leadReviewedJobs(){
+    const response = await fetch(`${baseUrl}/api/lead/approved-by-me`, {
         method: "GET",
         credentials: "include"
     })
 
-    if(!response.ok){
-        throw new Error("Failed to fetch the job details")
-    }
-
-    const data: LeadDetails = await response.json()
-    return data.job ?? null
-}
-
-export const approveJob = async (jobId: string) => {
-    const response = await fetch(`${baseUrl}/api/lead/approve/${jobId}`, {
-        method: "PATCH",
-        credentials: "include"
-    })
+    const data: LeadApprovedResponse = await response.json()
 
     if(!response.ok){
-        throw new Error("Failed to Approve Job")
+        throw new Error("Failed to fetch the approved jobs")
     }
 
-    const data = await response.json()
-    return data
-
-}
-
-export const rejectJob = async ({ jobId, reason }: RejectLeadJobPayload) => {
-    const response = await fetch(`${baseUrl}/api/lead/reject/${jobId}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ reason })
-    })
-
-    const data = await response.json().catch(() => ({}))
-
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to Reject Job")
-    }
-
-    return data
+    return data.jobs ?? []
 }

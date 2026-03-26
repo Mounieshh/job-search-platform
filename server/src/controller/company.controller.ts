@@ -14,7 +14,7 @@ export async function getCompanyList(req: Request, res: Response) {
                 "company.companyId": company._id
             })
 
-            const jobPostCount = await prisma.job.count({
+            const jobPostCount = await prisma.postJob.count({
                 where: {
                     companyId: company._id.toString(),
                 }

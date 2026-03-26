@@ -1,27 +1,26 @@
-import { LEAD_QUERY_KEYS, getLeadApproved, leadJobDetails, listLeadRequests } from "@/api/lead"
+import { fetchJobApprovalInfo, leadReviewedJobs, listLeadRequests } from "@/api/lead"
 import { useQuery } from "@tanstack/react-query"
 
-export function useLeadApprovedJobs() {
+export function useLeadRequests(){
   return useQuery({
-    queryKey: LEAD_QUERY_KEYS.approved,
-    queryFn: getLeadApproved,
-    retry: false
+    queryKey: ["lead_pending_jobs"],
+    queryFn: listLeadRequests
   })
 }
 
-export function useLeadJobDetails(companyName: string | undefined, slugId: string | undefined) {
-  return useQuery({
-    queryKey: LEAD_QUERY_KEYS.detail(companyName, slugId),
-    queryFn: () => leadJobDetails(companyName, slugId),
-    enabled: !!companyName && !!slugId,
-    retry: false
-  })
+
+export function useGetJobApprovalInfo(jobId: string | undefined) {
+    return useQuery({
+        queryKey: ["job_approval", jobId],
+        queryFn: () => fetchJobApprovalInfo(jobId!),
+        enabled: Boolean(jobId)
+    })
 }
 
-export function useLeadRequests() {
+
+export function useLeadApprovedJobs(){
   return useQuery({
-    queryKey: LEAD_QUERY_KEYS.requests,
-    queryFn: listLeadRequests,
-    retry: false
+    queryKey: ["lead_approved_jobs"],
+    queryFn: leadReviewedJobs
   })
 }

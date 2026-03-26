@@ -1,28 +1,20 @@
-import { LEAD_QUERY_KEYS, approveJob, rejectJob } from "@/api/lead"
+import { reviewJob } from "@/api/lead"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-export function useApproveLeadJob() {
-  const queryClient = useQueryClient()
+export function useReviewJob() {
+    const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: approveJob,
-    mutationKey: ["approve_job"],
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LEAD_QUERY_KEYS.approved })
-      queryClient.invalidateQueries({ queryKey: LEAD_QUERY_KEYS.requests })
-    }
-  })
-}
-
-export function useRejectLeadJob() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: rejectJob,
-    mutationKey: ["reject_job"],
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LEAD_QUERY_KEYS.requests })
-      queryClient.invalidateQueries({ queryKey: LEAD_QUERY_KEYS.approved })
-    }
-  })
+    return useMutation({
+        mutationFn: ({ jobId, action, reason }: {
+            jobId: string
+            action: string
+            reason?: string
+        }) => reviewJob(jobId, action, reason),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead_pending_review_jobs"] })
+        },
+        onError: (error: any) => {
+            console.error("Failed to review job:", error.message)
+        }
+    })
 }

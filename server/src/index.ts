@@ -13,6 +13,7 @@ import leadRouter from "./routes/lead.route.js"
 import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
 import postJobRouter from "./routes/postjob.route.js"
+import adminRouter from "./routes/admin.route.js"
 
 dns.setServers(["1.1.1.1"])
 
@@ -53,6 +54,7 @@ app.use("/api/lead", leadRouter)
 app.use("/api/community", communityRouter)
 app.use("/api/user", userRouter)
 app.use("/api/jobs", postJobRouter)
+app.use("/api/admin", adminRouter)
 
 async function startServer() {
     try {

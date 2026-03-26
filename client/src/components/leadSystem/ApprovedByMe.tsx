@@ -1,26 +1,14 @@
-
-import { Link } from 'react-router'
 import { Spinner } from '@/components/ui/spinner'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-
-import { useLeadApprovedJobs} from '@/hooks/queries/lead'
+import { useLeadApprovedJobs } from '@/hooks/queries/lead'
 
 
 const ApprovedByMe = () => {
 
   const {data, error, isPending } = useLeadApprovedJobs()
 
-  function toSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-  } 
-
+  
   if (isPending) {
     return (
       <div className="min-h-screen flex justify-center pt-10">
@@ -56,19 +44,12 @@ const ApprovedByMe = () => {
             {data.map((job, index) => (
               <TableRow key={job.id}>
                 <TableCell>{String(index + 1).padStart(2, "0")}</TableCell>
-                <TableCell>{job.title}</TableCell>
+                <TableCell>{job.roleTitle}</TableCell>
                 <TableCell>{job.companyName}</TableCell>
                 <TableCell>
                   <Badge className={`rounded-none w-20 ${job.status === "approved" ? "bg-green-700 text-white" : "bg-orange-500 text-white"} uppercase font-semibold`}>
                     {job.status}
                   </Badge>
-                </TableCell>
-                <TableCell>
-                  <Link to={`/lead/${encodeURIComponent(job.companyName || "company")}/${encodeURIComponent(toSlug(job.title))}`}>
-                    <Button className="rounded-none cursor-pointer" variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </Link>
                 </TableCell>
               </TableRow>
             ))}

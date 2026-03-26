@@ -4,7 +4,6 @@ import { postJobSchema, stepTwoSchema } from "../validate/postjob.zod.js";
 import { prisma } from "../config/prisma.js";
 
 
-
 // Job creation
 export async function createNewJob(req: Request, res: Response) {
     try {
@@ -104,9 +103,6 @@ export async function getSingleJob(req: Request, res:Response){
         if (!fetchSingleJob) {
             return res.status(404).json({ message: "Job not found" })
         }
-
-        console.log("description type:", typeof fetchSingleJob.description)
-        console.log("description value:", fetchSingleJob.description)
 
         return res.status(200).json({
             message: "Single Job based on Id fetched..",

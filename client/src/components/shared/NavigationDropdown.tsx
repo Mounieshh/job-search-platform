@@ -28,13 +28,13 @@ const jobItems: TopNavMenuItem[] = [
   },
   {
     title: "Job Requests",
-    href: "/newrequest",
+    href: "/admin/requests",
     description: "Review incoming job requests.",
     roles: ["ADMIN"],
   },
   {
     title: "Jobs Approved",
-    href: "/approved",
+    href: "/admin/reviewed",
     description: "See jobs approved by admins.",
     roles: ["ADMIN"],
   },
