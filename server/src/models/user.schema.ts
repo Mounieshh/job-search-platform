@@ -4,7 +4,6 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-
   accountType: "job_seeker" | "company_employee";
   role: "USER" | "LEAD" | "ADMIN";
 
@@ -16,7 +15,7 @@ export interface IUser extends Document {
       | "frontend_developer"
       | "backend_developer"
       | "fullstack_developer"
-      | "hr_manager"
+      | "hr_manager" 
       | "recruiter"
       | "team_lead"
       | "engineering_manager"

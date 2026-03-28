@@ -25,12 +25,7 @@ export default function CommunityPage() {
         </aside>
 
         <section className="w-full min-w-0 lg:flex-1 lg:max-w-3xl space-y-6">
-          <header className="rounded-md px-5 py-4">
-              <h2 className="font-bold text-3xl italic">
-                Community Feed
-              </h2>
-          </header>
-
+          
           <div className="rounded-md border bg-white p-4 sm:p-5">
             <CommunityPost/>
           </div>

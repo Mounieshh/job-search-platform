@@ -1,16 +1,23 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
 import { Link, useNavigate } from "react-router"
 import { Button } from "../ui/button"
-import { ArrowRight, Menu, X } from "lucide-react"
+import { ArrowRight, LogOutIcon, Menu, UserIcon, X, Search, Bell, MessageSquare, LayoutGrid } from "lucide-react"
 import { getTopNavJobItems, NavigationDropdown, type Role } from "./NavigationDropdown"
 import { useState } from "react"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "../ui/dropdown-menu"
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 
 const Navbar = () => {
   const { data: user } = useSession()
   const { mutateAsync: logout } = useLogout()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const role = user?.role as Role | undefined
   const mobileJobItems = getTopNavJobItems(role)
 
@@ -22,137 +29,143 @@ const Navbar = () => {
   const initial = user?.name?.charAt(0)?.toUpperCase() || "U"
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/20 bg-white/10 backdrop-blur-3xl supports-backdrop-filter:bg-white/10 shadow-sm">
-      <div className="flex flex-row justify-between items-center p-5">
-        <div>
-          <h1 className="text-2xl ml-2 font-semibold uppercase italic">
-            <Link to="/">Jobbify</Link>
-          </h1>
-        </div>
+    <>
+     
+      {/* ── Second Navbar — HackerRank-style dark bar ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0E141E] border-b border-white/10 h-14">
+        <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between gap-4">
 
-        <div className="hidden md:block">
-          <ul className="flex flex-row gap-5 items-center">
-            <li>
-              <Link to="/" className="hover:text-gray-600 transition-colors">Home</Link>
-            </li>
-            <li>
+          {/* LEFT — Logo + Nav links */}
+          <div className="flex items-center gap-6 shrink-0">
+            {/* Logo */}
+            <Link
+              to="/"
+              className="font-mono font-bold text-xl text-white tracking-tight flex items-center gap-1.5"
+            >
+              <span className="inline-block w-3.5 h-3.5 rounded-sm bg-primary" aria-hidden="true" />
+              Jobbify
+            </Link>
+
+            {/* Divider */}
+            <span className="hidden md:block w-px h-5 bg-white/20" />
+
+            {/* Nav links */}
+            <ul className="hidden md:flex items-center gap-1">
+              <li>
+                <Link
+                  to="/browseJobs"
+                  className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  Browse Jobs
+                </Link>
+              </li>
+
               {user && (
                 <>
-                  <NavigationDropdown role={role} />
+                  <li>
+                    <Link
+                      to="/job-basic-details"
+                      className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      Post a Job
+                    </Link>
+                  </li>
+                  <li>
+                    <NavigationDropdown role={role} />
+                  </li>
                 </>
               )}
-            </li>
+            </ul>
+          </div>
+
+          {/* RIGHT — Search + icon actions + avatar */}
+          <div className="flex items-center gap-2 shrink-0">
+
+            {/* Search input */}
+            <div className="relative hidden sm:flex items-center">
+              <Search className="absolute left-3 size-4 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-52 lg:w-64 h-8 pl-9 pr-3 rounded bg-[#1C2433] border border-white/10 text-sm text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-[#39C16C]/60 focus:ring-1 focus:ring-[#39C16C]/30 transition-all"
+              />
+            </div>
+
+            {/* Divider */}
+            <span className="hidden sm:block w-px h-5 bg-white/20 mx-1" />
+
             
-            <li>
-              <Link to="/browseJobs" className="hover:text-gray-600 transition-colors">Browse Jobs</Link>
-            </li>
-            { user && (
-              <>
-
-                <li>
-                  <Link to="/job-basic-details" className="hover:text-gray-600 transition-colors">Post</Link>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-
-        <div className="hidden md:flex gap-5 items-center">
-          {user ? (
-            <>
-              <Link to="/profile"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D4903A] bg-muted text-xl font-semibold text-foreground"
-              >
-                {initial}
-              </Link>
-              <div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild className="cursor-pointer">
-                      <Button> Logout </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="font-bold italic">
-                          Sure to Logout
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          You will be signed out of your account.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleLogout} className="cursor-pointer">Logout</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link to="/auth/login" className="p-1 hover:text-gray-600 transition-colors">
-                Sign in
-              </Link>
-              <Link
-                to="/auth/register"
-                className="px-3 rounded-sm flex flex-row p-1 text-white bg-primary hover:bg-gray-800 transition-colors"
-              >
-                Get started it's free
-                <ArrowRight className="size-4 flex justify-center items-center mt-1 ml-1" />
-              </Link>
-            </>
-          )}
-        </div>
-
-        <button
-          className="md:hidden p-1"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <div className="md:hidden flex flex-col gap-4 px-7 pb-5 border-t pt-4">
-          <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
-          {mobileJobItems.map((item) => (
-            <Link key={item.href} to={item.href} onClick={() => setMobileOpen(false)}>
-              {item.title}
-            </Link>
-          ))}
-          <Link to="/community" onClick={() => setMobileOpen(false)}>Community</Link>
-          <Link to="/profile" onClick={() => setMobileOpen(false)}>Profile</Link>
-
-          <div className="border-t pt-4 flex flex-col gap-3">
+            {/* User section */}
             {user ? (
-              <>
-                <Button
-                  onClick={async () => {
-                    await handleLogout()
-                    setMobileOpen(false)
-                  }}
-                  className="px-3 rounded-sm text-white bg-black w-fit"
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded hover:bg-white/10 transition-colors group">
+                    {/* Avatar circle */}
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#39C16C]/20 border border-[#39C16C]/50 text-[#39C16C] text-xs font-bold select-none">
+                      {initial}
+                    </span>
+                    {/* Chevron */}
+                    <svg
+                      className="size-3.5 text-gray-400 group-hover:text-white transition-colors"
+                      viewBox="0 0 12 12" fill="none"
+                    >
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-44 bg-[#1C2433] border border-white/10 text-gray-200 shadow-xl"
                 >
-                  Logout
-                </Button>
-              </>
+                  <div className="px-3 py-2 border-b border-white/10">
+                    <p className="text-xs text-gray-400 truncate">{user.name ?? "User"}</p>
+                  </div>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-2 cursor-pointer text-sm hover:text-white hover:bg-white/10 px-3 py-2"
+                    >
+                      <UserIcon className="size-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="bg-white/10" />
+
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 cursor-pointer text-sm text-red-400 hover:text-red-300 hover:bg-white/10 px-3 py-2"
+                  >
+                    <LogOutIcon className="size-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <>
-                <Link to="/auth/login" onClick={() => setMobileOpen(false)}>Sign in</Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/auth/login"
+                  className="text-sm text-gray-300 hover:text-white px-3 py-1.5 rounded hover:bg-white/10 transition-colors"
+                >
+                  Sign in
+                </Link>
                 <Link
                   to="/auth/register"
-                  className="px-3 rounded-sm flex flex-row p-1 text-white bg-primary w-fit"
-                  onClick={() => setMobileOpen(false)}
+                  className="text-sm text-white bg-[#39C16C] hover:bg-[#2fa85a] px-3 py-1.5 rounded font-medium transition-colors flex items-center gap-1.5"
                 >
-                  Get started it's free
-                  <ArrowRight className="size-4 flex justify-center items-center mt-1 ml-1" />
+                  Get started
+                  <ArrowRight className="size-3.5" />
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
-      )}
-    </nav>
+      </nav>
+    </>
   )
 }
 

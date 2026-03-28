@@ -7,7 +7,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router"
 import { Briefcase } from "lucide-react"
 
 export type Role = "USER" | "ADMIN" | "LEAD"
@@ -62,24 +62,29 @@ export function getTopNavJobItems(role?: Role): TopNavMenuItem[] {
   if (!role) {
     return jobItems.filter((item) => item.title === "Browse Jobs")
   }
-
   return jobItems.filter((item) => !item.roles || item.roles.includes(role))
 }
 
 export function NavigationDropdown({ role }: { role?: Role }) {
   const visibleItems = getTopNavJobItems(role)
+  const [value, setValue] = React.useState("")
+  const location = useLocation()
+
+  React.useEffect(() => {
+    setValue("")
+  }, [location.pathname])
 
   return (
-    <NavigationMenu>
+    <NavigationMenu value={value} onValueChange={setValue}>
       <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-transparent font-normal text-base px-0 hover:bg-transparent focus:bg-transparent data-active:bg-transparent data-[state=open]:bg-transparent">
+        <NavigationMenuItem value="jobs">
+          <NavigationMenuTrigger className="h-auto bg-transparent! hover:bg-transparent! focus:bg-transparent! focus-visible:bg-transparent! data-[state=open]:bg-transparent! active:bg-transparent! px-3 py-1.5 text-sm font-normal text-gray-300 rounded hover:text-white data-[state=open]:text-white [&>svg]:text-gray-400 [&>svg]:ml-1">
             Jobs
           </NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-85 gap-2 p-3 md:w-105 md:grid-cols-2">
+            <ul className="grid w-80 gap-1 p-3 md:w-96 md:grid-cols-2">
               {visibleItems.map((item) => (
-                <ListItem key={item.title} title={item.title} href={item.href}>
+                <ListItem key={item.title} title={item.title} href={item.href} className="hover:bg-slate-100">
                   {item.description}
                 </ListItem>
               ))}
@@ -102,13 +107,13 @@ function ListItem({
       <NavigationMenuLink asChild>
         <Link
           to={href}
-          className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 focus:bg-white/10"
         >
           <div className="flex items-center gap-2 mb-1">
-            <Briefcase className="size-3.5 text-muted-foreground" />
+            <Briefcase className="size-3.5 " />
             <span className="text-sm font-medium leading-none">{title}</span>
           </div>
-          <p className="line-clamp-2 text-xs text-muted-foreground">{children}</p>
+          <p className="line-clamp-2 text-xs text-gray-500">{children}</p>
         </Link>
       </NavigationMenuLink>
     </li>

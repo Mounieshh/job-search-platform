@@ -71,6 +71,10 @@ function AppLayout() {
 
             <Route path="/admin/requests" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed" element={<AdminApprovedPage/>}/>
+
+            <Route path="/admin/requests/:jobId" element={<AdminRequestsPage/>}/>
+            <Route path="/admin/reviewed/:jobId" element={<AdminApprovedPage />} />
+
             <Route path="/:companyId/users" element={<CompanyUsers/>}/>
             <Route path="/:companyId/users/:userId" element={<CompanyUsers/>}/>
             <Route path="/company" element={<CompanyList/>}/>
