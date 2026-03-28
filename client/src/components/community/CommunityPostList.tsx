@@ -18,19 +18,8 @@ function formatPostDate(value: string) {
     })
 }
 
-function formatAccountType(post: CommunityPostItem) {
-    const userValue = post.user?.accountType
-    const rawValue = userValue || (post as any)?.accountType || (post as any)?.user?.account_type
-
-    if (rawValue === "company_employee") {
-        return "Company Employee"
-    }
-
-    if (rawValue === "job_seeker") {
-        return "Job Seeker"
-    }
-
-    return "Community Member"
+function formatVerificationStatus(post: CommunityPostItem) {
+    return post.user?.isEmailVerified ? "Verified Member" : "Community Member"
 }
 
 const CommunityPostList = () => {
@@ -114,7 +103,7 @@ const CommunityPostList = () => {
                                             {post.anonymousName}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
-                                            {formatAccountType(post)}
+                                            {formatVerificationStatus(post)}
                                         </div>
                                     </div>
                                 </div>

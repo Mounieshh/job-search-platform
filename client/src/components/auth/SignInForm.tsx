@@ -1,34 +1,35 @@
-import { zodLoginSchema, type ZodUserLoginData } from "@/validate/user.zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { Link, useNavigate } from "react-router"
-import { useSignIn } from "@/hooks/mutations/auth"
+import { zodLoginSchema, type ZodUserLoginData } from "@/validate/user.zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router";
+import { useSignIn } from "@/hooks/mutations/auth";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignInForm = () => {
-  const navigate = useNavigate()
-  
-  const { mutateAsync: signIn } = useSignIn()
+  const navigate = useNavigate();
+  const { mutateAsync: signIn } = useSignIn();
+  const [show, setShow] = useState(false);
 
   const form = useForm<ZodUserLoginData>({
     resolver: zodResolver(zodLoginSchema),
-    defaultValues: { email: "", password: "" }
-  })
+    defaultValues: { email: "", password: "" },
+  });
 
   const onSubmit = async (formData: ZodUserLoginData) => {
     try {
-      await signIn(formData)
-      toast.success("Login Successful")
-      form.reset()
-      navigate("/")
-
+      await signIn(formData);
+      toast.success("Login Successful");
+      form.reset();
+      navigate("/");
     } catch (error: any) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
@@ -67,14 +68,25 @@ const SignInForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Password</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="••••••••"
-                        type="password"
-                        {...field}
-                        className="rounded-none"
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="••••••••"
+                          type={show ? "text" : "password"}
+                          {...field}
+                          className="rounded-none pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 cursor-pointer"
+                          onClick={() => setShow(!show)}
+                        >
+                          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -89,24 +101,20 @@ const SignInForm = () => {
                 {form.formState.isSubmitting ? "Signing in..." : "Login"}
               </Button>
 
-
               <footer>
                 <h2>
-                  Don't Have an Account? 
+                  Don't Have an Account?
                   <span className="ml-2 underline text-blue-400">
-                      <Link to="/auth/register">
-                          Signup
-                      </Link>
+                    <Link to="/auth/register">Signup</Link>
                   </span>
                 </h2>
               </footer>
             </form>
           </Form>
-
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignInForm
+export default SignInForm;

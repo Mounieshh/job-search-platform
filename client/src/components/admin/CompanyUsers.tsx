@@ -18,7 +18,7 @@ const CompanyUsers = () => {
         const normalizedQuery = searchText.trim().toLowerCase()
 
         return data.filter((user) => {
-            const combined = [user.name, user.accountType, user.email]
+            const combined = [user.name, user.email]
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase()
@@ -108,7 +108,7 @@ const CompanyUsers = () => {
                         <Badge variant="secondary">{selectedUser.role}</Badge>
 
                         <div className="pt-3 mt-3 border-t border-border/50 space-y-2 text-sm">
-                            <div><span className="font-medium">Account type:</span> <span className="text-muted-foreground">{selectedUser.accountType.replace("_", " ")}</span></div>
+                            <div><span className="font-medium">Email Verified:</span> <span className={selectedUser.isEmailVerified ? "text-green-600 font-medium" : "text-red-500 font-medium"}>{selectedUser.isEmailVerified ? "Verified" : "Not Verified"}</span></div>
                             <div><span className="font-medium">User ID:</span> <span className="text-muted-foreground">{selectedUser._id}</span></div>
                             <div><span className="font-medium">Company:</span> <span className="text-muted-foreground">{selectedUser.company?.companyName ?? "-"}</span></div>
                             <div><span className="font-medium">Position:</span> <span className="text-muted-foreground">{selectedUser.company?.position ?? "-"}</span></div>

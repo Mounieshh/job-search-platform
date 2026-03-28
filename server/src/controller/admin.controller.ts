@@ -216,7 +216,7 @@ export async function getAdminSingleJob(req: Request, res: Response){
         })
 
         const jobUser = fetchJob?.userId 
-                    ? await User.findById(fetchJob.userId).select("_id name email accountType company role")
+                    ? await User.findById(fetchJob.userId).select("_id name email isEmailVerified company role")
                     : null
 
         const combineJobwithUser = {

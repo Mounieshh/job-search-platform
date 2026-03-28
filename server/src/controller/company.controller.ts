@@ -62,7 +62,7 @@ export async function getCompanyUsersList(req: Request, res: Response){
                 $in: company.userIds
             }
         })
-            .select("_id name email accountType role company")
+            .select("_id name email isEmailVerified role company")
             .lean()
 
         return res.status(200).json({

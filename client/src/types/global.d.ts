@@ -7,8 +7,8 @@ declare global {
         _id: string,
         name: string,
         email: string,
-        accountType: string,
-        role: string
+        role: string,
+        isEmailVerified: boolean
     }
 
     // job details types
@@ -77,7 +77,7 @@ declare global {
         name: string,
         email: string,
         role: "USER" | "LEAD" | "ADMIN",
-        accountType: "job_seeker" | "company_employee"
+        isEmailVerified: boolean
     }
 
 }

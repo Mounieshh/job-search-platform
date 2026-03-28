@@ -21,9 +21,10 @@ import AdminRequestsPage from "./pages/adminSystem/AdminRequestsPage"
 
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
+import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
 
 
-const AUTH_ROUTES = ["/auth/login", "/auth/register"]
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
 
 function AppLayout() {
   const { pathname } = useLocation()
@@ -54,6 +55,7 @@ function AppLayout() {
 
             <Route path="/auth/login" element={user ? <Navigate to="/community" replace /> : <SignInPage />} />
             <Route path="/auth/register" element={user ? <Navigate to="/community" replace /> : <SignUpPage />} />
+            <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
 
             {/* --USER ROUTE-- */}
 

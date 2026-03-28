@@ -1,8 +1,6 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
 import { Link, useNavigate } from "react-router"
-import { Button } from "../ui/button"
-import { ArrowRight, LogOutIcon, Menu, UserIcon, X, Search, Bell, MessageSquare, LayoutGrid } from "lucide-react"
-import { getTopNavJobItems, NavigationDropdown, type Role } from "./NavigationDropdown"
+import { ArrowRight, LogOutIcon, UserIcon, Search} from "lucide-react"
 import { useState } from "react"
 import {
   DropdownMenu,
@@ -16,10 +14,7 @@ const Navbar = () => {
   const { data: user } = useSession()
   const { mutateAsync: logout } = useLogout()
   const navigate = useNavigate()
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const role = user?.role as Role | undefined
-  const mobileJobItems = getTopNavJobItems(role)
 
   const handleLogout = async () => {
     await logout()
@@ -31,7 +26,6 @@ const Navbar = () => {
   return (
     <>
      
-      {/* ── Second Navbar — HackerRank-style dark bar ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0E141E] border-b border-white/10 h-14">
         <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between gap-4">
 
@@ -71,7 +65,9 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li>
-                    <NavigationDropdown role={role} />
+                    <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                        Track Post
+                    </Link>
                   </li>
                 </>
               )}
@@ -80,6 +76,19 @@ const Navbar = () => {
 
           {/* RIGHT — Search + icon actions + avatar */}
           <div className="flex items-center gap-2 shrink-0">
+
+            {/* Become a Lead */}
+              
+              { user && user.role && user.isEmailVerified && (
+                <>
+                  <Link
+                    to="/"
+                    className="px-3 py-1.5 rounded text-sm bg-yellow-200/20 backdrop-blur-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    Become a Lead
+                  </Link>
+                </>
+              )}
 
             {/* Search input */}
             <div className="relative hidden sm:flex items-center">

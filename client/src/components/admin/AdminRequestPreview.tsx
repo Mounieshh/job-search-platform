@@ -158,9 +158,9 @@ const AdminRequestPreview = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Account Type</p>
-                                    <p className="text-sm font-medium italic capitalize">
-                                        {data.user.accountType?.replace("_", " ")}
+                                    <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">Email Verified</p>
+                                    <p className={`text-sm font-medium italic ${data.user.isEmailVerified ? 'text-green-600' : 'text-red-600'}`}>
+                                        {data.user.isEmailVerified ? 'Verified' : 'Not Verified'}
                                     </p>
                                 </div>
                                 <div>

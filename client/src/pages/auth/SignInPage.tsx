@@ -2,7 +2,7 @@ import SignInForm from "@/components/auth/SignInForm";
 
 export default function SignInPage() {
   return (
-    <main className="min-h-screen w-full flex flex-col md:flex-row">
+    <main className="w-full flex flex-col md:flex-row">
       <section className="w-full md:w-1/3">
           <SignInForm/>
       </section>

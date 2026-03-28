@@ -22,3 +22,20 @@ export async function getUserProfile(req: Request, res: Response){
         })
     }
 }
+
+export async function createUserProfile(req: Request, res: Response){
+    try {
+        
+        const user = (req as any).user
+
+        if(!user){
+            return res.status(403).json({
+                message: "Forbidden"
+            })
+        }
+
+        
+    } catch (error) {
+        
+    }
+}

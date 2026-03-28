@@ -6,14 +6,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Link, useNavigate } from "react-router"
-import { useState } from "react"
-import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
 import { useSignUp } from "@/hooks/mutations/auth"
+import { useState } from "react"
+import { Eye, EyeOff } from "lucide-react"
 
 const SignUpForm = () => {
   const navigate = useNavigate()
-
-  const[userType, setUserType] = useState<"job_seeker" | "company_employee">("job_seeker")
 
   const { mutateAsync: signUp } = useSignUp()
 
@@ -23,11 +21,10 @@ const SignUpForm = () => {
       name: "",
       email: "",
       password: "",
-      accountType: "job_seeker",
-      companyName: "",
-      position: undefined,
     }
   })
+
+  const [show, setShow] = useState(false)
 
   const onSubmit = async (formData: ZodUserFormData) => {
     try {
@@ -36,7 +33,7 @@ const SignUpForm = () => {
 
       toast.success("Account Created Successfully")
       form.reset()
-      navigate("/login")
+      navigate("/auth/verify-email")
 
     } catch (error: any) {
       toast.error(error.message)
@@ -46,41 +43,6 @@ const SignUpForm = () => {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
-
-        {/* Toggle Button */}
-        <div className="flex rounded-none border-2 border-border overflow-hidden">
-          <Button
-            type="button"
-            onClick={() => {
-              setUserType("job_seeker")
-              form.setValue("accountType", "job_seeker")
-              form.setValue("companyName", "")
-              form.setValue("position", undefined)
-            }}
-            className={`flex-1 rounded-none cursor-pointer font-medium transition-all border-r border-border ${
-              userType === "job_seeker"
-                ? "bg-primary text-white shadow-md"
-                : "bg-transparent text-foreground hover:bg-muted-foreground/10"
-            }`}
-          >
-            Normal
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => {
-              setUserType("company_employee")
-              form.setValue("accountType", "company_employee")
-            }}
-            className={`flex-1 rounded-none cursor-pointer font-medium transition-all ${
-              userType === "company_employee"
-                ? "bg-primary text-white shadow-md"
-                : "bg-transparent text-foreground hover:bg-muted-foreground/10"
-            }`}
-          >
-            Business
-          </Button>
-        </div>
 
         <div className="rounded-none p-8">
           <div className="mb-6">
@@ -132,103 +94,28 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="••••••••"
-                        type="password"
-                        {...field}
-                        className="rounded-none"
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="••••••••"
+                          type={show ? "text" : "password"}
+                          {...field}
+                          className="rounded-none pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 cursor-pointer"
+                          onClick={() => setShow(!show)}
+                        >
+                          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              {userType === "company_employee" && (
-                <>
-                  <FormField
-                  name="companyName"
-                  control={form.control}
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel>
-                        Company Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                        placeholder="Enter the company name"
-                        {...field}
-                        className="rounded-none"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                  />
-
-                  <FormField
-                    name="position"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Position</FormLabel>
-
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-none w-full">
-                              <SelectValue placeholder="Select Position" />
-                            </SelectTrigger>
-                          </FormControl>
-
-                          <SelectContent>
-                            <SelectItem value="software_engineer">
-                              Software Engineer
-                            </SelectItem>
-
-                            <SelectItem value="frontend_developer">
-                              Frontend Developer
-                            </SelectItem>
-
-                            <SelectItem value="backend_developer">
-                              Backend Developer
-                            </SelectItem>
-
-                            <SelectItem value="fullstack_developer">
-                              Fullstack Developer
-                            </SelectItem>
-
-                            <SelectItem value="hr_manager">
-                              HR Manager
-                            </SelectItem>
-
-                            <SelectItem value="recruiter">
-                              Recruiter
-                            </SelectItem>
-
-                            <SelectItem value="team_lead">
-                              Team Lead
-                            </SelectItem>
-
-                            <SelectItem value="engineering_manager">
-                              Engineering Manager
-                            </SelectItem>
-
-                            <SelectItem value="other">
-                              Other
-                            </SelectItem>
-                          </SelectContent>
-
-                        </Select>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
 
               <Button
                 type="submit"
