@@ -62,6 +62,7 @@ export async function registerUser(req: Request, res: Response) {
     return res.status(201).json({
       message: "User registered successfully. Please verify your email.",
     });
+    
   } catch (error: any) {
     console.error(error);
     if (error.name === "ZodError") {

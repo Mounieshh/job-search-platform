@@ -9,7 +9,7 @@ const JobsPreview = () => {
 
     if (!jobId) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+            <div className="h-full flex items-center justify-center text-muted-foreground py-20">
                 Select a job to view details
             </div>
         )
@@ -17,7 +17,7 @@ const JobsPreview = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
+            <div className="h-full flex justify-center items-center py-20">
                 <Spinner className="size-7" />
             </div>
         )

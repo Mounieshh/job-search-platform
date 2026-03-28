@@ -36,7 +36,7 @@ const CommunityPostList = () => {
         const normalizedQuery = searchText.trim().toLowerCase()
 
         return data.filter((job) => {
-            const combined = [job.title, job.content]
+            const combined = [job.title, job.content, job.user?.name]
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase()
@@ -100,7 +100,7 @@ const CommunityPostList = () => {
                                     />
                                     <div className="min-w-0">
                                         <div className="truncate text-sm font-medium text-card-foreground">
-                                            {post.anonymousName}
+                                            {post.user?.name}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
                                             {formatVerificationStatus(post)}

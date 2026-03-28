@@ -9,11 +9,10 @@ export function useGetpostJobs(){
 }
 
 
-// for listing in /browse
-export function useApprovedJobs(){
+export function useApprovedJobs(page = 1, limit = 10){
     return useQuery({
-        queryKey: ["post_job_approved_list"],
-        queryFn: getApprovedJobs
+        queryKey: ["post_job_approved_list", page, limit],
+        queryFn: () => getApprovedJobs(page, limit)
     })
 }
 

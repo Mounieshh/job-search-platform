@@ -17,6 +17,11 @@ type GetPostJobsResponse = {
 
 type GetApprovedJobResponse = {
     jobs: JobData[]
+    pagination: {
+        currentPage: number
+        totalPages: number
+        totalJobs: number
+    }
 }
 
 type GetSingleJobResponse = {
@@ -52,8 +57,8 @@ export async function patchNewJobTipTap(formData: PostTipTapData, jobId: string 
     return data as PatchJobResponse
 }
 
-export async function getApprovedJobs(){
-    const response = await fetch(`${baseUrl}/api/jobs/browse`, {
+export async function getApprovedJobs(page = 1, limit = 10){
+    const response = await fetch(`${baseUrl}/api/jobs/browse?page=${page}&limit=${limit}`, {
         method: "GET",
         credentials: "include"
     })
@@ -64,7 +69,7 @@ export async function getApprovedJobs(){
 
     const data: GetApprovedJobResponse = await response.json()
 
-    return data.jobs ?? []
+    return data
 }
 
 

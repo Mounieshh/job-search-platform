@@ -61,6 +61,10 @@ export async function patchNewJob(req: Request, res: Response) {
 export async function getApprovedJobs(req: Request, res: Response){
 
     try {
+
+        const page = parseInt(req.query.page as string) || 1
+        const limit = parseInt(req.query.limit as string) || 10
+        const skip = (page - 1) * limit
         
         const fetchApprovedJobs = await prisma.postJob.findMany({
             where: {
@@ -68,12 +72,25 @@ export async function getApprovedJobs(req: Request, res: Response){
             },
             orderBy: {
                 createdAt: "desc"
+            },
+            skip,
+            take: limit
+        })
+
+        const totalJobs = await prisma.postJob.count({
+            where: {
+                status: "approved"
             }
         })
 
         return res.status(200).json({
             message: "Jobs fetched",
-            jobs: fetchApprovedJobs
+            jobs: fetchApprovedJobs,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalJobs / limit),
+                totalJobs
+            }
         })
     } catch (error) {
         return res.status(500).json({

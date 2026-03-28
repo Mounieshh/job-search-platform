@@ -40,10 +40,10 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {!hideNavbar && <Navbar />}
 
-      <main className={hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-24"}>
+      <main className={`${hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-24"} overflow-y-auto`}>
         <div className="min-w-0 flex-1 px-3 py-4 sm:px-6 sm:py-6">
           <Routes>
 
