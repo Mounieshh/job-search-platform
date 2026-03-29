@@ -11,6 +11,51 @@ declare global {
         isEmailVerified: boolean
     }
 
+    type WorkExperience = {
+        company: string
+        role: string
+        location?: string
+        startDate: string
+        endDate?: string
+        description?: string
+    }
+
+    type Education = {
+        college: string
+        degree: string
+        department?: string
+        startingFrom: string
+        endingIn: string
+        score?: string
+        description?: string
+    }
+
+    type PublicLinks = {
+        github?: string
+        linkedin?: string
+        portfolio?: string
+    }
+
+    type UserProfile = {
+        _id: string
+        userId: string
+        phone?: string
+        location?: string
+        resumeUrl?: string
+        resumeParsedText?: string
+        workExperience: WorkExperience[]
+        education: Education[]
+        publicLinks: PublicLinks
+        skills: string[]
+        createdAt?: string
+        updatedAt?: string
+    }
+
+    type ProfileResponse = {
+        user: User
+        profile: UserProfile
+    }
+
     // job details types
     type JobData = {
         id: string,
@@ -91,5 +136,14 @@ declare global {
         adminComment?: string;
         createdAt: string;
         updatedAt: string;
+    }
+
+    type AdminCompanyDirectoryItem = {
+        id: string
+        name: string
+        totalJobs: number
+        primaryLeadId: string | null
+        members: { userId: string; role: string }[]
+        users: CompanyUsersList[]
     }
 }

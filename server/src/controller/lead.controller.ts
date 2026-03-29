@@ -1,10 +1,11 @@
-import { raw, Request, Response } from "express";
+import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import Company from "../models/company.schema.js";
 import User from "../models/user.schema.js";
 import { leadRequestSchema } from "../validate/lead.zod.js";
 import { LeadRequest } from "../models/leadRequest.schema.js";
 import * as z from "zod"
+import { getLeadUserIdsFromCompany } from "../utils/companyLeads.js";
 
 function toSlug(value: string){
     return value
@@ -16,7 +17,6 @@ function toSlug(value: string){
 }
 
 
-// listing pending jobs for lead approval
 export async function getPendingJobApprovals(req: Request, res: Response){
     try {
         
@@ -40,15 +40,15 @@ export async function getPendingJobApprovals(req: Request, res: Response){
             return res.status(404).json({ message: "Company not found" })
         }
 
-
-        if (String(company.primaryLeadId) !== String(user._id)) {
-            return res.status(403).json({ message: "You are not the primary lead of this company" })
+        const leadIds = getLeadUserIdsFromCompany(company)
+        if (!leadIds.includes(String(user._id))) {
+            return res.status(403).json({ message: "You are not a lead for this company" })
         }
 
         const pendingJobs = await prisma.postJob.findMany({
             where: {
                 status: "pending",
-                companyName: company.name
+                companyId: String(company._id),
             },
             orderBy: {
                 createdAt: "desc"
@@ -82,7 +82,6 @@ export async function getPendingJobApprovals(req: Request, res: Response){
     }
 }
 
-//listing approved jobs by lead
 export async function getLeadApprovedJobs(req: Request, res: Response) {
     try {
         const user = (req as any).user
@@ -117,7 +116,6 @@ export async function getLeadApprovedJobs(req: Request, res: Response) {
     }
 }
 
-// approving and rejecting the job
 export async function leadReviewJob(req: Request, res: Response) {
     try {
         const user = (req as any).user
@@ -143,16 +141,35 @@ export async function leadReviewJob(req: Request, res: Response) {
             return res.status(400).json({ message: "Job has already been reviewed" })
         }
 
-        const companyId = user.company?.companyId
-        const company = await Company.findById(companyId)
-
-        if (!company || String(company.primaryLeadId) !== String(user._id)) {
-            return res.status(403).json({ message: "You are not the primary lead of this company" })
+        if (!job.companyId) {
+            return res.status(400).json({ message: "Job has no company" })
         }
 
-        if (job.companyName !== company.name) {
-            return res.status(403).json({ message: "This job does not belong to your company" })
+        const company = await Company.findById(job.companyId)
+        if (!company) {
+            return res.status(404).json({ message: "Company not found" })
         }
+
+        const leadIds = getLeadUserIdsFromCompany(company)
+        if (!leadIds.includes(String(user._id))) {
+            return res.status(403).json({ message: "You are not a lead for this company" })
+        }
+
+        const pendingForLead = await prisma.jobApproval.findFirst({
+            where: {
+                jobId,
+                leadId: String(user._id),
+                action: "pending",
+            },
+        })
+
+        if (!pendingForLead) {
+            return res.status(403).json({ message: "No approval request for you for this job" })
+        }
+
+        await prisma.jobApproval.deleteMany({
+            where: { jobId, action: "pending" },
+        })
 
         const updatedJob = await prisma.postJob.update({
             where: { id: jobId },
@@ -179,13 +196,12 @@ export async function leadReviewJob(req: Request, res: Response) {
     }
 }
 
-//job info after approving
 export async function getJobApprovalInfo(req: Request, res: Response) {
     try {
         const { jobId } = req.params as { jobId: string }
 
         const approval = await prisma.jobApproval.findFirst({
-            where: { jobId },
+            where: { jobId, action: { in: ["approved", "rejected"] } },
             orderBy: { createdAt: "desc" }
         })
 

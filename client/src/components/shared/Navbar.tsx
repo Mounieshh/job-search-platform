@@ -58,18 +58,28 @@ const Navbar = () => {
                 <>
                   <li>
                     <Link
+                      to="/community"
+                      className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      Community
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       to="/job-basic-details"
                       className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
                     >
                       Post a Job
                     </Link>
                   </li>
+                  
                   {user.role === "USER" && (
                     <li>
                       <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                           Track Post
                       </Link>
                     </li>
+                    
                   )}
                   {user.role === "LEAD" && (
                      <>
@@ -86,11 +96,24 @@ const Navbar = () => {
                      </>
                   )}
                   {user.role === "ADMIN" && (
-                    <li>
-                      <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-yellow-400 hover:text-yellow-300 hover:bg-white/10 transition-colors">
-                          Lead Requests
-                      </Link>
-                    </li>
+                    <>
+                      <li>
+                        <Link to="/admin" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Admin
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Lead requests
+                        </Link>
+                      </li>
+
+                      <li>
+                        <Link to="/company" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Company List
+                        </Link>
+                      </li>
+                    </>
                   )}
                 </>
               )}

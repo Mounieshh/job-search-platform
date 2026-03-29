@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { ZodError } from "zod";
 import { postJobSchema, stepTwoSchema } from "../validate/postjob.zod.js";
 import { prisma } from "../config/prisma.js";
+import Company from "../models/company.schema.js";
+import User from "../models/user.schema.js";
+import { escapeRegex, getLeadUserIdsFromCompany } from "../utils/companyLeads.js";
 
 
-// Job creation
 export async function createNewJob(req: Request, res: Response) {
     try {
         const parsedData = postJobSchema.parse(req.body)
@@ -39,15 +41,78 @@ export async function patchNewJob(req: Request, res: Response) {
         if (!existing) return res.status(404).json({ message: "Job not found" })
         if (existing.userId !== String(user._id)) return res.status(403).json({ message: "Forbidden" })
 
-        const job = await prisma.postJob.update({
-            where: { id: jobId as string },
-            data: {
-                ...parsedData,
-                draftStats: "published"
-            }
+        const company = await Company.findOne({
+            name: new RegExp(`^${escapeRegex(existing.companyName)}$`, "i"),
         })
 
-        res.json({ success: true, job })
+        if (!company) {
+            return res.status(400).json({ message: "Company not found" })
+        }
+
+        const companyIdStr = company._id.toString()
+        const role = user.role as string
+
+        if (role === "LEAD") {
+            const leadIds = getLeadUserIdsFromCompany(company)
+            if (!leadIds.includes(String(user._id))) {
+                return res.status(403).json({ message: "You are not a lead for this company" })
+            }
+            if (String(user.company?.companyId) !== companyIdStr) {
+                return res.status(403).json({ message: "Your company does not match this job" })
+            }
+        }
+
+        if (role === "USER") {
+            const leads = getLeadUserIdsFromCompany(company)
+            if (leads.length === 0) {
+                return res.status(400).json({ message: "No leads assigned for this company" })
+            }
+
+            const job = await prisma.postJob.update({
+                where: { id: jobId as string },
+                data: {
+                    ...parsedData,
+                    draftStats: "published",
+                    companyId: companyIdStr,
+                    status: "pending",
+                },
+            })
+
+            await prisma.jobApproval.deleteMany({
+                where: { jobId: job.id, action: "pending" },
+            })
+
+            for (const leadId of leads) {
+                const leadUser = await User.findById(leadId).select("name")
+                await prisma.jobApproval.create({
+                    data: {
+                        jobId: job.id,
+                        leadId,
+                        leadName: leadUser?.name ?? "Lead",
+                        action: "pending",
+                        reason: null,
+                    },
+                })
+            }
+
+            return res.json({ success: true, job })
+        }
+
+        if (role === "LEAD" || role === "ADMIN") {
+            const job = await prisma.postJob.update({
+                where: { id: jobId as string },
+                data: {
+                    ...parsedData,
+                    draftStats: "published",
+                    companyId: companyIdStr,
+                    status: "approved",
+                },
+            })
+
+            return res.json({ success: true, job })
+        }
+
+        return res.status(403).json({ message: "Forbidden" })
 
     } catch (error) {
         if (error instanceof ZodError) {
@@ -57,7 +122,6 @@ export async function patchNewJob(req: Request, res: Response) {
     }
 }
 
-// Job Browsing Route
 export async function getApprovedJobs(req: Request, res: Response){
 
     try {
@@ -99,7 +163,6 @@ export async function getApprovedJobs(req: Request, res: Response){
     }
 }
 
-// Get Single Job
 export async function getSingleJob(req: Request, res:Response){
     try {
         const user = (req as any).user

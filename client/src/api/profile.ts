@@ -1,6 +1,6 @@
 import { baseUrl } from "@/lib/base";
 
-export async function getUserProfile(): Promise<User | null> {
+export async function getUserProfile(): Promise<ProfileResponse> {
     const response = await fetch(`${baseUrl}/api/user/profile`, {
         method: "GET",
         credentials: "include"
@@ -9,7 +9,19 @@ export async function getUserProfile(): Promise<User | null> {
     if (!response.ok) throw new Error("Failed to fetch the profile info")
     
     const data = await response.json()
-    return data.user ?? null
+    return { user: data.user, profile: data.profile }
+}
+
+export async function updateProfile(body: Record<string, unknown>): Promise<ProfileResponse> {
+    const response = await fetch(`${baseUrl}/api/user/profile`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message || "Failed to update profile")
+    return { user: data.user, profile: data.profile }
 }
 
 export async function createLeadRequest(formData: any): Promise<{ message: string; leadRequest: LeadRequest }> {

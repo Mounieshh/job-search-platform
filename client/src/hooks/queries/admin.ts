@@ -1,7 +1,9 @@
 import { fetchAdminSingleJob, getAdminLeadRequests, getAdminPendingJobs, getAdminReviewedJobs } from "@/api/admin";
+import { getAdminCompanyDirectory } from "@/api/company";
 import { useQuery } from "@tanstack/react-query";
 
 export const ADMIN_LEAD_REQUESTS_KEY = ["admin_lead_requests"];
+export const ADMIN_COMPANY_DIRECTORY_KEY = ["admin_company_directory"];
 
 export function useAdminPendingJobs(){
     return useQuery({
@@ -29,5 +31,12 @@ export function useAdminLeadRequests() {
     return useQuery({
         queryKey: ADMIN_LEAD_REQUESTS_KEY,
         queryFn: getAdminLeadRequests
+    });
+}
+
+export function useAdminCompanyDirectory() {
+    return useQuery({
+        queryKey: ADMIN_COMPANY_DIRECTORY_KEY,
+        queryFn: getAdminCompanyDirectory,
     });
 }

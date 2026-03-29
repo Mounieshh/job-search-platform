@@ -1,5 +1,5 @@
 import { adminReviewJob, adminReviewLeadRequest } from "@/api/admin";
-import { ADMIN_LEAD_REQUESTS_KEY } from "@/hooks/queries/admin";
+import { ADMIN_COMPANY_DIRECTORY_KEY, ADMIN_LEAD_REQUESTS_KEY } from "@/hooks/queries/admin";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -33,6 +33,8 @@ export function useAdminReviewLeadRequest() {
         }) => adminReviewLeadRequest(requestId, action, adminComment),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ADMIN_LEAD_REQUESTS_KEY });
+            queryClient.invalidateQueries({ queryKey: ADMIN_COMPANY_DIRECTORY_KEY });
+            queryClient.invalidateQueries({ queryKey: ["company_list"] });
             toast.success("Lead request processed successfully");
         },
         onError: (error: any) => {

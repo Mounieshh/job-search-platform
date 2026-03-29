@@ -24,6 +24,7 @@ import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
 import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
+import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
 
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
@@ -74,6 +75,7 @@ function AppLayout() {
 
             {/* --ADMIN ROUTE-- */}
 
+            <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/requests" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed" element={<AdminApprovedPage/>}/>
             <Route path="/admin/lead-requests" element={<AdminLeadRequestsPage />} />

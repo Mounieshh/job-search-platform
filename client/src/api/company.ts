@@ -41,3 +41,17 @@ export async function getCompanyUsers(companyId: string | undefined){
     return data.users ?? []
 
 }
+
+export async function getAdminCompanyDirectory(): Promise<AdminCompanyDirectoryItem[]> {
+    const response = await fetch(`${baseUrl}/api/company/admin/directory`, {
+        method: "GET",
+        credentials: "include",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch company directory")
+    }
+
+    const data = await response.json()
+    return data.companies ?? []
+}

@@ -4,6 +4,7 @@ import { prisma } from "../config/prisma.js";
 import User from "../models/user.schema.js";
 import Company from "../models/company.schema.js";
 import { LeadRequest } from "../models/leadRequest.schema.js";
+import { escapeRegex } from "../utils/companyLeads.js";
 
 
 // list pending jobs
@@ -152,17 +153,6 @@ export async function adminReviewJob(req: Request, res: Response){
                 })
         }
 
-        const companyId = user.company?.companyId
-        const company = await Company.findById(companyId)
-
-        if (!company || String(company.primaryLeadId) !== String(user._id)) {
-            return res.status(403).json({ message: "You are not the primary lead of this company" })
-        }
-
-        if (job.companyName !== company.name) {
-            return res.status(403).json({ message: "This job does not belong to your company" })
-        }
-
         const updatedJob = await prisma.postJob.update({
             where: { id: jobId },
             data: { status: action }
@@ -191,7 +181,6 @@ export async function adminReviewJob(req: Request, res: Response){
     }
 }
 
-// Get Single job for admin
 export async function getAdminSingleJob(req: Request, res: Response){
     try {
         
@@ -292,7 +281,44 @@ export async function adminApprovetoUser(req: Request, res: Response){
         }
 
         if (action === "approve") {
-            await User.findByIdAndUpdate(leadRequest.userId, { role: "LEAD" });
+            const companyName = leadRequest.companyName.trim()
+            let company = await Company.findOne({
+                name: new RegExp(`^${escapeRegex(companyName)}$`, "i"),
+            })
+            const uid = leadRequest.userId
+            if (!company) {
+                company = await Company.create({
+                    name: companyName,
+                    primaryLeadId: uid,
+                    userIds: [uid],
+                    members: [{ userId: uid, role: "primary_lead" }],
+                })
+            } else {
+                const alreadyMember = company.members?.some((m) => String(m.userId) === String(uid))
+                if (!alreadyMember) {
+                    if (!company.members) company.members = []
+                    company.members.push({
+                        userId: uid,
+                        role: company.primaryLeadId ? "lead" : "primary_lead",
+                    })
+                }
+                const hasUser = company.userIds?.some((id) => String(id) === String(uid))
+                if (!hasUser) {
+                    company.userIds.push(uid)
+                }
+                if (!company.primaryLeadId) {
+                    company.primaryLeadId = uid
+                }
+                await company.save()
+            }
+            await User.findByIdAndUpdate(leadRequest.userId, {
+                role: "LEAD",
+                company: {
+                    companyId: company._id,
+                    companyName: company.name,
+                    position: leadRequest.position,
+                },
+            })
             leadRequest.status = "approved";
         } else {
             leadRequest.status = "rejected";

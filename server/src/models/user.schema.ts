@@ -6,7 +6,11 @@ export interface IUser extends Document {
   password: string;
   role: "USER" | "LEAD" | "ADMIN";
   isEmailVerified: boolean;
-  
+  company?: {
+    companyId?: mongoose.Types.ObjectId;
+    companyName?: string;
+    position?: string;
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -39,6 +43,11 @@ const userSchema = new Schema<IUser>(
       enum: ["USER", "LEAD", "ADMIN"],
       default: "USER",
     },
+    company: {
+      companyId: { type: Schema.Types.ObjectId, ref: "Company" },
+      companyName: { type: String },
+      position: { type: String },
+    },
   },
   { timestamps: true }
 );
@@ -46,4 +55,4 @@ const userSchema = new Schema<IUser>(
 
 const User = mongoose.model<IUser>("User", userSchema);
 
-export default User
+export default User;
