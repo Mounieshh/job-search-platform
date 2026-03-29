@@ -10,7 +10,7 @@ postJobRouter.patch("/make/:jobId", authorize, requireRoute("USER", "ADMIN", "LE
 
 // for listing
 postJobRouter.get("/", authorize, requireRoute("USER"), getJobs)
-postJobRouter.get("/browse", authorize, requireRoute("USER", "LEAD", "ADMIN"), getApprovedJobs)
+postJobRouter.get("/browse", getApprovedJobs)
 
 // for details page
 postJobRouter.get("/:jobId", authorize, getSingleJob)

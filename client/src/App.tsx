@@ -22,6 +22,8 @@ import AdminRequestsPage from "./pages/adminSystem/AdminRequestsPage"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
+import BecomeLeadPage from "./pages/BecomeLeadPage"
+import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
@@ -61,6 +63,7 @@ function AppLayout() {
 
             <Route path="/profile" element={<ProfilePage/>}/>
             <Route path="/my-posts" element={<TrackMyPosts/>}/>
+            <Route path="/become-a-lead" element={<BecomeLeadPage />} />
             
             {/* --COMMON ROUTE-- */}
             
@@ -73,6 +76,7 @@ function AppLayout() {
 
             <Route path="/admin/requests" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed" element={<AdminApprovedPage/>}/>
+            <Route path="/admin/lead-requests" element={<AdminLeadRequestsPage />} />
 
             <Route path="/admin/requests/:jobId" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed/:jobId" element={<AdminApprovedPage />} />

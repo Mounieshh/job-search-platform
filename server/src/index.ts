@@ -3,6 +3,7 @@ import express from "express"
 import dns from "node:dns"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import morgan from "morgan"
 
 import { connectToMongo } from "./config/mongodb.js"
 import { APP_ORIGIN, PORT } from "./config/env.js"
@@ -14,6 +15,9 @@ import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
 import postJobRouter from "./routes/postjob.route.js"
 import adminRouter from "./routes/admin.route.js"
+import { fileURLToPath } from "node:url"
+import path from "node:path"
+import fs from "node:fs"
 
 dns.setServers(["1.1.1.1"])
 
@@ -43,6 +47,19 @@ app.use(cors({
 
 app.use(cookieParser())
 app.use(express.json())
+
+
+// logging (morgan)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  { flags: "a" }
+);
+
+app.use(morgan("dev"))
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.get("/", (req, res) => {
     res.send("API running");

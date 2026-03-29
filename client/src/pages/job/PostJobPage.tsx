@@ -29,7 +29,7 @@ export default function JobBasicDetails() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center px-4 py-10">
+        <div className="h-fit flex flex-col items-center px-4 py-10">
             <div className="w-full max-w-xl mb-10">
                 <div className="flex justify-between mb-2">
                     {STEPS.map((label, i) => {

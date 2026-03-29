@@ -64,11 +64,34 @@ const Navbar = () => {
                       Post a Job
                     </Link>
                   </li>
-                  <li>
-                    <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
-                        Track Post
-                    </Link>
-                  </li>
+                  {user.role === "USER" && (
+                    <li>
+                      <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                          Track Post
+                      </Link>
+                    </li>
+                  )}
+                  {user.role === "LEAD" && (
+                     <>
+                        <li>
+                            <Link to="/lead-approval" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                                Lead Approval
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/lead/approved-by-me" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                                Approved by Me
+                            </Link>
+                        </li>
+                     </>
+                  )}
+                  {user.role === "ADMIN" && (
+                    <li>
+                      <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-yellow-400 hover:text-yellow-300 hover:bg-white/10 transition-colors">
+                          Lead Requests
+                      </Link>
+                    </li>
+                  )}
                 </>
               )}
             </ul>
@@ -79,10 +102,10 @@ const Navbar = () => {
 
             {/* Become a Lead */}
               
-              { user && user.role && user.isEmailVerified && (
+              { user && user.role === "USER" && user.isEmailVerified && (
                 <>
                   <Link
-                    to="/"
+                    to="/become-a-lead"
                     className="px-3 py-1.5 rounded text-sm bg-yellow-200/20 backdrop-blur-md text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
                   >
                     Become a Lead

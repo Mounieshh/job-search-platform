@@ -1,5 +1,7 @@
-import { fetchAdminSingleJob, getAdminPendingJobs, getAdminReviewedJobs } from "@/api/admin";
+import { fetchAdminSingleJob, getAdminLeadRequests, getAdminPendingJobs, getAdminReviewedJobs } from "@/api/admin";
 import { useQuery } from "@tanstack/react-query";
+
+export const ADMIN_LEAD_REQUESTS_KEY = ["admin_lead_requests"];
 
 export function useAdminPendingJobs(){
     return useQuery({
@@ -21,4 +23,11 @@ export function useAdminSingleJob(jobId: string | undefined){
         queryFn: () => fetchAdminSingleJob(jobId!),
         enabled: Boolean(jobId)
     })
+}
+
+export function useAdminLeadRequests() {
+    return useQuery({
+        queryKey: ADMIN_LEAD_REQUESTS_KEY,
+        queryFn: getAdminLeadRequests
+    });
 }

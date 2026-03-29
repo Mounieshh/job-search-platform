@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import User from "../models/user.schema.js";
 import Company from "../models/company.schema.js";
+import { LeadRequest } from "../models/leadRequest.schema.js";
 
 
 // list pending jobs
@@ -227,6 +228,85 @@ export async function getAdminSingleJob(req: Request, res: Response){
         return res.status(200).json({
             message: "Single Job based on Id Fetched for Admin",
             job: combineJobwithUser
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }   
+}
+
+
+// Get user requests for lead in admin
+export async function getUserRequestForLeadToAdmin(req: Request, res: Response){
+    try {
+        
+        const user = (req as any).user
+
+        if(user.role !== "ADMIN"){
+            return res.status(401).json({
+                message: "Unauthorrized. Admin Only"
+            })
+        }
+
+        const pendingRequests = await LeadRequest.find({
+            status: "pending"
+        }).populate("userId", "name email")
+
+        return res.status(200).json({
+            message: "Pending Requests from the user fetched",
+            requests: pendingRequests
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+//approve and reject requests from user for to become a lead
+export async function adminApprovetoUser(req: Request, res: Response){
+    try {
+        
+        const admin = (req as any).user
+        const { requestId } = req.params
+        const { action, adminComment } = req.body;
+        
+        if(admin.role !== "ADMIN"){
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        if (!["approve", "reject"].includes(action)) {
+            return res.status(400).json({ message: "Invalid action. Must be 'approve' or 'reject'." });
+        }
+
+        const leadRequest = await LeadRequest.findById(requestId);
+        if (!leadRequest) {
+            return res.status(404).json({ message: "Lead request not found." });
+        }
+
+        if (leadRequest.status !== "pending") {
+            return res.status(400).json({ message: "This request has already been processed." });
+        }
+
+        if (action === "approve") {
+            await User.findByIdAndUpdate(leadRequest.userId, { role: "LEAD" });
+            leadRequest.status = "approved";
+        } else {
+            leadRequest.status = "rejected";
+        }
+
+        leadRequest.adminComment = adminComment || "";
+        leadRequest.processedAt = new Date();
+        leadRequest.processedBy = admin._id;
+
+        await leadRequest.save();
+
+        return res.status(200).json({
+            message: `Lead request ${action}d successfully`,
+            leadRequest
         })
     } catch (error) {
         return res.status(500).json({

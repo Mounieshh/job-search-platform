@@ -80,4 +80,16 @@ declare global {
         isEmailVerified: boolean
     }
 
+    type LeadRequest = {
+        _id: string;
+        userId?: User;
+        companyName: string;
+        companyEmail: string;
+        position: string;
+        message?: string;
+        status: "pending" | "approved" | "rejected";
+        adminComment?: string;
+        createdAt: string;
+        updatedAt: string;
+    }
 }

@@ -13,4 +13,5 @@ leadRouter.get("/approval-info/:jobId", authorize, requireRoute("LEAD", "ADMIN")
 // lead approved job listing
 leadRouter.get("/approved-by-me", authorize, requireRoute("LEAD"), getLeadApprovedJobs)
 
+
 export default leadRouter

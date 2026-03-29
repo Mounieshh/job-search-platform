@@ -14,7 +14,7 @@ const AdminRequestFeed = () => {
     const filteredJobs = useMemo(() => {
         const normalizedQuery = searchText.trim().toLowerCase()
 
-        return data?.filter((job) => {
+        return data?.filter((job: JobDataWithUser) => {
             const combined = [job.roleTitle, job.location, job.companyName]
                 .filter(Boolean)
                 .join(" ")

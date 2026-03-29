@@ -1,8 +1,8 @@
-import { useProfile } from "@/hooks/queries/profile"
+import { useUserProfile } from "@/hooks/queries/profile"
 import NameModal from "./profile/NameModal"
 
 const UserProfile = () => {
-    const { data: user, isPending, error } = useProfile()
+    const { data: user, isPending, error } = useUserProfile()
 
 
     if (isPending) {
@@ -16,7 +16,7 @@ const UserProfile = () => {
         )
     }
 
-    if (error) {
+    if (error || !user) {
         return (
             <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6">
                 <div className="rounded-xl border border-border bg-card px-4 py-6 text-sm text-muted-foreground">

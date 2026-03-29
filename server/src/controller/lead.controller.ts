@@ -2,7 +2,9 @@ import { raw, Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import Company from "../models/company.schema.js";
 import User from "../models/user.schema.js";
-
+import { leadRequestSchema } from "../validate/lead.zod.js";
+import { LeadRequest } from "../models/leadRequest.schema.js";
+import * as z from "zod"
 
 function toSlug(value: string){
     return value
@@ -205,4 +207,3 @@ export async function getJobApprovalInfo(req: Request, res: Response) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
-
