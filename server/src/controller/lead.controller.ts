@@ -7,14 +7,6 @@ import { LeadRequest } from "../models/leadRequest.schema.js";
 import * as z from "zod"
 import { getLeadUserIdsFromCompany } from "../utils/companyLeads.js";
 
-function toSlug(value: string){
-    return value
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-}
 
 
 export async function getPendingJobApprovals(req: Request, res: Response){
@@ -28,21 +20,22 @@ export async function getPendingJobApprovals(req: Request, res: Response){
             })
         }
 
+        let company = null as any
         const companyId = user.company?.companyId
-        if(!companyId){
-            return res.status(400).json({
-                message: "No company associated with the company"
-            })
+        if (companyId) {
+            company = await Company.findById(companyId)
         }
 
-        const company = await Company.findById(companyId)
+        if (!company) {
+            company = await Company.findOne({ primaryLeadId: user._id })
+        }
+
         if (!company) {
             return res.status(404).json({ message: "Company not found" })
         }
 
-        const leadIds = getLeadUserIdsFromCompany(company)
-        if (!leadIds.includes(String(user._id))) {
-            return res.status(403).json({ message: "You are not a lead for this company" })
+        if (!company.primaryLeadId || String(company.primaryLeadId) !== String(user._id)) {
+            return res.status(403).json({ message: "You are not the primary lead of this company" })
         }
 
         const pendingJobs = await prisma.postJob.findMany({
@@ -82,6 +75,7 @@ export async function getPendingJobApprovals(req: Request, res: Response){
     }
 }
 
+//
 export async function getLeadApprovedJobs(req: Request, res: Response) {
     try {
         const user = (req as any).user
@@ -116,6 +110,7 @@ export async function getLeadApprovedJobs(req: Request, res: Response) {
     }
 }
 
+// approve and reject the user requets
 export async function leadReviewJob(req: Request, res: Response) {
     try {
         const user = (req as any).user
@@ -150,21 +145,8 @@ export async function leadReviewJob(req: Request, res: Response) {
             return res.status(404).json({ message: "Company not found" })
         }
 
-        const leadIds = getLeadUserIdsFromCompany(company)
-        if (!leadIds.includes(String(user._id))) {
-            return res.status(403).json({ message: "You are not a lead for this company" })
-        }
-
-        const pendingForLead = await prisma.jobApproval.findFirst({
-            where: {
-                jobId,
-                leadId: String(user._id),
-                action: "pending",
-            },
-        })
-
-        if (!pendingForLead) {
-            return res.status(403).json({ message: "No approval request for you for this job" })
+        if (!company.primaryLeadId || String(company.primaryLeadId) !== String(user._id)) {
+            return res.status(403).json({ message: "You are not the primary lead of this company" })
         }
 
         await prisma.jobApproval.deleteMany({
@@ -221,5 +203,41 @@ export async function getJobApprovalInfo(req: Request, res: Response) {
 
     } catch (error) {
         return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+
+//list the lead posted jobs
+export async function listLeadPostedJobs(req: Request, res: Response){
+    try {
+        
+        const user = (req as any).user
+
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized: No user found" });
+        }
+
+        if(user.role !== "LEAD"){
+            return res.status(401).json({
+                message: "Forbidden: Only leads can access this"
+            })
+        }
+
+
+        const fetchJobs = await prisma.postJob.findMany({
+            where: {
+                userId: user._id
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        return res.status(200).json({
+            message: "Lead Posted Jobs fetched..",
+            fetchJobs
+        })
+    } catch (error) {
+        console.error("Error in listLeadPostedJobs:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }

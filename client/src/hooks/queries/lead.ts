@@ -1,4 +1,4 @@
-import { fetchJobApprovalInfo, leadReviewedJobs, listLeadRequests } from "@/api/lead"
+import { fetchJobApprovalInfo, leadReviewedJobs, listLeadPosted, listLeadRequests } from "@/api/lead"
 import { useQuery } from "@tanstack/react-query"
 
 export function useLeadRequests(){
@@ -22,5 +22,13 @@ export function useLeadApprovedJobs(){
   return useQuery({
     queryKey: ["lead_approved_jobs"],
     queryFn: leadReviewedJobs
+  })
+}
+
+
+export function useLeadPostedJobs(){
+  return useQuery({
+    queryKey: ["lead_posted_jobs"],
+    queryFn: listLeadPosted
   })
 }

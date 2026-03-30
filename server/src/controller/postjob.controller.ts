@@ -41,32 +41,26 @@ export async function patchNewJob(req: Request, res: Response) {
         if (!existing) return res.status(404).json({ message: "Job not found" })
         if (existing.userId !== String(user._id)) return res.status(403).json({ message: "Forbidden" })
 
-        const company = await Company.findOne({
+        let company = await Company.findOne({
             name: new RegExp(`^${escapeRegex(existing.companyName)}$`, "i"),
         })
 
         if (!company) {
-            return res.status(400).json({ message: "Company not found" })
+            const createdCompany = await Company.create({
+                name: existing.companyName,
+                primaryLeadId: null,
+                userIds: [],
+                members: [],
+            })
+            company = createdCompany
         }
 
         const companyIdStr = company._id.toString()
         const role = user.role as string
 
-        if (role === "LEAD") {
-            const leadIds = getLeadUserIdsFromCompany(company)
-            if (!leadIds.includes(String(user._id))) {
-                return res.status(403).json({ message: "You are not a lead for this company" })
-            }
-            if (String(user.company?.companyId) !== companyIdStr) {
-                return res.status(403).json({ message: "Your company does not match this job" })
-            }
-        }
-
         if (role === "USER") {
-            const leads = getLeadUserIdsFromCompany(company)
-            if (leads.length === 0) {
-                return res.status(400).json({ message: "No leads assigned for this company" })
-            }
+            const primaryLeadId = company.primaryLeadId ? String(company.primaryLeadId) : null
+            const leads = primaryLeadId ? [primaryLeadId] : getLeadUserIdsFromCompany(company)
 
             const job = await prisma.postJob.update({
                 where: { id: jobId as string },
@@ -179,17 +173,25 @@ export async function getSingleJob(req: Request, res:Response){
                 id: jobId as string
             }
         })
+
+        const postedUser = await User.findById(fetchSingleJob?.userId).select("_id name email role emailVerified")
         
         if (!fetchSingleJob) {
             return res.status(404).json({ message: "Job not found" })
         }
 
+        const combinedData = {
+            ...fetchSingleJob,
+            postedUser
+        }
+
         return res.status(200).json({
             message: "Single Job based on Id fetched..",
-            job: fetchSingleJob
+            job: combinedData
         })
 
     } catch (error) {
+        console.error(error);
         return res.status(500).json({
             message: "Internal Server Error"
         })

@@ -19,6 +19,10 @@ type LeadApprovedResponse = {
     jobs: JobData[]
 }
 
+type LeadPostedJobsResponse = {
+    fetchJobs: JobData[]
+}
+
 export const listLeadRequests = async () => {
     const response = await fetch(`${baseUrl}/api/lead/job-requests/pending`, {
         method: "GET",
@@ -74,4 +78,20 @@ export async function leadReviewedJobs(){
     }
 
     return data.jobs ?? []
+}
+
+
+export async function listLeadPosted(){
+    const response = await fetch(`${baseUrl}/api/lead/posted`, {
+        method : "GET",
+        credentials: 'include'
+    })
+
+    if(!response.ok){
+        throw new Error("Failed to fetch jobs")
+    }
+
+    const data: LeadPostedJobsResponse = await response.json()
+
+    return data.fetchJobs ?? []
 }

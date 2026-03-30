@@ -26,7 +26,7 @@ type GetApprovedJobResponse = {
 
 type GetSingleJobResponse = {
     message: string
-    job: JobData
+    job: JobDataforSingle
 }
 
 export async function postNewJob(formData: PostJobFormData) {

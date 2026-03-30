@@ -1,7 +1,6 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
 import { Link, useNavigate } from "react-router"
-import { ArrowRight, LogOutIcon, UserIcon, Search} from "lucide-react"
-import { useState } from "react"
+import { ArrowRight, LogOutIcon, UserIcon} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +13,6 @@ const Navbar = () => {
   const { data: user } = useSession()
   const { mutateAsync: logout } = useLogout()
   const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState("")
 
   const handleLogout = async () => {
     await logout()
@@ -90,31 +88,12 @@ const Navbar = () => {
                         </li>
                         <li>
                             <Link to="/lead/approved-by-me" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
-                                Approved by Me
+                                Approved List
                             </Link>
                         </li>
                      </>
                   )}
-                  {user.role === "ADMIN" && (
-                    <>
-                      <li>
-                        <Link to="/admin" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
-                          Admin
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
-                          Lead requests
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link to="/company" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
-                          Company List
-                        </Link>
-                      </li>
-                    </>
-                  )}
+                  
                 </>
               )}
             </ul>
@@ -136,18 +115,38 @@ const Navbar = () => {
                 </>
               )}
 
-            {/* Search input */}
-            <div className="relative hidden sm:flex items-center">
-              <Search className="absolute left-3 size-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-52 lg:w-64 h-8 pl-9 pr-3 rounded bg-[#1C2433] border border-white/10 text-sm text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-[#39C16C]/60 focus:ring-1 focus:ring-[#39C16C]/30 transition-all"
-              />
-            </div>
+              {user && user?.role === "ADMIN" && (
+                    <>
+                      <li>
+                        <Link to="/admin" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Admin
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Lead requests
+                        </Link>
+                      </li>
 
+                      <li>
+                        <Link to="/company" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                          Company List
+                        </Link>
+                      </li>
+                    </>
+                  )}
+
+                  {user && user?.role === "LEAD" && (
+                      <>
+                        <li>
+                          <Link to="/lead/posted" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-gray-300 hover:bg-white/10 transition-colors">
+                            Applications
+                          </Link>
+                      </li>
+                    </>
+                  )}
+
+            
             {/* Divider */}
             <span className="hidden sm:block w-px h-5 bg-white/20 mx-1" />
 

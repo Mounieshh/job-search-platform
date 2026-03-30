@@ -83,7 +83,7 @@ export default function AdminDashboardPage() {
           <div className="rounded-none border border-border bg-card p-4">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Briefcase className="size-4" />
-              <span className="text-xs font-medium uppercase">Pending lead apps</span>
+              <span className="text-xs font-medium uppercase">Pending lead approvals</span>
             </div>
             <p className="mt-2 text-2xl font-bold">{pendingLeadCount}</p>
           </div>
@@ -136,7 +136,7 @@ export default function AdminDashboardPage() {
                     {expanded ? (
                       <div className="border-t border-border px-4 pb-4 pt-2 sm:px-5">
                         <div className="overflow-x-auto">
-                          <table className="w-full min-w-[640px] text-left text-sm">
+                          <table className="w-full min-w-160 text-left text-sm">
                             <thead>
                               <tr className="text-xs uppercase text-muted-foreground">
                                 <th className="py-2 pr-4 font-medium">Name</th>

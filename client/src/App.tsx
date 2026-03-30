@@ -25,6 +25,7 @@ import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
 import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
+import JobsPosted from "./pages/leadSystem/JobsPosted"
 
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
@@ -92,6 +93,7 @@ function AppLayout() {
             <Route path="/lead-approval" element={<LeadApprovalPage />} />
             <Route path="/lead-approval/:jobId" element={<LeadApprovalPage />} />
             <Route path="/lead/approved-by-me" element={<ApprovedByMe/>}/>
+            <Route path="/lead/posted" element={<JobsPosted/>}/>
 
 
             {/* --JOB ROUTE COMMON-- */}

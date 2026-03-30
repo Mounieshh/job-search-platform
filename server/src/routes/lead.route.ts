@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authorize, requireRoute } from "../middleware/auth.middleware.js";
-import { getJobApprovalInfo, getLeadApprovedJobs, getPendingJobApprovals, leadReviewJob } from "../controller/lead.controller.js";
+import { getJobApprovalInfo, getLeadApprovedJobs, getPendingJobApprovals, leadReviewJob, listLeadPostedJobs } from "../controller/lead.controller.js";
 
 
 const leadRouter = Router()
@@ -13,5 +13,7 @@ leadRouter.get("/approval-info/:jobId", authorize, requireRoute("LEAD", "ADMIN")
 // lead approved job listing
 leadRouter.get("/approved-by-me", authorize, requireRoute("LEAD"), getLeadApprovedJobs)
 
+//lead posted jobs
+leadRouter.get("/posted", authorize, requireRoute("LEAD"), listLeadPostedJobs)
 
 export default leadRouter

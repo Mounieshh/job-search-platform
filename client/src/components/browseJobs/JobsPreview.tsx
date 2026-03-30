@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react"
 const JobsPreview = () => {
     const { jobId } = useParams()
     const { data, isPending, error } = useGetSingleJob(jobId)
-
+   
     if (!jobId) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground py-20">
@@ -39,7 +39,7 @@ const JobsPreview = () => {
                 </p>
             </div>
 
-            {data.url && (
+            {data.postedUser?.role === "USER" && data.url && (
                 <Link
                     to={data.url}
                     target="_blank"
@@ -50,10 +50,16 @@ const JobsPreview = () => {
                 </Link>
             )}
 
+            {data.postedUser?.role === "LEAD" && (
+                <Link to="/" className="inline-flex items-center gap-1.5 px-5 py-2.5 font-semibold text-sm bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75">
+                    Easy Apply
+                </Link>
+            )}
+
             {data.description && (
                 <div
                     key={jobId}
-                    className="prose max-w-none border-2 p-5"
+                    className="prose max-w-none "
                     dangerouslySetInnerHTML={{ __html: data.description }}
                 />
             )}

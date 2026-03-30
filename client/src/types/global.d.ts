@@ -87,6 +87,21 @@ declare global {
         user : User
     }
 
+    type JobDataforSingle = {
+        id: string,
+        roleTitle: string,
+        companyName: string,
+        employmentType: string,
+        location: string,
+        url: string,
+        description: string,
+        userId: string,
+        companyId: string,
+        draftStats: string,
+        status: string,
+        postedUser : User
+    }
+
     type CommunityPostItem = {
         id: string
         title: string | null
