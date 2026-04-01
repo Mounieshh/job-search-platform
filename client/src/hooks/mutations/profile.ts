@@ -1,5 +1,5 @@
-import { createLeadRequest, updateProfile } from "@/api/profile";
-import { LEAD_STATUS_KEY, PROFILE_KEY } from "@/hooks/queries/profile";
+import { createJobApplication, createLeadRequest, updateProfile } from "@/api/profile";
+import { LEAD_STATUS_KEY, PROFILE_KEY, TRACKED_APPLICATIONS_KEY } from "@/hooks/queries/profile";
 import { SESSION_KEY } from "@/hooks/queries/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export function useCreateLeadRequest() {
     });
 }
 
-export function useUpdateProfile() {
+export const useUpdateProfile = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -33,4 +33,29 @@ export function useUpdateProfile() {
             toast.error(error.message || "Failed to update profile");
         },
     });
+}
+
+export function useCreateJobApplication() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({
+            jobId,
+            resume,
+            githubLink,
+        }: {
+            jobId: string
+            resume: string
+            githubLink?: string
+        }) => createJobApplication(jobId, { resume, githubLink }),
+        onSuccess: (_, variables) => {
+            toast.success("Application submitted successfully")
+            queryClient.invalidateQueries({ queryKey: ["lead_posted_job_applications"] })
+            queryClient.invalidateQueries({ queryKey: ["job", variables.jobId] })
+            queryClient.invalidateQueries({ queryKey: TRACKED_APPLICATIONS_KEY })
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to submit application")
+        },
+    })
 }

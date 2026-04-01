@@ -1,3 +1,5 @@
+import { genUploader } from "uploadthing/client"
+
 type CloudinaryErrorBody = {
   error?: { message?: string }
   secure_url?: string
@@ -30,5 +32,22 @@ export async function uploadImageToCloudinary(file: File): Promise<string> {
 }
 
 export async function uploadResumePdfToCloudinary(file: File): Promise<string> {
-  return uploadUnsigned(file, "raw")
+  const uploadthingUrl = import.meta.env.VITE_UPLOADTHING_URL || "/api/uploadthing"
+  const uploadthingResumeEndpoint = import.meta.env.VITE_UPLOADTHING_RESUME_ENDPOINT || "resumeUploader"
+
+  const { uploadFiles } = genUploader({
+    url: uploadthingUrl,
+    package: "client",
+  })
+
+  const uploaded = await uploadFiles(uploadthingResumeEndpoint as never, {
+    files: [file],
+  })
+
+  const fileData = uploaded?.[0]
+  if (!fileData?.ufsUrl && !fileData?.url) {
+    throw new Error("Resume upload failed")
+  }
+
+  return fileData.ufsUrl || fileData.url
 }

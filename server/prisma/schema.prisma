@@ -34,6 +34,7 @@ model PostJob {
   status String? @default("pending")
 
   approvals JobApproval[]
+  applications UserApplication[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -84,4 +85,28 @@ model CommentPost {
   userId String
 
   createdAt DateTime @default(now())
+}
+
+
+model UserApplication {
+  id String @id @default(cuid())
+  userId String
+  profileId String
+
+  githubLink String?
+  resume String
+
+  resumeParsedText String?
+  status String @default("pending")
+  aiScore Int?
+
+  jobId String
+  job PostJob  @relation(fields: [jobId], references: [id])
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+  @@index([userId])
 }

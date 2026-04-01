@@ -23,6 +23,40 @@ type LeadPostedJobsResponse = {
     fetchJobs: JobData[]
 }
 
+export type LeadApplicationItem = {
+    id: string
+    userId: string
+    profileId: string
+    githubLink: string | null
+    resume: string
+    status: string
+    aiScore: number | null
+    jobId: string
+    createdAt: string
+    updatedAt: string
+    applicant: Pick<User, "_id" | "name" | "email" | "role"> | null
+    profile: Pick<UserProfile, "_id" | "phone" | "location" | "skills" | "publicLinks" | "resumeUrl"> | null
+}
+
+export type LeadPostedJobWithApplications = JobData & {
+    applicationsCount: number
+}
+
+type LeadPostedApplicationsResponse = {
+    jobs: LeadPostedJobWithApplications[]
+}
+
+type LeadJobApplicationsResponse = {
+    job: JobData
+    applications: LeadApplicationItem[]
+    pagination: {
+        page: number
+        limit: number
+        total: number
+        totalPages: number
+    }
+}
+
 export const listLeadRequests = async () => {
     const response = await fetch(`${baseUrl}/api/lead/job-requests/pending`, {
         method: "GET",
@@ -94,4 +128,69 @@ export async function listLeadPosted(){
     const data: LeadPostedJobsResponse = await response.json()
 
     return data.fetchJobs ?? []
+}
+
+export async function listLeadPostedApplications() {
+    const response = await fetch(`${baseUrl}/api/lead/posted/applications`, {
+        method: "GET",
+        credentials: "include",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch applications for posted jobs")
+    }
+
+    const data: LeadPostedApplicationsResponse = await response.json()
+
+    return data.jobs ?? []
+}
+
+export async function listLeadJobApplications(jobId: string, page = 1, limit = 10) {
+    const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+    })
+
+    const response = await fetch(`${baseUrl}/api/lead/posted/${jobId}/applications?${query.toString()}`, {
+        method: "GET",
+        credentials: "include",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch applications for selected job")
+    }
+
+    const data: LeadJobApplicationsResponse = await response.json()
+
+    return {
+        job: data.job,
+        applications: data.applications ?? [],
+        pagination: data.pagination,
+    }
+}
+
+type LeadShortlistResponse = {
+    message: string
+    shortlisted: Array<{
+        applicationId: string
+        score: number
+        reason?: string
+    }>
+    totalApplications: number
+    shortlistedCount: number
+}
+
+export async function shortlistTopApplications(jobId: string): Promise<LeadShortlistResponse> {
+    const response = await fetch(`${baseUrl}/api/lead/posted/${jobId}/applications/shortlist`, {
+        method: "POST",
+        credentials: "include",
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to shortlist applications")
+    }
+
+    return data as LeadShortlistResponse
 }

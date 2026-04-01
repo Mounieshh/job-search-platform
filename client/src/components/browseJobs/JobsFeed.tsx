@@ -7,21 +7,24 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 
 const JobsFeed = () => {
+    const PAGE_SIZE = 10
     const [page, setPage] = useState(1)
-    const { data, isPending, error } = useApprovedJobs(page)
-    const { jobId } = useParams()
     const [searchText, setSearchText] = useState("")
+    const { jobId } = useParams()
+    const { data, isPending, error} = useApprovedJobs(page, PAGE_SIZE)
+
 
     const filteredJobs = useMemo(() => {
-        const normalizedQuery = searchText.trim().toLowerCase()
-        return data?.jobs?.filter((job: any) => {
-            const combined = [job.roleTitle, job.location, job.companyName]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase()
-            return !normalizedQuery || combined.includes(normalizedQuery)
-        })
-    }, [data, searchText])
+            const normalizedQuery = searchText.trim().toLowerCase()
+    
+            return data?.jobs.filter((job) => {
+                const combined = [job.roleTitle, job.companyName, job.location]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase()
+                return !normalizedQuery || combined.includes(normalizedQuery)
+            })
+        }, [data, searchText])
 
     if (isPending) {
         return (
@@ -38,10 +41,10 @@ const JobsFeed = () => {
     }
 
     return (
-        <section className="flex flex-col space-y-4">
+        <section className="flex h-full flex-col rounded-xl border bg-background">
             <section>
-                <div className="flex items-end justify-between pb-3">
-                    <div className="relative w-full">
+                <div className="flex items-end justify-between border-b px-3 py-3">
+                    <div className="relative w-full max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
                             value={searchText}
@@ -52,7 +55,7 @@ const JobsFeed = () => {
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col min-h-100">
+            <section className="flex min-h-105 flex-1 flex-col">
                 {filteredJobs?.length === 0 ? (
                     <div className="p-4 text-muted-foreground font-medium italic">Nothing to View</div>
                 ) : (
@@ -60,7 +63,7 @@ const JobsFeed = () => {
                         <Link
                             to={`/browseJobs/${job.id}`}
                             key={job.id}
-                            className={`p-4 border-b hover:bg-muted transition-colors ${
+                            className={`p-4 border-b hover:bg-muted/60 transition-colors ${
                                 jobId === job.id ? "bg-muted border-l-2 border-l-primary" : ""
                             }`}
                         >
@@ -72,25 +75,25 @@ const JobsFeed = () => {
                 )}
             </section>
 
-            {data?.pagination && data.pagination.totalPages > 1 && (
+            {filteredJobs && (
                 <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
                     <Button 
                         variant="outline" 
                         size="sm" 
-                        disabled={page === 1}
-                        onClick={() => setPage(page - 1)}
+                        disabled={page <= 1}
+                        onClick={() => setPage((previous) => Math.max(1, previous - 1))}
                         className="rounded-none h-8"
                     >
                         Previous
                     </Button>
                     <span className="text-xs text-muted-foreground">
-                        Page {data.pagination.currentPage} of {data.pagination.totalPages}
+                        Page {data.pagination.currentPage} of {Math.max(1, data.pagination.totalPages)} | {data.pagination.totalJobs} jobs
                     </span>
                     <Button 
                         variant="outline" 
                         size="sm" 
-                        disabled={page === data.pagination.totalPages}
-                        onClick={() => setPage(page + 1)}
+                        disabled={page >= Math.max(1, data.pagination.totalPages)}
+                        onClick={() => setPage((previous) => previous + 1)}
                         className="rounded-none h-8"
                     >
                         Next

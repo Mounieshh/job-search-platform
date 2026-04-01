@@ -72,11 +72,18 @@ const Navbar = () => {
                   </li>
                   
                   {user.role === "USER" && (
-                    <li>
-                      <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
-                          Track Post
-                      </Link>
-                    </li>
+                    <>
+                      <li>
+                        <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                            Track Post
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/track-applications" className="px-3 py-1.5 rounded text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                            Applications
+                        </Link>
+                      </li>
+                    </>
                     
                   )}
                   {user.role === "LEAD" && (

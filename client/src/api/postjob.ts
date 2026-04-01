@@ -58,7 +58,12 @@ export async function patchNewJobTipTap(formData: PostTipTapData, jobId: string 
 }
 
 export async function getApprovedJobs(page = 1, limit = 10){
-    const response = await fetch(`${baseUrl}/api/jobs/browse?page=${page}&limit=${limit}`, {
+    const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+    })
+
+    const response = await fetch(`${baseUrl}/api/jobs/browse?${query.toString()}`, {
         method: "GET",
         credentials: "include"
     })

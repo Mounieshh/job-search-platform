@@ -5,6 +5,8 @@ import { leadRequestSchema } from "../validate/lead.zod.js";
 import User from "../models/user.schema.js";
 import UserProfile from "../models/profile.schema.js";
 import { updateProfileSchema } from "../validate/profile.zod.js";
+import { prisma } from "../config/prisma.js";
+import { applicationSchema } from "../validate/application.zod.js";
 
 async function ensureProfile(userId: string) {
   let profile = await UserProfile.findOne({ userId });
@@ -209,5 +211,161 @@ export async function getLeadRequest(req: Request, res: Response) {
   } catch (error) {
     console.error("Error fetching lead request:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
+// job application (internal system)
+export async function createApplication(req: Request, res: Response){
+  try {
+
+    const user = (req as any).user
+
+    if(!user){
+        return res.status(401).json({
+          message: "Unauthorized"
+        })
+    }
+
+    const jobId = String(req.params.jobId ?? "").trim()
+
+    if (!jobId) {
+      return res.status(400).json({ message: "Job ID is required" });
+    }
+
+    const existingJob = await prisma.postJob.findUnique({
+      where: { id: jobId }
+    })
+
+    if (!existingJob) {
+      return res.status(404).json({ message: "Job not found" })
+    }
+    
+    const parsedData = applicationSchema.parse(req.body)
+
+    const userProfile = await UserProfile.findOne({ userId: user._id });
+
+    if (!userProfile) {
+      return res.status(400).json({ 
+        message: "Please complete your profile before applying" 
+      });
+    }
+
+    const duplicateApplication = await prisma.userApplication.findFirst({
+      where: {
+        jobId,
+        userId: user._id.toString()
+      }
+    })
+
+    if (duplicateApplication) {
+      return res.status(409).json({ message: "You have already applied for this job" })
+    }
+
+    const application = await prisma.userApplication.create({
+      data: {
+        userId: user._id.toString(),
+        profileId: userProfile._id.toString(),
+        jobId: jobId as string,
+        resume: parsedData.resume,
+        githubLink: parsedData.githubLink
+      }
+    })
+
+    return res.status(200).json({
+      message: "Application submitted successfully",
+      application
+    })
+  } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(422).json({
+          message: "Validation failed",
+          errors: error.issues,
+        })
+      }
+
+      return res.status(500).json({
+        message: "Internal Server Error"
+      })
+  }
+}
+
+export async function getJobApplications(req: Request, res: Response){
+  try {
+
+      const fetchApplications = await prisma.userApplication.findMany({
+        where: {
+          status: "pending"
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      })
+
+      const findProfile = await UserProfile.findById(fetchApplications.map((prof) => prof.profileId)).select("_id name email workExperience education skills location phone resumeUrl")
+
+      const combinedData = {
+        ...fetchApplications,
+        findProfile
+      }
+
+      return res.status(200).json({
+        message: "Pending Applications Fetched Successfully",
+        combinedData
+      })
+
+  } catch (error) {
+      return res.status(500).json({ 
+        message: "Internal Server Error"
+      })
+  }
+}
+
+export async function getMyApplications(req: Request, res: Response) {
+  try {
+    const user = (req as any).user
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+
+    const applications = await prisma.userApplication.findMany({
+      where: {
+        userId: String(user._id),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+
+    if (applications.length === 0) {
+      return res.status(200).json({
+        message: "No applications found",
+        applications: [],
+      })
+    }
+
+    const jobIds = applications.map((application) => application.jobId)
+    const jobs = await prisma.postJob.findMany({
+      where: {
+        id: {
+          in: jobIds,
+        },
+      },
+    })
+
+    const jobsMap = new Map(jobs.map((job) => [job.id, job]))
+
+    const enrichedApplications = applications.map((application) => ({
+      ...application,
+      job: jobsMap.get(application.jobId) || null,
+    }))
+
+    return res.status(200).json({
+      message: "Applications fetched successfully",
+      applications: enrichedApplications,
+    })
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" })
   }
 }

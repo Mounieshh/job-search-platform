@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getLeadRequestStatus, getUserProfile } from "@/api/profile";
+import { getLeadRequestStatus, getMyTrackedApplications, getUserProfile } from "@/api/profile";
 
 export const PROFILE_KEY = ["user_profile"];
 export const LEAD_STATUS_KEY = ["lead_request_status"];
+export const TRACKED_APPLICATIONS_KEY = ["tracked_applications"];
 
 export function useUserProfile() {
     return useQuery({
@@ -16,4 +17,11 @@ export function useLeadRequestStatus() {
         queryKey: LEAD_STATUS_KEY,
         queryFn: getLeadRequestStatus,
     });
+}
+
+export function useMyTrackedApplications() {
+    return useQuery({
+        queryKey: TRACKED_APPLICATIONS_KEY,
+        queryFn: getMyTrackedApplications,
+    })
 }

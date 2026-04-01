@@ -2,10 +2,14 @@ import { useGetSingleJob } from "@/hooks/queries/postjob"
 import { Spinner } from "../ui/spinner"
 import { Link, useParams } from "react-router"
 import { ArrowRight } from "lucide-react"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../ui/drawer"
+import ApplicationDrawer from "../user/ApplicationDrawer"
+import { useState } from "react"
 
 const JobsPreview = () => {
     const { jobId } = useParams()
     const { data, isPending, error } = useGetSingleJob(jobId)
+    const [isApplyDrawerOpen, setIsApplyDrawerOpen] = useState(false)
    
     if (!jobId) {
         return (
@@ -44,16 +48,33 @@ const JobsPreview = () => {
                     to={data.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75"
+                    className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 text-sm font-semibold bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75"
                 >
                     Apply <ArrowRight className="size-4" />
                 </Link>
             )}
 
             {data.postedUser?.role === "LEAD" && (
-                <Link to="/" className="inline-flex items-center gap-1.5 px-5 py-2.5 font-semibold text-sm bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75">
-                    Easy Apply
-                </Link>
+                <Drawer open={isApplyDrawerOpen} onOpenChange={setIsApplyDrawerOpen} direction="top">
+                    <DrawerTrigger asChild>
+                        <button className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 font-semibold text-sm bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75">
+                            Easy Apply
+                        </button>
+                    </DrawerTrigger>
+
+                    <DrawerContent>
+                        <DrawerHeader>
+                            <DrawerTitle>Easy Apply</DrawerTitle>
+                            <DrawerDescription>
+                                Upload your resume and optionally share your GitHub profile.
+                            </DrawerDescription>
+                        </DrawerHeader>
+
+                        <div className="px-4 pb-6 overflow-y-auto">
+                            <ApplicationDrawer jobId={data.id} onSuccess={() => setIsApplyDrawerOpen(false)} />
+                        </div>
+                    </DrawerContent>
+                </Drawer>
             )}
 
             {data.description && (

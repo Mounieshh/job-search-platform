@@ -18,7 +18,7 @@ import { useLeadRequestStatus } from "@/hooks/queries/profile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { CheckCircle2, Clock, XCircle, Sparkles } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
 
 export default function BecomeLeadPage() {
     const { data: status, isLoading: isStatusLoading } = useLeadRequestStatus();
@@ -55,17 +55,10 @@ export default function BecomeLeadPage() {
     };
 
     return (
-        <div className="min-h-full bg-gradient-to-b from-background to-muted/30">
-            <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-                <div className="mb-10 text-center sm:text-left">
-                    <div className="mb-2 inline-flex items-center gap-2 text-sm font-medium text-primary">
-                        <Sparkles className="size-4" />
-                        For verified users
-                    </div>
-                    <h1 className="text-3xl font-bold tracking-tight">Become a company lead</h1>
-                    <p className="mt-2 max-w-2xl text-muted-foreground">
-                        Submit your company details. An administrator will review your request; you will be notified here when it is approved or rejected.
-                    </p>
+        <div className="min-h-screen overflow-hidden bg-linear-to-b from-background to-muted/30">
+            <div className="mx-auto max-w-5xl px-4 sm:px-6">
+                <div className="mb-5 text-center sm:text-left">
+                    <h1 className="text-2xl font-bold tracking-tight italic">Become a lead</h1>
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
@@ -74,7 +67,7 @@ export default function BecomeLeadPage() {
                             <CardTitle>Application</CardTitle>
                             <CardDescription>Use your work email and the legal name of your organization.</CardDescription>
                         </CardHeader>
-                        <CardContent className="pt-6">
+                        <CardContent>
                             <Form {...form}>
                                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                                     <FormField
@@ -126,7 +119,7 @@ export default function BecomeLeadPage() {
                                                     <Textarea
                                                         placeholder="Anything else we should know?"
                                                         {...field}
-                                                        className="min-h-[100px] resize-none"
+                                                        className="min-h-25 resize-none"
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -148,10 +141,7 @@ export default function BecomeLeadPage() {
 
                     <div>
                         <h2 className="mb-1 text-lg font-semibold">Your request status</h2>
-                        <p className="mb-6 text-sm text-muted-foreground">
-                            This page is for applicants only. Administrators review requests under <span className="font-medium text-foreground">Admin → Lead requests</span>.
-                        </p>
-
+                        
                         {isStatusLoading ? (
                             <div className="flex justify-center py-20">
                                 <Spinner className="size-8" />

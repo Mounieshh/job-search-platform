@@ -15,6 +15,8 @@ import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
 import postJobRouter from "./routes/postjob.route.js"
 import adminRouter from "./routes/admin.route.js"
+import { createRouteHandler } from "uploadthing/express"
+import { uploadRouter } from "./utils/uploadThing.js"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
 import fs from "node:fs"
@@ -42,14 +44,22 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'uploadthing-hook',
+        'x-uploadthing-package',
+        'x-uploadthing-version',
+        'x-uploadthing-signature'
+    ]
 }))
 
 app.use(cookieParser())
+app.use("/api/uploadthing", createRouteHandler({ router: uploadRouter }))
 app.use(express.json())
 
 
-// logging (morgan)
+// logging (morgan → JSON)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -58,8 +68,27 @@ const accessLogStream = fs.createWriteStream(
   { flags: "a" }
 );
 
-app.use(morgan("dev"))
-app.use(morgan("combined", { stream: accessLogStream }));
+app.use(
+  morgan((tokens, req, res) => {
+    return JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level: "INFO",
+      service: "job-service",
+      environment: "production",
+
+      method: tokens.method(req, res),
+      endpoint: tokens.url(req, res),
+      statusCode: Number(tokens.status(req, res)),
+      responseTime: Number(tokens["response-time"](req, res)),
+
+      clientIp: tokens["remote-addr"](req, res),
+      userAgent: tokens["user-agent"](req, res),
+
+      // optional but useful
+      contentLength: tokens.res(req, res, "content-length"),
+    });
+  }, { stream: accessLogStream })
+);
 
 app.get("/", (req, res) => {
     res.send("API running");

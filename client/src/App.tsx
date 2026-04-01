@@ -26,7 +26,8 @@ import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
 import JobsPosted from "./pages/leadSystem/JobsPosted"
-
+import JobApplicationsByJob from "./pages/leadSystem/JobApplicationsByJob"
+import TrackApplicationsPage from "./pages/TrackApplicationsPage"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
 
@@ -65,7 +66,9 @@ function AppLayout() {
 
             <Route path="/profile" element={<ProfilePage/>}/>
             <Route path="/my-posts" element={<TrackMyPosts/>}/>
+            <Route path="/track-applications" element={<TrackApplicationsPage/>}/>
             <Route path="/become-a-lead" element={<BecomeLeadPage />} />
+
             
             {/* --COMMON ROUTE-- */}
             
@@ -94,6 +97,7 @@ function AppLayout() {
             <Route path="/lead-approval/:jobId" element={<LeadApprovalPage />} />
             <Route path="/lead/approved-by-me" element={<ApprovedByMe/>}/>
             <Route path="/lead/posted" element={<JobsPosted/>}/>
+            <Route path="/lead/posted/:jobId/applications" element={<JobApplicationsByJob/>}/>
 
 
             {/* --JOB ROUTE COMMON-- */}

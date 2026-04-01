@@ -47,3 +47,57 @@ export async function getLeadRequestStatus(): Promise<LeadRequest | null> {
     const data = await response.json()
     return data.leadRequest
 }
+
+type CreateApplicationPayload = {
+    resume: string
+    githubLink?: string
+}
+
+type CreateApplicationResponse = {
+    message: string
+}
+
+export type UserTrackedApplication = {
+    id: string
+    userId: string
+    profileId: string
+    githubLink: string | null
+    resume: string
+    status: string
+    aiScore: number | null
+    jobId: string
+    createdAt: string
+    updatedAt: string
+    job: JobData | null
+}
+
+export async function createJobApplication(jobId: string, payload: CreateApplicationPayload): Promise<CreateApplicationResponse> {
+    const response = await fetch(`${baseUrl}/api/user/application/${jobId}/apply`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to submit application")
+    }
+
+    return data as CreateApplicationResponse
+}
+
+export async function getMyTrackedApplications(): Promise<UserTrackedApplication[]> {
+    const response = await fetch(`${baseUrl}/api/user/applications/tracking`, {
+        method: "GET",
+        credentials: "include",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch tracked applications")
+    }
+
+    const data = await response.json()
+    return data.applications ?? []
+}

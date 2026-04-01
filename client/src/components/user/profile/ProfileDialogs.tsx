@@ -243,7 +243,7 @@ export function SkillsEditDialog({
                   <FormLabel>Skills</FormLabel>
                   <FormControl>
                     <Textarea
-                      className="rounded-none min-h-[120px]"
+                      className="rounded-none min-h-30"
                       placeholder="Comma or newline separated"
                       {...field}
                     />
@@ -419,7 +419,7 @@ export function WorkExperienceEditDialog({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea className="rounded-none min-h-[80px]" {...f} />
+                        <Textarea className="rounded-none min-h-20" {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -627,7 +627,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea className="rounded-none min-h-[80px]" {...f} />
+                        <Textarea className="rounded-none min-h-20" {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
