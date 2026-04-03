@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useCreateJobApplication } from "@/hooks/mutations/profile"
-import { uploadResumePdfToCloudinary } from "@/lib/cloudinaryUpload"
+import { uploadResumePdfToSupabase } from "@/lib/cloudinaryUpload"
 
 type ApplicationDrawerProps = {
     jobId: string
@@ -25,7 +25,7 @@ const ApplicationDrawer = ({ jobId, onSuccess }: ApplicationDrawerProps) => {
     })
 
     const onSubmit = async (values: ApplicationFormData) => {
-        const resumeUrl = await uploadResumePdfToCloudinary(values.resume)
+        const resumeUrl = await uploadResumePdfToSupabase(values.resume)
 
         await createApplication({
             jobId,

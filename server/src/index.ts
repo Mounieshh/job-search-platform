@@ -15,8 +15,6 @@ import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
 import postJobRouter from "./routes/postjob.route.js"
 import adminRouter from "./routes/admin.route.js"
-import { createRouteHandler } from "uploadthing/express"
-import { uploadRouter } from "./utils/uploadThing.js"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
 import fs from "node:fs"
@@ -46,16 +44,11 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
         'Content-Type',
-        'Authorization',
-        'uploadthing-hook',
-        'x-uploadthing-package',
-        'x-uploadthing-version',
-        'x-uploadthing-signature'
+        'Authorization'
     ]
 }))
 
 app.use(cookieParser())
-app.use("/api/uploadthing", createRouteHandler({ router: uploadRouter }))
 app.use(express.json())
 
 

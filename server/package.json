@@ -38,7 +38,6 @@
     "resend": "^6.9.4",
     "streamifier": "^0.1.1",
     "unique-names-generator": "^4.7.1",
-    "uploadthing": "^7.7.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {

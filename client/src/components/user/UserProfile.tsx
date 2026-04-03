@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { uploadResumePdfToCloudinary } from "@/lib/cloudinaryUpload"
+import { uploadResumePdfToSupabase } from "@/lib/cloudinaryUpload"
 import {
   IdentityEditDialog,
   PersonalEditDialog,
@@ -101,7 +101,7 @@ const UserProfile = () => {
     }
     setIsUploadingToCloudinary(true)
     try {
-      const uploadedUrl = await uploadResumePdfToCloudinary(resumeFile)
+      const uploadedUrl = await uploadResumePdfToSupabase(resumeFile)
       await saveProfile({ resumeUrl: uploadedUrl })
       setResumeDialogOpen(false)
       setResumeFile(null)
