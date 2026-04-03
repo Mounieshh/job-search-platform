@@ -1,4 +1,4 @@
-import { signIn, signUp } from "@/api/auth";
+import { forgotPassword, signIn, signUp, submitResetPassword } from "@/api/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SESSION_KEY } from "@/hooks/queries/auth";
 
@@ -13,9 +13,20 @@ export function useSignIn(){
     })
 }
 
-
 export function useSignUp(){
     return useMutation({
         mutationFn: signUp,
+    })
+}
+
+export function useForgotPassword(){
+    return useMutation({
+        mutationFn: forgotPassword,
+    })
+}
+
+export function useResetPassword(){
+    return useMutation({
+        mutationFn: submitResetPassword,
     })
 }

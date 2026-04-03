@@ -72,5 +72,62 @@ export async function signUp(formData: ZodUserFormData){
     }
 
     return data
+}
 
+
+export async function resetPassword(token: string, newPassword: string){
+    const response = await fetch(`${baseUrl}/api/auth/reset-password`, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ token, newPassword })
+    })
+
+    const data = await response.json()
+
+    if(!response.ok){
+        throw new Error(data.message || "Reset password failed")
+    }
+
+    return data
+}
+
+export async function forgotPassword(email: string){
+    const response = await fetch(`${baseUrl}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+    })
+
+    const data = await response.json()
+
+    if(!response.ok){
+        throw new Error(data.message || "Forgot password request failed")
+    }
+
+    return data
+}
+
+export async function submitResetPassword(payload: { token: string; newPassword: string }){
+    const response = await fetch(`${baseUrl}/api/auth/reset-password`, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+    })
+
+    const data = await response.json()
+
+    if(!response.ok){
+        throw new Error(data.message || "Reset password failed")
+    }
+
+    return data
 }

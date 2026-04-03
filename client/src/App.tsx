@@ -22,6 +22,7 @@ import AdminRequestsPage from "./pages/adminSystem/AdminRequestsPage"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
+import PasswordResetPage from "./pages/auth/PasswordResetPage"
 import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
@@ -29,11 +30,11 @@ import JobsPosted from "./pages/leadSystem/JobsPosted"
 import JobApplicationsByJob from "./pages/leadSystem/JobApplicationsByJob"
 import TrackApplicationsPage from "./pages/TrackApplicationsPage"
 
-const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email"]
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email", "/auth/password-reset"]
 
 function AppLayout() {
   const { pathname } = useLocation()
-  const hideNavbar = AUTH_ROUTES.includes(pathname)
+  const hideNavbar = AUTH_ROUTES.includes(pathname) || pathname.startsWith("/auth/password-reset/")
   const { data: user, isPending } = useSession()
 
   if (isPending) {
@@ -61,6 +62,8 @@ function AppLayout() {
             <Route path="/auth/login" element={user ? <Navigate to="/community" replace /> : <SignInPage />} />
             <Route path="/auth/register" element={user ? <Navigate to="/community" replace /> : <SignUpPage />} />
             <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/auth/password-reset" element={<PasswordResetPage />} />
+            <Route path="/auth/password-reset/:token" element={<PasswordResetPage />} />
 
             {/* --USER ROUTE-- */}
 

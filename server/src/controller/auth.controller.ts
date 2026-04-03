@@ -1,7 +1,11 @@
 // auth.controller.ts (updated login and register)
 import { Request, Response } from "express";
-import { connectToMongo } from "../config/mongodb.js";
-import { zodLoginSchema, zodRegisterSchema } from "../validate/user.zod.js";
+import {
+  zodForgotPasswordSchema,
+  zodLoginSchema,
+  zodRegisterSchema,
+  zodResetPasswordSchema,
+} from "../validate/user.zod.js";
 import User from "../models/user.schema.js";
 import bcrypt from "bcrypt";
 import { createSession } from "../config/session.js";
@@ -10,8 +14,9 @@ import { isValidDomain } from "../utils/domain.js";
 import Company from "../models/company.schema.js";
 import { NODE_ENV } from "../config/env.js";
 import crypto from "crypto";
-import { sendVerificationEmail } from "../utils/mail.js";
+import { sendResetEmail, sendVerificationEmail } from "../utils/mail.js";
 import VerificationToken from "../models/verificationToken.schema.js";
+import PasswordResetToken from "../models/passwordResetToken.js";
 
 
 function getAuthCookieOptions(expiresAt?: Date) {
@@ -26,6 +31,8 @@ function getAuthCookieOptions(expiresAt?: Date) {
   };
 }
 
+
+// register
 export async function registerUser(req: Request, res: Response) {
   try {
     const parsedData = zodRegisterSchema.parse(req.body);
@@ -72,6 +79,7 @@ export async function registerUser(req: Request, res: Response) {
   }
 }
 
+// login
 export async function loginUser(req: Request, res: Response) {
   try {
     const parsedData = zodLoginSchema.parse(req.body);
@@ -118,6 +126,7 @@ export async function loginUser(req: Request, res: Response) {
   }
 }
 
+// logout
 export async function logoutUser(req: Request, res: Response) {
   const sessionId = req.cookies.user_session;
 
@@ -130,6 +139,7 @@ export async function logoutUser(req: Request, res: Response) {
   return res.status(200).json({ message: "Logout successful" });
 }
 
+// get the current user (for present session)
 export async function getCurrentUser(req: Request, res: Response) {
   try {
     const user = (req as any).user;
@@ -144,6 +154,7 @@ export async function getCurrentUser(req: Request, res: Response) {
   }
 }
 
+// verify user email
 export async function verifyEmail(req: Request, res: Response) {
   try {
     const { token } = req.query;
@@ -174,5 +185,88 @@ export async function verifyEmail(req: Request, res: Response) {
   } catch (error) {
     console.error("Error verifying email:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// forgot password
+export async function forgotPassword(req: Request, res: Response){
+  try {
+
+    const parsedData = zodForgotPasswordSchema.parse(req.body)
+
+    const { email } = parsedData
+
+    const user = await User.findOne({email})
+
+    if(!user){
+      return res.json({
+        message: "If that email exists, we've sent a reset link."
+      })
+    }
+
+    await PasswordResetToken.deleteMany({ userId: user._id });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+
+    await PasswordResetToken.create({
+        userId: user._id,
+        token,
+        expiresAt,
+        email: user.email,
+    });
+
+    await sendResetEmail(user.email, token)
+
+    res.json({ message: "Reset link sent to your email." });
+
+  } catch (error: any) {
+      if (error.name === "ZodError") {
+        return res.status(422).json({
+          message: "Validation failed",
+          errors: error.issues,
+        });
+      }
+      return res.status(500).json({
+        message: "Internal Server Error"
+      })
+  }
+}
+
+// Reset Password 
+export async function resetPassword(req: Request, res: Response){
+  try {
+    const { token, newPassword } = zodResetPasswordSchema.parse(req.body)
+
+    const resetDoc = await PasswordResetToken.findOne({ token, expiresAt: { $gt: new Date() } });
+
+    if (!resetDoc) {
+          return res.status(400).json({ message: "Invalid or expired token." });
+    }
+
+    const user = await User.findById(resetDoc.userId);
+    if (!user) {
+        return res.status(400).json({ message: "User not found." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12)
+    user.password = hashedPassword
+
+    await user.save()
+
+    await PasswordResetToken.deleteOne({ _id: resetDoc._id });  
+
+    res.json({ message: "Password updated successfully." });
+
+  } catch (error: any) {
+      if (error.name === "ZodError") {
+        return res.status(422).json({
+          message: "Validation failed",
+          errors: error.issues,
+        });
+      }
+      return res.status(500).json({
+        message: "Internal Server Error"
+      })
   }
 }

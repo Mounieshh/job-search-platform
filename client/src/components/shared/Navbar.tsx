@@ -35,7 +35,7 @@ const Navbar = () => {
               className="font-mono font-bold text-xl text-white tracking-tight flex items-center gap-1.5"
             >
               <span className="inline-block w-3.5 h-3.5 rounded-sm bg-primary" aria-hidden="true" />
-              Jobbify
+              Vettd
             </Link>
 
             {/* Divider */}

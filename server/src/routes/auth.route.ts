@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { loginUser, registerUser, logoutUser, getCurrentUser, verifyEmail } from "../controller/auth.controller.js";
+import {
+	forgotPassword,
+	getCurrentUser,
+	loginUser,
+	logoutUser,
+	registerUser,
+	resetPassword,
+	verifyEmail,
+} from "../controller/auth.controller.js";
 import { authorize } from "../middleware/auth.middleware.js";
 
 const router = Router()
@@ -9,5 +17,7 @@ router.post("/login", loginUser)
 router.post("/logout", logoutUser)
 router.get("/me", authorize, getCurrentUser)
 router.get("/verify-email", verifyEmail)
+router.post("/forgot-password", forgotPassword)
+router.post("/reset-password", resetPassword)
 
 export default router

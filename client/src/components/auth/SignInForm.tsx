@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router";
 import { useSignIn } from "@/hooks/mutations/auth";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { Dialog, DialogTrigger } from "../ui/dialog";
 
 const SignInForm = () => {
   const navigate = useNavigate();
@@ -68,7 +69,17 @@ const SignInForm = () => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <div className="flex flex-row justify-between">
+                      <FormLabel>Password</FormLabel>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                                <Link to="/auth/password-reset" className="text-sm underline text-blue-400">
+                                        Forget Password
+                                </Link>
+                            </DialogTrigger>
+                          </Dialog>
+                    </div>
+
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -77,6 +88,7 @@ const SignInForm = () => {
                           {...field}
                           className="rounded-none pr-10"
                         />
+
                         <Button
                           type="button"
                           variant="ghost"

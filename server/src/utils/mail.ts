@@ -36,3 +36,39 @@ export async function sendVerificationEmail(email: string, name: string, token: 
         throw new Error("Failed to send verification email");
     }
 }
+
+
+export async function sendResetEmail(email: string, token: string){
+
+    const passwordResetUrl = `${APP_ORIGIN}/auth/password-reset/${token}`
+
+    try {
+        await resend.emails.send({
+            from: "Job Search Community Auth Reset <onboarding@resend.dev>",
+            to: email,
+            subject: "Reset your Password",
+            html: 
+            `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1 style="color: #333;">Reset your Job Search Community password</h1>
+                    <p style="font-size: 16px; color: #555;">
+                        Please reset the password by clicking the button below:
+                    </p>
+                    <a href="${passwordResetUrl}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 20px 0;">
+                        Reset Password
+                    </a>
+                    <p style="font-size: 14px; color: #888;">
+                        Or copy and paste this link in your browser: <br/>
+                        <a href="${passwordResetUrl}">${passwordResetUrl}</a>
+                    </p>
+                    <p style="font-size: 14px; color: #888; margin-top: 20px;">
+                        This link will expire in 1 hour.
+                    </p>
+                </div>
+            `
+        })
+    } catch (error) {
+        console.error("Error Resetting Password:", error);
+        throw new Error("Failed to reset password");
+    }
+}
