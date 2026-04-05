@@ -6,7 +6,8 @@ export const applicationSchema = z.object({
         .instanceof(File, { message: "Resume is required" })
         .refine((file) => file.type === "application/pdf", {
             message: "Only PDF resumes are supported",
-        }),
+        })
+        .optional(),
     githubLink: z
         .string()
         .trim()

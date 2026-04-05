@@ -48,7 +48,7 @@ const LeadApprovalPreview = () => {
 
     if (!jobId) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+            <div className="h-full flex items-center justify-center text-muted-foreground py-20">
                 Select a job to review
             </div>
         )
@@ -56,7 +56,7 @@ const LeadApprovalPreview = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
+            <div className="h-full flex justify-center items-center py-20">
                 <Spinner className="size-7" />
             </div>
         )
@@ -69,7 +69,7 @@ const LeadApprovalPreview = () => {
     }
 
     return (
-        <section key={jobId} className="p-6 flex flex-col space-y-4">
+        <section key={jobId} className="p-6 flex flex-col space-y-4 h-full overflow-y-auto">
 
             <div className="space-y-1">
                 <h1 className="text-2xl font-bold">{data.roleTitle}</h1>

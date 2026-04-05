@@ -1,6 +1,6 @@
 import type { Editor } from "@tiptap/react"
 import { Toggle } from "../ui/toggle"
-import { Bold, Heading1, Heading2, Heading3, Italic, List } from "lucide-react"
+import { Bold, Heading1, Italic, List } from "lucide-react"
 
 type EditorProps = {
     editor: Editor | null
@@ -19,21 +19,6 @@ export default function Toolbar({ editor }: EditorProps) {
                 }
             ><Heading1 /></Toggle>
 
-            <Toggle
-                size="sm"
-                pressed={editor.isActive("heading", { level: 2 })}
-                onPressedChange={() =>
-                    editor.chain().focus().toggleHeading({ level: 2 }).run()
-                }
-            ><Heading2 /></Toggle>
-
-            <Toggle
-                size="sm"
-                pressed={editor.isActive("heading", { level: 3 })}
-                onPressedChange={() =>
-                    editor.chain().focus().toggleHeading({ level: 3 }).run()
-                }
-            ><Heading3 /></Toggle>
 
             <Toggle
                 size="sm"

@@ -99,7 +99,9 @@ declare global {
         companyId: string,
         draftStats: string,
         status: string,
-        postedUser : User
+        postedUser : User,
+        totalApplications: number,
+        myApplicationStatus: string | null,
     }
 
     type CommunityPostItem = {

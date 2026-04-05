@@ -174,15 +174,33 @@ export async function getSingleJob(req: Request, res:Response){
             }
         })
 
-        const postedUser = await User.findById(fetchSingleJob?.userId).select("_id name email role emailVerified")
-        
         if (!fetchSingleJob) {
             return res.status(404).json({ message: "Job not found" })
         }
 
+        const postedUser = await User.findById(fetchSingleJob?.userId).select("_id name email role emailVerified")
+
+        const totalApplications = await prisma.userApplication.count({
+            where: {
+                jobId: fetchSingleJob.id,
+            },
+        })
+
+        const myApplication = await prisma.userApplication.findFirst({
+            where: {
+                jobId: fetchSingleJob.id,
+                userId: String(user._id),
+            },
+            select: {
+                status: true,
+            },
+        })
+
         const combinedData = {
             ...fetchSingleJob,
-            postedUser
+            postedUser,
+            totalApplications,
+            myApplicationStatus: myApplication?.status ?? null,
         }
 
         return res.status(200).json({

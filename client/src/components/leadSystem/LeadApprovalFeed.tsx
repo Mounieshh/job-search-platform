@@ -23,7 +23,7 @@ const LeadApprovalFeed = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
+            <div className="h-full flex justify-center items-center py-20">
                 <Spinner className="size-7" />
             </div>
         )
@@ -36,9 +36,9 @@ const LeadApprovalFeed = () => {
     }
 
     return (
-        <section className="flex flex-col">
-            <div className="p-3 border-b">
-                <div className="relative w-full">
+        <section className="flex h-full flex-col rounded-xl border bg-background">
+            <div className="border-b px-3 py-3">
+                <div className="relative w-full max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         value={searchText}
@@ -49,15 +49,15 @@ const LeadApprovalFeed = () => {
                 </div>
             </div>
 
-            <section className="flex flex-col">
+            <section className="flex min-h-105 flex-1 flex-col overflow-y-auto">
                 {!filteredJobs || filteredJobs.length === 0 ? (
-                    <div className="p-4 text-muted-foreground">Nothing to view</div>
+                    <div className="p-4 text-muted-foreground font-medium italic">Nothing to view</div>
                 ) : (
                     filteredJobs.map((job) => (
                         <Link
                             to={`/lead-approval/${job.id}`}
                             key={job.id}
-                            className={`p-4 border-b hover:bg-muted transition-colors ${
+                            className={`p-4 border-b hover:bg-muted/60 transition-colors ${
                                 jobId === job.id ? "bg-muted border-l-2 border-l-primary" : ""
                             }`}
                         >

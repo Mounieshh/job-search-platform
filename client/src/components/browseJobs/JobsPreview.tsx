@@ -5,11 +5,14 @@ import { ArrowRight } from "lucide-react"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "../ui/drawer"
 import ApplicationDrawer from "../user/ApplicationDrawer"
 import { useState } from "react"
+import { Badge } from "../ui/badge"
 
 const JobsPreview = () => {
     const { jobId } = useParams()
     const { data, isPending, error } = useGetSingleJob(jobId)
     const [isApplyDrawerOpen, setIsApplyDrawerOpen] = useState(false)
+    const alreadyApplied = Boolean(data?.myApplicationStatus)
+    const applicationCount = data?.totalApplications ?? 0
    
     if (!jobId) {
         return (
@@ -55,26 +58,40 @@ const JobsPreview = () => {
             )}
 
             {data.postedUser?.role === "LEAD" && (
-                <Drawer open={isApplyDrawerOpen} onOpenChange={setIsApplyDrawerOpen} direction="top">
-                    <DrawerTrigger asChild>
-                        <button className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 font-semibold text-sm bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75">
-                            Easy Apply
-                        </button>
-                    </DrawerTrigger>
+                <div className="flex flex-wrap items-center gap-3">
 
-                    <DrawerContent>
-                        <DrawerHeader>
-                            <DrawerTitle>Easy Apply</DrawerTitle>
-                            <DrawerDescription>
-                                Upload your resume and optionally share your GitHub profile.
-                            </DrawerDescription>
-                        </DrawerHeader>
+                    {alreadyApplied ? (
+                        <Badge variant="default" className="rounded-full px-3 py-1 text-xs font-medium">
+                            Already Applied
+                        </Badge>
+                    ) : (
+                        <Drawer open={isApplyDrawerOpen} onOpenChange={setIsApplyDrawerOpen} direction="top">
+                            <DrawerTrigger asChild>
+                                <button className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 font-semibold text-sm bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75">
+                                    Easy Apply
+                                </button>
+                            </DrawerTrigger>
 
-                        <div className="px-4 pb-6 overflow-y-auto">
-                            <ApplicationDrawer jobId={data.id} onSuccess={() => setIsApplyDrawerOpen(false)} />
-                        </div>
-                    </DrawerContent>
-                </Drawer>
+                            <DrawerContent>
+                                <DrawerHeader>
+                                    <DrawerTitle>Easy Apply</DrawerTitle>
+                                    <DrawerDescription>
+                                        Upload your resume and optionally share your GitHub profile.
+                                    </DrawerDescription>
+                                </DrawerHeader>
+
+                                <div className="px-4 pb-6 overflow-y-auto">
+                                    <ApplicationDrawer jobId={data.id} onSuccess={() => setIsApplyDrawerOpen(false)} />
+                                </div>
+                            </DrawerContent>
+                        </Drawer>
+                    )}
+
+                    <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+                        {applicationCount} applied
+                    </Badge>
+
+                </div>
             )}
 
             {data.description && (

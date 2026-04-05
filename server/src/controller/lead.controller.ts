@@ -395,6 +395,7 @@ export async function getLeadApplicationsForJob(req: Request, res: Response) {
     }
 }
 
+// shortlist logic
 export async function shortlistTopApplications(req: Request, res: Response) {
     try {
         const user = (req as any).user
