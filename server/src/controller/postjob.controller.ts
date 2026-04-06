@@ -4,7 +4,7 @@ import { postJobSchema, stepTwoSchema } from "../validate/postjob.zod.js";
 import { prisma } from "../config/prisma.js";
 import Company from "../models/company.schema.js";
 import User from "../models/user.schema.js";
-import { escapeRegex, getLeadUserIdsFromCompany } from "../utils/companyLeads.js";
+import { escapeRegex } from "../utils/companyLeads.js";
 
 
 export async function createNewJob(req: Request, res: Response) {
@@ -40,6 +40,20 @@ export async function patchNewJob(req: Request, res: Response) {
 
         if (!existing) return res.status(404).json({ message: "Job not found" })
         if (existing.userId !== String(user._id)) return res.status(403).json({ message: "Forbidden" })
+        const role = user.role as string
+
+        if (role === "USER") {
+            const job = await prisma.postJob.update({
+                where: { id: jobId as string },
+                data: {
+                    ...parsedData,
+                    draftStats: "published",
+                    status: "pending",
+                },
+            })
+
+            return res.json({ success: true, job })
+        }
 
         let company = await Company.findOne({
             name: new RegExp(`^${escapeRegex(existing.companyName)}$`, "i"),
@@ -56,41 +70,6 @@ export async function patchNewJob(req: Request, res: Response) {
         }
 
         const companyIdStr = company._id.toString()
-        const role = user.role as string
-
-        if (role === "USER") {
-            const primaryLeadId = company.primaryLeadId ? String(company.primaryLeadId) : null
-            const leads = primaryLeadId ? [primaryLeadId] : getLeadUserIdsFromCompany(company)
-
-            const job = await prisma.postJob.update({
-                where: { id: jobId as string },
-                data: {
-                    ...parsedData,
-                    draftStats: "published",
-                    companyId: companyIdStr,
-                    status: "pending",
-                },
-            })
-
-            await prisma.jobApproval.deleteMany({
-                where: { jobId: job.id, action: "pending" },
-            })
-
-            for (const leadId of leads) {
-                const leadUser = await User.findById(leadId).select("name")
-                await prisma.jobApproval.create({
-                    data: {
-                        jobId: job.id,
-                        leadId,
-                        leadName: leadUser?.name ?? "Lead",
-                        action: "pending",
-                        reason: null,
-                    },
-                })
-            }
-
-            return res.json({ success: true, job })
-        }
 
         if (role === "LEAD" || role === "ADMIN") {
             const job = await prisma.postJob.update({

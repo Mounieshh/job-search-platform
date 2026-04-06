@@ -62,10 +62,11 @@ export async function getCommunityPost(req: Request, res: Response){
 
 
         const userIds = posts.map((post) => post.postedUser)
+        const validUserIds = userIds.filter(id => id && id.match(/^[0-9a-fA-F]{24}$/))
 
         const users = await User.find({
             _id: {
-                $in: userIds
+                $in: validUserIds
             }
         }).select("_id name email isEmailVerified role")
 
@@ -79,10 +80,11 @@ export async function getCommunityPost(req: Request, res: Response){
         }))
 
         return res.status(200).json({
-            mesasge : "Community Posts Fetched",
+            message: "Community Posts Fetched",
             posts: postsWithUser
         })
     } catch (error) {
+        console.error("DEBUG ERR:", error);
         return res.status(500).json({
             message: "Internal Server Error"
         })

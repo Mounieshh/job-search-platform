@@ -8,7 +8,7 @@ export default function TrackMyPosts() {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[200px] flex items-center justify-center">
                 <Spinner className="size-7" />
             </div>
         )
@@ -16,7 +16,7 @@ export default function TrackMyPosts() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[200px] flex items-center justify-center">
                 <p className="text-muted-foreground">Something went wrong</p>
             </div>
         )
@@ -25,7 +25,7 @@ export default function TrackMyPosts() {
     return (
         <div className="p-6">
             {data.jobs.length === 0 ? (
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="min-h-[200px] flex items-center justify-center">
                     <p className="text-muted-foreground">No jobs found</p>
                 </div>
             ) : (

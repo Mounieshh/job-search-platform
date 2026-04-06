@@ -37,7 +37,7 @@ const JobsPreview = () => {
     }
 
     return (
-        <section className="p-6 flex flex-col space-y-4">
+        <section className="h-full min-h-0 overflow-y-auto p-6 flex flex-col space-y-4">
             <div className="space-y-1">
                 <h1 className="text-2xl font-bold">{data.roleTitle}</h1>
                 <p className="text-muted-foreground">{data.companyName}</p>
@@ -62,7 +62,7 @@ const JobsPreview = () => {
 
                     {alreadyApplied ? (
                         <Badge variant="default" className="rounded-full px-3 py-1 text-xs font-medium">
-                            Already Applied
+                            Applied
                         </Badge>
                     ) : (
                         <Drawer open={isApplyDrawerOpen} onOpenChange={setIsApplyDrawerOpen} direction="top">
@@ -88,7 +88,7 @@ const JobsPreview = () => {
                     )}
 
                     <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
-                        {applicationCount} applied
+                        over {applicationCount} people applied
                     </Badge>
 
                 </div>
@@ -97,7 +97,7 @@ const JobsPreview = () => {
             {data.description && (
                 <div
                     key={jobId}
-                    className="prose max-w-none "
+                    className="prose max-w-none pb-6"
                     dangerouslySetInnerHTML={{ __html: data.description }}
                 />
             )}

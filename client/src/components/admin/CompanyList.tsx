@@ -26,7 +26,7 @@ export default function CompanyList() {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
+            <div className="min-h-50 flex justify-center pt-10">
                 <Spinner className="size-7" />
             </div>
         )
@@ -34,7 +34,7 @@ export default function CompanyList() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
+            <div className="min-h-50 flex justify-center pt-10">
                 <p className="text-sm text-destructive">Error fetching companies.</p>
             </div>
         )
@@ -43,7 +43,7 @@ export default function CompanyList() {
     return (
         <div>
             {data.length === 0 ? (
-                <div className="min-h-screen flex justify-center pt-10 text-sm text-muted-foreground">
+                <div className="min-h-50 flex justify-center pt-10 text-sm text-muted-foreground">
                     No Companies Found
                 </div>
             ) : (

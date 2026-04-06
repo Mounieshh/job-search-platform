@@ -41,8 +41,8 @@ const JobsFeed = () => {
     }
 
     return (
-        <section className="flex h-full flex-col rounded-xl border bg-background">
-            <section>
+        <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border bg-background">
+            <section className="shrink-0">
                 <div className="flex items-end justify-between border-b px-3 py-3">
                     <div className="relative w-full max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -55,7 +55,7 @@ const JobsFeed = () => {
                     </div>
                 </div>
             </section>
-            <section className="flex min-h-105 flex-1 flex-col">
+            <section className="min-h-0 flex-1 overflow-y-auto">
                 {filteredJobs?.length === 0 ? (
                     <div className="p-4 text-muted-foreground font-medium italic">Nothing to View</div>
                 ) : (
@@ -63,7 +63,7 @@ const JobsFeed = () => {
                         <Link
                             to={`/browseJobs/${job.id}`}
                             key={job.id}
-                            className={`p-4 border-b hover:bg-muted/60 transition-colors ${
+                            className={`block border-b p-4 transition-colors hover:bg-muted/60 ${
                                 jobId === job.id ? "bg-muted border-l-2 border-l-primary" : ""
                             }`}
                         >
@@ -76,7 +76,7 @@ const JobsFeed = () => {
             </section>
 
             {filteredJobs && (
-                <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
+                <div className="flex shrink-0 items-center justify-between border-t bg-muted/20 px-4 py-3">
                     <Button 
                         variant="outline" 
                         size="sm" 

@@ -12,7 +12,8 @@ export function useReviewJob() {
             reason?: string
         }) => reviewJob(jobId, action, reason),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["lead_pending_review_jobs"] })
+            queryClient.invalidateQueries({ queryKey: ["lead_pending_jobs"] })
+            queryClient.invalidateQueries({ queryKey: ["lead_approved_jobs"] })
         },
         onError: (error: any) => {
             console.error("Failed to review job:", error.message)

@@ -49,6 +49,12 @@ type LeadPostedApplicationsResponse = {
 type LeadJobApplicationsResponse = {
     job: JobData
     applications: LeadApplicationItem[]
+    stats: {
+        total: number
+        shortlisted: number
+        rejected: number
+        pending: number
+    }
     pagination: {
         page: number
         limit: number
@@ -165,6 +171,7 @@ export async function listLeadJobApplications(jobId: string, page = 1, limit = 1
     return {
         job: data.job,
         applications: data.applications ?? [],
+        stats: data.stats,
         pagination: data.pagination,
     }
 }

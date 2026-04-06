@@ -1,12 +1,14 @@
 import "dotenv/config"
 import express from "express"
+import type { Request, Response } from "express"
 import dns from "node:dns"
 import cookieParser from "cookie-parser"
 import cors from "cors"
-import morgan from "morgan"
+import pino from "pino"
+import { pinoHttp } from "pino-http"
 
 import { connectToMongo } from "./config/mongodb.js"
-import { APP_ORIGIN, PORT } from "./config/env.js"
+import { APP_ORIGIN, PORT, NODE_ENV } from "./config/env.js"
 
 import authRouter from "./routes/auth.route.js"
 import companyRouter from "./routes/company.route.js"
@@ -52,7 +54,7 @@ app.use(cookieParser())
 app.use(express.json())
 
 
-// logging (morgan → JSON)
+// logging (pino-http → JSON)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -61,26 +63,55 @@ const accessLogStream = fs.createWriteStream(
   { flags: "a" }
 );
 
+const logger = pino(
+  {
+    formatters: {
+      level: (label) => ({ level: label.toUpperCase() }),
+      bindings: () => ({}),
+    },
+    timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+  },
+  NODE_ENV !== "production"
+    ? pino.transport({
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "SYS:HH:MM:ss",
+          ignore: "pid,hostname",
+          messageFormat: "- {method} {endpoint} {statusCode} {responseTime}ms",
+          hideObject: true,
+        },
+      })
+    : accessLogStream
+);
+
 app.use(
-  morgan((tokens, req, res) => {
-    return JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: "INFO",
-      service: "job-service",
-      environment: "production",
-
-      method: tokens.method(req, res),
-      endpoint: tokens.url(req, res),
-      statusCode: Number(tokens.status(req, res)),
-      responseTime: Number(tokens["response-time"](req, res)),
-
-      clientIp: tokens["remote-addr"](req, res),
-      userAgent: tokens["user-agent"](req, res),
-
-      // optional but useful
-      contentLength: tokens.res(req, res, "content-length"),
-    });
-  }, { stream: accessLogStream })
+  pinoHttp({
+    logger,
+    customLogLevel: function (req: Request, res: Response, err?: Error) {
+      if (res.statusCode >= 500 || err) return "error";
+      if (res.statusCode >= 400) return "warn";
+      return "info";
+    },
+    customProps: function (req: Request, res: Response) {
+      const clientIp = req.ip || req.socket?.remoteAddress;
+      return {
+        service: "job-service",
+        environment: "production",
+        method: req.method,
+        endpoint: req.url,
+        statusCode: res.statusCode,
+        clientIp: clientIp,
+        userAgent: req.headers["user-agent"],
+        contentLength: res.getHeader("content-length"),
+      };
+    },
+    serializers: {
+      req: () => undefined,
+      res: () => undefined,
+      err: pino.stdSerializers.err,
+    },
+  })
 );
 
 app.get("/", (req, res) => {

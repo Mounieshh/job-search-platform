@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
-import Company from "../models/company.schema.js";
 import UserProfile from "../models/profile.schema.js";
 import User from "../models/user.schema.js";
 import { leadRequestSchema } from "../validate/lead.zod.js";
 import { LeadRequest } from "../models/leadRequest.schema.js";
 import * as z from "zod"
-import { getLeadUserIdsFromCompany } from "../utils/companyLeads.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_API_KEY } from "../config/env.js";
 
@@ -23,28 +21,9 @@ export async function getPendingJobApprovals(req: Request, res: Response){
             })
         }
 
-        let company = null as any
-        const companyId = user.company?.companyId
-        if (companyId) {
-            company = await Company.findById(companyId)
-        }
-
-        if (!company) {
-            company = await Company.findOne({ primaryLeadId: user._id })
-        }
-
-        if (!company) {
-            return res.status(404).json({ message: "Company not found" })
-        }
-
-        if (!company.primaryLeadId || String(company.primaryLeadId) !== String(user._id)) {
-            return res.status(403).json({ message: "You are not the primary lead of this company" })
-        }
-
         const pendingJobs = await prisma.postJob.findMany({
             where: {
                 status: "pending",
-                companyId: String(company._id),
             },
             orderBy: {
                 createdAt: "desc"
@@ -137,19 +116,6 @@ export async function leadReviewJob(req: Request, res: Response) {
 
         if (job.status !== "pending") {
             return res.status(400).json({ message: "Job has already been reviewed" })
-        }
-
-        if (!job.companyId) {
-            return res.status(400).json({ message: "Job has no company" })
-        }
-
-        const company = await Company.findById(job.companyId)
-        if (!company) {
-            return res.status(404).json({ message: "Company not found" })
-        }
-
-        if (!company.primaryLeadId || String(company.primaryLeadId) !== String(user._id)) {
-            return res.status(403).json({ message: "You are not the primary lead of this company" })
         }
 
         await prisma.jobApproval.deleteMany({
@@ -338,7 +304,7 @@ export async function getLeadApplicationsForJob(req: Request, res: Response) {
             return res.status(404).json({ message: "Job not found for this lead" })
         }
 
-        const [totalApplications, applications] = await Promise.all([
+        const [totalApplications, applications, statusBuckets] = await Promise.all([
             prisma.userApplication.count({
                 where: { jobId },
             }),
@@ -348,7 +314,28 @@ export async function getLeadApplicationsForJob(req: Request, res: Response) {
                 skip,
                 take: limit,
             }),
+            prisma.userApplication.groupBy({
+                by: ["status"],
+                where: { jobId },
+                _count: { status: true },
+            }),
         ])
+
+        const countsByStatus = statusBuckets.reduce(
+            (acc, bucket) => {
+                const normalizedStatus = (bucket.status || "").toLowerCase()
+                if (normalizedStatus === "shortlisted") {
+                    acc.shortlisted = bucket._count.status
+                } else if (normalizedStatus === "rejected") {
+                    acc.rejected = bucket._count.status
+                } else if (normalizedStatus === "pending") {
+                    acc.pending = bucket._count.status
+                }
+
+                return acc
+            },
+            { shortlisted: 0, rejected: 0, pending: 0 },
+        )
 
         const applicantUserIds = Array.from(new Set(applications.map((application) => application.userId)))
         const applicantProfileIds = Array.from(new Set(applications.map((application) => application.profileId)))
@@ -382,6 +369,12 @@ export async function getLeadApplicationsForJob(req: Request, res: Response) {
             message: "Lead job applications fetched successfully",
             job,
             applications: mappedApplications,
+            stats: {
+                total: totalApplications,
+                shortlisted: countsByStatus.shortlisted,
+                rejected: countsByStatus.rejected,
+                pending: countsByStatus.pending,
+            },
             pagination: {
                 page,
                 limit,
@@ -480,20 +473,21 @@ export async function shortlistTopApplications(req: Request, res: Response) {
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
-        const prompt = `
-You are an ATS shortlist assistant.
-Given one job and candidates, pick top ${targetCount} candidates by match quality.
+                const prompt = `
+You are an ATS ranking assistant.
+Given one job and candidates, assign each candidate a match score and short reason.
 
 Return strict JSON only with this shape:
 {
-  "shortlisted": [
-    { "applicationId": "string", "score": 0, "reason": "short reason" }
-  ]
+    "scored": [
+        { "applicationId": "string", "score": 0, "reason": "short reason" }
+    ]
 }
 
 Rules:
 - score must be integer 0-100
-- return exactly ${targetCount} items if enough candidates exist
+- include exactly one entry per candidate applicationId
+- higher score means better job match
 - no markdown, no extra text
 
 Job:
@@ -514,26 +508,39 @@ ${JSON.stringify(candidatePayload)}
 
         const jsonMatch = raw.match(/\{[\s\S]*\}/)
         const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw) as {
-            shortlisted?: Array<{ applicationId: string; score: number; reason?: string }>
+            scored?: Array<{ applicationId: string; score: number; reason?: string }>
         }
 
         const validIds = new Set(applications.map((application) => application.id))
 
-        const shortlisted = (parsed.shortlisted || [])
+        const scoredCandidates = (parsed.scored || [])
             .filter((item) => validIds.has(item.applicationId))
-            .slice(0, targetCount)
 
-        const shortlistedMap = new Map(
-            shortlisted.map((item) => [item.applicationId, Math.max(0, Math.min(100, Math.round(Number(item.score) || 0)))]),
-        )
+        const dedupedRankedScored = Array.from(
+            new Map(
+                scoredCandidates.map((item) => [
+                    item.applicationId,
+                    {
+                        applicationId: item.applicationId,
+                        score: Math.max(0, Math.min(100, Math.round(Number(item.score) || 0))),
+                        reason: item.reason || "",
+                    },
+                ]),
+            ).values(),
+        ).sort((a, b) => b.score - a.score)
+
+        // Keep shortlist count exact to AI valid results (up to targetCount), do not auto-fill to 10.
+        const shortlisted = dedupedRankedScored.slice(0, targetCount)
+        const shortlistedIds = new Set(shortlisted.map((entry) => entry.applicationId))
+        const scoreMap = new Map(dedupedRankedScored.map((entry) => [entry.applicationId, entry.score]))
 
         await Promise.all(
             applications.map((application) =>
                 prisma.userApplication.update({
                     where: { id: application.id },
-                    data: shortlistedMap.has(application.id)
-                        ? { status: "shortlisted", aiScore: shortlistedMap.get(application.id)! }
-                        : { status: "pending" },
+                    data: shortlistedIds.has(application.id)
+                        ? { status: "shortlisted", aiScore: scoreMap.get(application.id) ?? null }
+                        : { status: "rejected", aiScore: scoreMap.get(application.id) ?? null },
                 }),
             ),
         )

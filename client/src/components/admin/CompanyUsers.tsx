@@ -28,7 +28,7 @@ const CompanyUsers = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
+            <div className="min-h-50 flex justify-center pt-10">
                 <Spinner className="size-7" />
             </div>
         )
@@ -37,7 +37,7 @@ const CompanyUsers = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen flex justify-center pt-10">
+            <div className="min-h-50 flex justify-center pt-10">
                 <p className="text-sm text-destructive">Unable to load company users.</p>
             </div>
         )

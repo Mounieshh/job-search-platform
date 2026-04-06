@@ -8,7 +8,7 @@ export default function TrackApplicationsPage() {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[200px] flex items-center justify-center">
                 <Spinner className="size-7" />
             </div>
         )
@@ -16,7 +16,7 @@ export default function TrackApplicationsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[200px] flex items-center justify-center">
                 <p className="text-muted-foreground">Unable to load tracked applications</p>
             </div>
         )
@@ -24,7 +24,7 @@ export default function TrackApplicationsPage() {
 
     if (!data || data.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-[200px] flex items-center justify-center">
                 <p className="text-muted-foreground">You have not applied to any jobs yet.</p>
             </div>
         )

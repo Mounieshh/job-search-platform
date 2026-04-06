@@ -3,58 +3,80 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { useLeadApprovedJobs } from '@/hooks/queries/lead'
 
-
 const ApprovedByMe = () => {
-
-  const {data, error, isPending } = useLeadApprovedJobs()
-
+  const { data, error, isPending } = useLeadApprovedJobs()
   
   if (isPending) {
     return (
-      <div className="min-h-screen flex justify-center pt-10">
-        <Spinner className="size-7"/>
+      <div className="min-h-[200px] flex justify-center items-center">
+        <Spinner className="size-6 text-gray-400"/>
       </div>
     )
   }
 
   if(error){
     return (
-      <div>
-        No Jobs Approved
+      <div className="text-center text-sm text-gray-500 py-10">
+        You have not reviewed any jobs yet
       </div>
     )
   }
 
   return (
-    <div className="px-3 py-4 sm:px-6 sm:py-6">
-      {data.length === 0 ? (
-        <p className="text-center text-muted-foreground py-10">No approved or rejected jobs found</p>
+    <div className="px-3 py-4 sm:px-6 sm:py-6 max-w-5xl mx-auto">
+      {!data || data.length === 0 ? (
+        <p className="text-center text-sm text-gray-500 py-20">You have not reviewed any jobs yet</p>
       ) : (
-        <Table className="w-full min-w-175 border-t-2">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Sno</TableHead>
-              <TableHead>Job Title</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Job Details</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((job, index) => (
-              <TableRow key={job.id}>
-                <TableCell>{String(index + 1).padStart(2, "0")}</TableCell>
-                <TableCell>{job.roleTitle}</TableCell>
-                <TableCell>{job.companyName}</TableCell>
-                <TableCell>
-                  <Badge className={`rounded-none w-20 ${job.status === "approved" ? "bg-green-700 text-white" : "bg-orange-500 text-white"} uppercase font-semibold`}>
-                    {job.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
+        <>
+          <div className="hidden md:block">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow className="border-b border-gray-200 hover:bg-transparent">
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Job Title</TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Company</TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Date Approved</TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 text-right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((job) => (
+                  <TableRow key={job.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                    <TableCell className="font-medium text-gray-900">{job.roleTitle}</TableCell>
+                    <TableCell className="text-gray-500">{job.companyName}</TableCell>
+                    <TableCell className="text-gray-500">{(job as any).updatedAt ? new Date((job as any).updatedAt).toLocaleDateString() : '-'}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge className={`rounded-full px-2.5 py-0.5 font-medium text-[10px] ${
+                        job.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-100" :
+                        job.status === "rejected" ? "bg-red-100 text-red-800 hover:bg-red-100" :
+                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                      }`}>
+                        {job.status.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="md:hidden flex flex-col">
+            {data.map((job) => (
+              <div key={job.id} className="flex justify-between items-start py-4 border-b border-gray-100">
+                <div>
+                  <p className="font-medium text-sm text-gray-900">{job.roleTitle}</p>
+                  <p className="text-xs text-gray-500 mt-1">{job.companyName}</p>
+                </div>
+                <Badge className={`mt-0.5 rounded-full px-2 py-0.5 font-medium text-[10px] ${
+                  job.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-100" :
+                  job.status === "rejected" ? "bg-red-100 text-red-800 hover:bg-red-100" :
+                  "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                }`}>
+                  {job.status.toUpperCase()}
+                </Badge>
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </>
       )}
     </div>
   )
