@@ -8,7 +8,7 @@ export const postJobSchema = z.object({
 })
 
 export const postTiptapSchema = z.object({
-    url: z.string().min(1, "link needed for submission"),
+    url: z.string().url().min(1, "link needed for submission"),
     description: z.string()
         .min(1, "Description is required")
         .refine(val => val !== '<p></p>', { 

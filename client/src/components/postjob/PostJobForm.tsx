@@ -5,6 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useCreatePostJob } from "@/hooks/mutations/postjob"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 
 interface JobBasicDetailsProps {
@@ -80,10 +81,19 @@ const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input
-                                            placeholder="Employment type..."
-                                            {...field}
-                                        />
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Employment Type"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="Full_Time">Full Time</SelectItem>
+                                                    <SelectItem value="Part_Time">Part Time</SelectItem>
+                                                    <SelectItem value="Contract">Contract</SelectItem>
+                                                    <SelectItem value="Internship">Intership</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

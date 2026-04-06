@@ -6,6 +6,7 @@ import { useSession } from "@/hooks/queries/auth"
 export default function HeroPage() {
 
   const { data: user } = useSession()
+
   return (
     <div>
 
@@ -16,7 +17,6 @@ export default function HeroPage() {
         <div className="border-b mt-20"/>
 
         <AboutSection/>
-        
         </>
       )}
     </div>

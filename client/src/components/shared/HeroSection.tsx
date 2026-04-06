@@ -22,7 +22,7 @@ export default function HeroSection() {
 
           <div className="pt-1 flex justify-center md:justify-start">
             <Link
-              to="/joblistings"
+              to="/browseJobs"
               className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm font-medium text-white bg-primary transition-colors hover:bg-mute"
             >
               View jobs

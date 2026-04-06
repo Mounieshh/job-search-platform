@@ -529,7 +529,6 @@ ${JSON.stringify(candidatePayload)}
             ).values(),
         ).sort((a, b) => b.score - a.score)
 
-        // Keep shortlist count exact to AI valid results (up to targetCount), do not auto-fill to 10.
         const shortlisted = dedupedRankedScored.slice(0, targetCount)
         const shortlistedIds = new Set(shortlisted.map((entry) => entry.applicationId))
         const scoreMap = new Map(dedupedRankedScored.map((entry) => [entry.applicationId, entry.score]))

@@ -3,6 +3,7 @@ import CommunityPostList from "@/components/community/CommunityPostList"
 import { useCommunityPosts } from "@/hooks/queries/community"
 
 export default function CommunityPage() {
+  
   const { data = [] } = useCommunityPosts()
 
   return (

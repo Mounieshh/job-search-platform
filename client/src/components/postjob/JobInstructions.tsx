@@ -59,6 +59,7 @@ export default function JobInstructions({ onBack, onPostJob, jobId }: JobInstruc
                                     placeholder="https://example.com/job/..."
                                     {...field}
                                     className="w-[50%]"
+                                    type="url"
                                 />
                             </FormControl>
                             <FormMessage />

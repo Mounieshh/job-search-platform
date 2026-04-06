@@ -9,7 +9,7 @@ export default function JobsPosted() {
 
     if (isPending) {
         return (
-            <div className="min-h-[200px] flex justify-center items-center">
+            <div className="min-h-50 flex justify-center items-center">
                 <Spinner className="size-6 text-gray-400" />
             </div>
         )
