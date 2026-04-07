@@ -2,12 +2,8 @@ import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import UserProfile from "../models/profile.schema.js";
 import User from "../models/user.schema.js";
-import { leadRequestSchema } from "../validate/lead.zod.js";
-import { LeadRequest } from "../models/leadRequest.schema.js";
-import * as z from "zod"
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { GEMINI_API_KEY } from "../config/env.js";
-
 
 
 export async function getPendingJobApprovals(req: Request, res: Response){
@@ -398,11 +394,16 @@ export async function shortlistTopApplications(req: Request, res: Response) {
         }
 
         if (user.role !== "LEAD") {
-            return res.status(403).json({ message: "Forbidden: Only leads can access this" })
+            return res.status(403).json({ 
+                message: "Forbidden: Only leads can access this" 
+            })
         }
 
+       
         if (!GEMINI_API_KEY) {
-            return res.status(400).json({ message: "Gemini API key is not configured" })
+            return res.status(400).json({ 
+                message: "Gemini API key is not configured" 
+            })
         }
 
         const { jobId } = req.params as { jobId: string }
@@ -419,8 +420,12 @@ export async function shortlistTopApplications(req: Request, res: Response) {
         }
 
         const applications = await prisma.userApplication.findMany({
-            where: { jobId },
-            orderBy: { createdAt: "desc" },
+            where: { 
+                jobId
+            },
+            orderBy: { 
+                createdAt: "desc" 
+            },
         })
 
         if (applications.length === 0) {
@@ -470,27 +475,38 @@ export async function shortlistTopApplications(req: Request, res: Response) {
 
         const targetCount = Math.min(10, candidatePayload.length)
 
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
+        const ai = new GoogleGenAI({})
+        
                 const prompt = `
-You are an ATS ranking assistant.
-Given one job and candidates, assign each candidate a match score and short reason.
+You are an expert ATS (Applicant Tracking System) and technical recruiter with 10+ years of experience.
 
-Return strict JSON only with this shape:
+Your task is to analyze the **Job Description** and multiple **Candidate Profiles**, then provide honest, balanced, and actionable suggestions.
+
+For each candidate, evaluate how well they match the job requirements (skills, experience, education, location, employment type, etc.).
+
+Return **strict JSON only** in this exact shape. Do not include any extra text, markdown, or explanations:
+
 {
-    "scored": [
-        { "applicationId": "string", "score": 0, "reason": "short reason" }
-    ]
+  "scored": [
+    {
+      "applicationId": "string",
+      "score": 85,
+      "reason": "Short, clear reason for the score (1-2 sentences)",
+      "suggestions": "Specific suggestions for the recruiter (e.g., strong in React but weak in TypeScript, recommend asking about leadership experience)"
+    }
+  ]
 }
 
-Rules:
-- score must be integer 0-100
-- include exactly one entry per candidate applicationId
-- higher score means better job match
-- no markdown, no extra text
+Rules you must strictly follow:
+- score must be an integer between 0 and 100
+- Higher score = better overall match for this job
+- Include exactly one object per candidate (do not skip or add extra)
+- Be objective and critical. Do not be overly positive.
+- Focus on real matches: technical skills, years of experience, relevant projects, location, employment type, etc.
+- "reason" should be concise and professional
+- "suggestions" should help the lead/recruiter make a better decision
 
-Job:
+Job Details:
 ${JSON.stringify({
     roleTitle: job.roleTitle,
     companyName: job.companyName,
@@ -499,59 +515,155 @@ ${JSON.stringify({
     description: job.description || "",
 })}
 
-Candidates:
+Candidates Data:
 ${JSON.stringify(candidatePayload)}
 `
 
-        const result = await model.generateContent(prompt)
-        const raw = result.response.text().trim()
+        const result = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json"
+            }
+        })
 
-        const jsonMatch = raw.match(/\{[\s\S]*\}/)
-        const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw) as {
-            scored?: Array<{ applicationId: string; score: number; reason?: string }>
+        if (!result.text) {
+            return res.status(502).json({
+                message: "AI response was empty"
+            })
         }
 
-        const validIds = new Set(applications.map((application) => application.id))
+        const response = JSON.parse(result.text)
 
-        const scoredCandidates = (parsed.scored || [])
-            .filter((item) => validIds.has(item.applicationId))
+        if (!response || !response.scored || !Array.isArray(response.scored)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid AI response format. Expected 'scored' array."
+            });
+        }
 
-        const dedupedRankedScored = Array.from(
-            new Map(
-                scoredCandidates.map((item) => [
-                    item.applicationId,
-                    {
-                        applicationId: item.applicationId,
-                        score: Math.max(0, Math.min(100, Math.round(Number(item.score) || 0))),
-                        reason: item.reason || "",
-                    },
-                ]),
-            ).values(),
-        ).sort((a, b) => b.score - a.score)
-
-        const shortlisted = dedupedRankedScored.slice(0, targetCount)
-        const shortlistedIds = new Set(shortlisted.map((entry) => entry.applicationId))
-        const scoreMap = new Map(dedupedRankedScored.map((entry) => [entry.applicationId, entry.score]))
-
-        await Promise.all(
-            applications.map((application) =>
-                prisma.userApplication.update({
-                    where: { id: application.id },
-                    data: shortlistedIds.has(application.id)
-                        ? { status: "shortlisted", aiScore: scoreMap.get(application.id) ?? null }
-                        : { status: "rejected", aiScore: scoreMap.get(application.id) ?? null },
-                }),
-            ),
+        
+        await prisma.$transaction(
+            response.scored.map((application: any) => prisma.userApplication.update({
+                where: {
+                    id: application.applicationId
+                },
+                data: {
+                    aiScore: application.score,
+                    aiReason: application.reason,
+                    aiSuggestions: application.suggestions,
+                    status: "ai_suggested"
+                }
+            }))
         )
 
+
         return res.status(200).json({
-            message: "Top applications shortlisted successfully",
-            shortlisted,
-            totalApplications: applications.length,
-            shortlistedCount: shortlisted.length,
+            message: "Suggestions for the Applications has been generated",
+            response
         })
+
     } catch (error) {
         console.error("Error in shortlistTopApplications:", error)
         return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
+export async function manualShortlistByLead(req: Request, res: Response){
+    try {
+        const user = (req as any).user
+        const { action, reason, applicationId } = req.body as {
+            action?: string
+            reason?: string
+            applicationId?: string
+        }
+
+
+        if(!user){
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
+        if (user.role !== "LEAD") {
+            return res.status(403).json({ 
+                message: "Forbidden: Only leads can access this" 
+            })
+        }
+
+        if (!applicationId) {
+            return res.status(400).json({ 
+                message: "applicationId is required" 
+            })
+        }
+
+        if (!action || !["shortlist", "reject", "rejected"].includes(action)) {
+            return res.status(400).json({ 
+                message: "Invalid action. Use 'shortlist' or 'reject'" 
+            })
+        }
+
+        const application = await prisma.userApplication.findFirst({
+            where: { id: applicationId }
+        })
+
+        if (!application) {
+            return res.status(404).json({ 
+                message: "Application not found" 
+            })
+        }
+
+        const job = await prisma.postJob.findFirst({
+            where: {
+                id: application.jobId,
+                userId: String(user._id),
+            },
+            select: { id: true },
+        })
+
+        if (!job) {
+            return res.status(403).json({ 
+                message: "You can only review applications for your own posted jobs" 
+            })
+        }
+
+        if (action === "shortlist") {
+            const updated = await prisma.userApplication.update({
+                where: { id: application.id },
+                data: {
+                    status: "shortlisted",
+                    rejectionReason: null,
+                }
+            })
+
+            return res.status(200).json({
+                message: "Application shortlisted successfully",
+                application: updated,
+            })
+        }
+
+        if (!reason?.trim()) {
+            return res.status(400).json({ 
+                message: "Reason is required when rejecting an application" 
+            })
+        }
+
+        const updated = await prisma.userApplication.update({
+            where: { id: application.id },
+            data: {
+                status: "rejected",
+                rejectionReason: reason.trim(),
+            }
+        })
+
+        return res.status(200).json({
+            message: "Application rejected successfully",
+            application: updated,
+        })
+    } catch (error) {
+        console.error("Error in manualShortlistByLead:", error)
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
     }
 }

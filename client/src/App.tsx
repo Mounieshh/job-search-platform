@@ -27,7 +27,7 @@ import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
 import JobsPosted from "./pages/leadSystem/JobsPosted"
-import JobApplicationsByJob from "./pages/leadSystem/JobApplicationsByJob"
+import ManageJobApplications from "./pages/leadSystem/ManageJobApplications"
 import TrackApplicationsPage from "./pages/TrackApplicationsPage"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email", "/auth/password-reset"]
@@ -100,7 +100,7 @@ function AppLayout() {
             <Route path="/lead-approval/:jobId" element={<LeadApprovalPage />} />
             <Route path="/lead/approved-by-me" element={<ApprovedByMe/>}/>
             <Route path="/lead/posted" element={<JobsPosted/>}/>
-            <Route path="/lead/posted/:jobId/applications" element={<JobApplicationsByJob/>}/>
+            <Route path="/lead/posted/:jobId/applications" element={<ManageJobApplications/>}/>
 
 
             {/* --JOB ROUTE COMMON-- */}

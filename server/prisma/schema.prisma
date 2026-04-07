@@ -95,18 +95,26 @@ model UserApplication {
 
   githubLink String?
   resume String
-
   resumeParsedText String?
+
   status String @default("pending")
-  aiScore Int?
 
   jobId String
   job PostJob  @relation(fields: [jobId], references: [id])
 
+  aiScore Int?
+  aiReason String?
+  aiSuggestions String?
+
+
+  shortlistedBy String?
+  shortlistedAt DateTime?
+  rejectionReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([jobId])
   @@index([userId])
+  @@index([status])
 }

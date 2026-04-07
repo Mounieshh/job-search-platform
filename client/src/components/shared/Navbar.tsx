@@ -31,7 +31,7 @@ const Navbar = () => {
   const initial = user?.name?.charAt(0)?.toUpperCase() || "U"
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-[#f9fbfd]">
+    <nav className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-white shadow-2xl">
       <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between gap-4">
 
         <div className="flex items-center gap-3 lg:hidden">
@@ -109,14 +109,14 @@ const Navbar = () => {
                           <li>
                             <SheetClose asChild>
                               <Link to="/lead-approval" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Lead Approval
+                                  Review Queue
                               </Link>
                             </SheetClose>
                           </li>
                           <li>
                             <SheetClose asChild>
                               <Link to="/lead/approved-by-me" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Approved List
+                                  Reviewed Jobs
                               </Link>
                             </SheetClose>
                           </li>
@@ -277,12 +277,12 @@ const Navbar = () => {
                      <>
                         <li>
                         <Link to="/lead-approval" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                                Lead Approval
+                                Review Queue
                             </Link>
                         </li>
                         <li>
                         <Link to="/lead/approved-by-me" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                                Approved List
+                                Reviewed Jobs
                             </Link>
                         </li>
                      </>
