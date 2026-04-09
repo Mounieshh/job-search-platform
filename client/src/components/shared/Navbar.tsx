@@ -363,7 +363,6 @@ const Navbar = () => {
                     <p className="text-xs text-muted-foreground truncate">{user.name ?? "User"}</p>
                   </div>
 
-                  {user.role !== "ADMIN" && (
                     <DropdownMenuItem asChild>
                       <Link
                         to="/profile"
@@ -373,8 +372,7 @@ const Navbar = () => {
                         Profile
                       </Link>
                     </DropdownMenuItem>
-                  )}
-
+                    
                   <DropdownMenuSeparator className="bg-border" />
 
                   <DropdownMenuItem

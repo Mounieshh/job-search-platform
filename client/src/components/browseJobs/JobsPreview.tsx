@@ -47,19 +47,25 @@ const JobsPreview = () => {
             </div>
 
             {data.postedUser?.role === "USER" && data.url && (
-                <Link
-                    to={data.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 text-sm font-semibold bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75"
-                >
-                    Apply <ArrowRight className="size-4" />
-                </Link>
+                <div className="flex flex-wrap items-center gap-3">
+                    <Link
+                        to={data.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center cursor-pointer gap-1.5 px-5 py-2.5 text-sm font-semibold bg-primary text-white rounded-[10px] w-fit transition-all duration-100 active:translate-y-0.75"
+                    >
+                        Apply <ArrowRight className="size-4" />
+                    </Link>
+                    {applicationCount > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                            {applicationCount} {applicationCount === 1 ? "applicant" : "applicants"}
+                        </span>
+                    )}
+                </div>
             )}
 
             {data.postedUser?.role === "LEAD" && (
                 <div className="flex flex-wrap items-center gap-3">
-
                     {alreadyApplied ? (
                         <Badge variant="default" className="rounded-full px-3 py-1 text-xs font-medium">
                             Applied
@@ -87,12 +93,11 @@ const JobsPreview = () => {
                         </Drawer>
                     )}
 
-                    {applicationCount > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                            {applicationCount} {applicationCount === 1 ? "person" : "people"} applied
-                        </span>
-                    )}
-
+                    <span className="text-xs text-muted-foreground">
+                        {applicationCount === 0
+                            ? "Be the first to apply"
+                            : `${applicationCount} ${applicationCount === 1 ? "applicant" : "applicants"}`}
+                    </span>
                 </div>
             )}
 

@@ -38,7 +38,7 @@ const SignInForm = () => {
       <div className="w-full max-w-md">
         <div className="rounded-none p-8">
           <div className="mb-6">
-            <h1 className="text-2xl italic font-semibold text-card-foreground">Sign In</h1>
+            <h1 className="text-2xl font-semibold text-card-foreground">Sign In</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Enter your email below to login to your account
             </p>

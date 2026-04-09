@@ -67,7 +67,7 @@ export default function CompanyList() {
                         >
                             <div className="flex items-center gap-2">
                                 
-                                <span className="font-serif font-semibold italic uppercase tracking-wide text-foreground">
+                                <span className="font-serif font-semibold uppercase tracking-wide text-foreground">
                                     {com.name}
                                 </span>
                             </div>
