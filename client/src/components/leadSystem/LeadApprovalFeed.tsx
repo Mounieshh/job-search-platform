@@ -62,7 +62,7 @@ const LeadApprovalFeed = () => {
                             to={`/lead-approval/${job.id}`}
                             key={job.id}
                             className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                                jobId === job.id ? "bg-amber-50 border-l-2 border-l-amber-500" : "border-l-2 border-l-transparent"
+                                jobId === job.id ? "bg-primary/10 border-l-2 border-l-amber-500" : "border-l-2 border-l-transparent"
                             }`}
                         >
                             <div className="flex justify-between items-start mb-1">

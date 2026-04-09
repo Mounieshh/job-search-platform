@@ -116,7 +116,8 @@ declare global {
         anonymousName: string,
         anonymousAvatar: string,
         likes: number | null,
-        likedBy: string[]
+        likedBy: string[],
+        isHiring: boolean | null
     }
 
     type CompanyList = {

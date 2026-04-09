@@ -18,7 +18,8 @@ import { useLeadRequestStatus } from "@/hooks/queries/profile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, XCircle} from "lucide-react";
+
 
 export default function BecomeLeadPage() {
     const { data: status, isLoading: isStatusLoading } = useLeadRequestStatus();
@@ -55,149 +56,151 @@ export default function BecomeLeadPage() {
     };
 
     return (
-        <div className="min-h-screen overflow-hidden bg-linear-to-b from-background to-muted/30">
-            <div className="mx-auto max-w-5xl px-4 sm:px-6">
-                <div className="mb-5 text-center sm:text-left">
-                    <h1 className="text-2xl font-bold tracking-tight italic">Become a lead</h1>
-                </div>
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 space-y-8">
+            <div>
+                <h1 className="text-2xl font-bold tracking-tight">Become a lead</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                    Leads are trusted hiring managers who post jobs and review applicants directly on the platform.
+                </p>
+            </div>
 
-                <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
-                    <Card className="border-border shadow-md">
-                        <CardHeader className="border-b border-border/60 pb-4">
-                            <CardTitle>Application</CardTitle>
-                            <CardDescription>Use your work email and the legal name of your organization.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                                    <FormField
-                                        control={form.control}
-                                        name="companyName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Company name</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="e.g. Acme Corp" {...field} className="h-11" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="companyEmail"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Work email</FormLabel>
-                                                <FormControl>
-                                                    <Input type="email" placeholder="you@company.com" {...field} className="h-11" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="position"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Your role</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="e.g. HR Manager" {...field} className="h-11" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="message"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Message (optional)</FormLabel>
-                                                <FormControl>
-                                                    <Textarea
-                                                        placeholder="Anything else we should know?"
-                                                        {...field}
-                                                        className="min-h-25 resize-none"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <Button
-                                        type="submit"
-                                        className="h-11 w-full font-semibold"
-                                        disabled={isSubmitting || status?.status === "pending"}
-                                    >
-                                        {isSubmitting ? <Spinner className="mr-2 size-4" /> : null}
-                                        {status?.status === "pending" ? "Request already submitted" : "Submit application"}
-                                    </Button>
-                                </form>
-                            </Form>
-                        </CardContent>
-                    </Card>
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+                <Card className="border-border shadow-md">
+                    <CardHeader className="border-b border-border/60 pb-4">
+                        <CardTitle>Application</CardTitle>
+                        <CardDescription>Use your work email and the legal name of your organization.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                                <FormField
+                                    control={form.control}
+                                    name="companyName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Company name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Acme Corp" {...field} className="h-11" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="companyEmail"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Work email</FormLabel>
+                                            <FormControl>
+                                                <Input type="email" placeholder="you@company.com" {...field} className="h-11" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="position"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Your role</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. HR Manager" {...field} className="h-11" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="message"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Message (optional)</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Anything else we should know?"
+                                                    {...field}
+                                                    className="min-h-25 resize-none"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button
+                                    type="submit"
+                                    className="h-11 w-full font-semibold"
+                                    disabled={isSubmitting || status?.status === "pending"}
+                                >
+                                    {isSubmitting ? <Spinner className="mr-2 size-4" /> : null}
+                                    {status?.status === "pending" ? "Request already submitted" : "Submit application"}
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
 
-                    <div>
-                        <h2 className="mb-1 text-lg font-semibold">Your request status</h2>
-                        
-                        {isStatusLoading ? (
-                            <div className="flex justify-center py-20">
-                                <Spinner className="size-8" />
-                            </div>
-                        ) : status ? (
-                            <Card className="border-border shadow-md">
-                                <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 border-b border-border/60 pb-4">
+                <div>
+                    <h2 className="mb-1 text-lg font-semibold">Your request status</h2>
+                    
+                    {isStatusLoading ? (
+                        <div className="flex justify-center py-20">
+                            <Spinner className="size-8" />
+                        </div>
+                    ) : status ? (
+                        <Card className="border-border shadow-md">
+                            <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 border-b border-border/60 pb-4">
+                                <div>
+                                    <CardTitle className="text-base">Latest request</CardTitle>
+                                    <CardDescription>
+                                        Submitted {new Date(status.createdAt).toLocaleString()}
+                                    </CardDescription>
+                                </div>
+                                <Badge variant="outline" className={`gap-1.5 capitalize ${getStatusColor(status.status)}`}>
+                                    {getStatusIcon(status.status)}
+                                    {status.status}
+                                </Badge>
+                            </CardHeader>
+                            <CardContent className="space-y-4 pt-6">
+                                <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
-                                        <CardTitle className="text-base">Latest request</CardTitle>
-                                        <CardDescription>
-                                            Submitted {new Date(status.createdAt).toLocaleString()}
-                                        </CardDescription>
+                                        <p className="text-xs font-medium uppercase text-muted-foreground">Company</p>
+                                        <p className="mt-1 font-medium">{status.companyName}</p>
                                     </div>
-                                    <Badge variant="outline" className={`gap-1.5 capitalize ${getStatusColor(status.status)}`}>
-                                        {getStatusIcon(status.status)}
-                                        {status.status}
-                                    </Badge>
-                                </CardHeader>
-                                <CardContent className="space-y-4 pt-6">
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div>
-                                            <p className="text-xs font-medium uppercase text-muted-foreground">Company</p>
-                                            <p className="mt-1 font-medium">{status.companyName}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-medium uppercase text-muted-foreground">Position</p>
-                                            <p className="mt-1 font-medium">{status.position}</p>
-                                        </div>
+                                    <div>
+                                        <p className="text-xs font-medium uppercase text-muted-foreground">Position</p>
+                                        <p className="mt-1 font-medium">{status.position}</p>
                                     </div>
-                                    {status.adminComment ? (
-                                        <div className="rounded-md border border-border bg-muted/40 p-4">
-                                            <p className="text-xs font-medium uppercase text-muted-foreground">Note from admin</p>
-                                            <p className="mt-1 text-sm">{status.adminComment}</p>
-                                        </div>
-                                    ) : null}
-                                    {status.status === "approved" ? (
-                                        <p className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-700 dark:text-emerald-400">
-                                            You are approved as a lead. Sign out and sign in again if your role does not update immediately.
-                                        </p>
-                                    ) : null}
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            <Card className="border-dashed">
-                                <CardContent className="flex flex-col items-center py-14 text-center">
-                                    <Clock className="mb-3 size-10 text-muted-foreground/50" />
-                                    <p className="font-medium">No request yet</p>
-                                    <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                                        Complete the form on the left to send your application to the team.
+                                </div>
+                                {status.adminComment ? (
+                                    <div className="rounded-md border border-border bg-muted/40 p-4">
+                                        <p className="text-xs font-medium uppercase text-muted-foreground">Note from admin</p>
+                                        <p className="mt-1 text-sm">{status.adminComment}</p>
+                                    </div>
+                                ) : null}
+                                {status.status === "approved" ? (
+                                    <p className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-700 dark:text-emerald-400">
+                                        You are approved as a lead. Sign out and sign in again if your role does not update immediately.
                                     </p>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </div>
+                                ) : null}
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Card className="border-dashed">
+                            <CardContent className="flex flex-col items-center py-14 text-center">
+                                <Clock className="mb-3 size-10 text-muted-foreground/50" />
+                                <p className="font-medium">No request yet</p>
+                                <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                                    Complete the form on the left to send your application to the team.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
+

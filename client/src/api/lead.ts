@@ -31,6 +31,8 @@ export type LeadApplicationItem = {
     resume: string
     status: string
     aiScore: number | null
+    aiReason: string | null
+    aiSuggestions: string | null
     jobId: string
     createdAt: string
     updatedAt: string
@@ -200,4 +202,25 @@ export async function shortlistTopApplications(jobId: string): Promise<LeadShort
     }
 
     return data as LeadShortlistResponse
+}
+
+export async function manualShortlistApplication(payload: {
+    applicationId: string
+    action: "shortlist" | "reject"
+    reason?: string
+}) {
+    const response = await fetch(`${baseUrl}/api/lead/applications/manual-shortlist`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to update application")
+    }
+
+    return data.application
 }

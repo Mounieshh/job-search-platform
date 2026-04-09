@@ -1,10 +1,10 @@
 import * as z from "zod"
 
 export const postJobSchema = z.object({
-    roleTitle: z.string().min(1, "Press the key much faster").max(100, "Press the Key slower"),
-    companyName: z.string().min(1, "Company Name must be entered").max(100, "Company name should be stronger"),
-    employmentType: z.string().min(1, "Enter the type"),
-    location: z.string().min(1, "Location is to be entered").max(100, "Location is far more away")
+    roleTitle: z.string().min(1, "Role title is required").max(100, "Role title is too long"),
+    companyName: z.string().min(1, "Company name is required").max(100, "Company name is too long"),
+    employmentType: z.string().min(1, "Employment type is required"),
+    location: z.string().min(1, "Location is required").max(100, "Location is too long")
 })
 
 export const postTiptapSchema = z.object({

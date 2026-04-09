@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Heart, Search } from "lucide-react"
+import { Heart, Search, Briefcase } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
@@ -115,6 +115,11 @@ const CommunityPostList = () => {
                             <CardTitle className="text-lg leading-snug">
                                 {post.title || "Untitled post"}
                             </CardTitle>
+                            {post.isHiring && (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full w-fit">
+                                    <Briefcase className="size-3" /> Hiring
+                                </span>
+                            )}
                         </CardHeader>
                         <CardContent className="space-y-4 pt-5">
                             <div className="text-sm leading-6 text-card-foreground/90">

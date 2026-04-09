@@ -8,7 +8,10 @@ import { uploadToCloudinary } from "../utils/upload.js";
 
 export async function createCommunityPost(req: Request, res: Response) {
   try {
-    const parsedData = communitySchema.parse(req.body)
+    const parsedData = communitySchema.parse({
+      ...req.body,
+      isHiring: req.body.isHiring === "true"
+    })
 
     const user = (req as any).user
     if (!user) {
@@ -36,6 +39,7 @@ export async function createCommunityPost(req: Request, res: Response) {
         postedUser: user._id.toString(),
         anonymousName,
         anonymousAvatar,
+        isHiring: parsedData.isHiring ?? false,
       }
     })
 

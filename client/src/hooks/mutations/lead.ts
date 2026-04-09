@@ -1,4 +1,4 @@
-import { reviewJob, shortlistTopApplications } from "@/api/lead"
+import { manualShortlistApplication, reviewJob, shortlistTopApplications } from "@/api/lead"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -27,12 +27,26 @@ export function useShortlistTopApplications() {
     return useMutation({
         mutationFn: ({ jobId }: { jobId: string }) => shortlistTopApplications(jobId),
         onSuccess: (_, variables) => {
-            toast.success("AI shortlist completed")
+            toast.success("AI suggestions generated")
             queryClient.invalidateQueries({ queryKey: ["lead_posted_job_applications", "job", variables.jobId] })
-            queryClient.invalidateQueries({ queryKey: ["tracked_applications"] })
         },
         onError: (error: any) => {
-            toast.error(error.message || "Failed to shortlist applications")
+            toast.error(error.message || "Failed to generate AI suggestions")
+        },
+    })
+}
+
+export function useManualShortlist(jobId: string) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (payload: { applicationId: string; action: "shortlist" | "reject"; reason?: string }) =>
+            manualShortlistApplication(payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead_posted_job_applications", "job", jobId] })
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to update application")
         },
     })
 }

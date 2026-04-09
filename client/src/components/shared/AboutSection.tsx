@@ -26,7 +26,7 @@ const cardContent = [
 
 const AboutSection = () => {
   return (
-    <main className="w-full py-12 sm:py-16">
+    <main className="w-full min-h-105 md:min-h-150 py-12 sm:py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <p className="inline-flex rounded-md border border-border bg-muted/40 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">

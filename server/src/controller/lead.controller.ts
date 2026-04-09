@@ -4,6 +4,7 @@ import UserProfile from "../models/profile.schema.js";
 import User from "../models/user.schema.js";
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_API_KEY } from "../config/env.js";
+import { sendApplicationStatusEmail } from "../utils/mail.js";
 
 
 export async function getPendingJobApprovals(req: Request, res: Response){
@@ -636,6 +637,12 @@ export async function manualShortlistByLead(req: Request, res: Response){
                 }
             })
 
+            const job = await prisma.postJob.findFirst({ where: { id: application.jobId }, select: { id: true, roleTitle: true, companyName: true } })
+            const applicant = await User.findById(application.userId).select("name email")
+            if (applicant && job) {
+                sendApplicationStatusEmail(applicant.email, applicant.name, job.roleTitle, job.companyName, "shortlisted").catch(() => {})
+            }
+
             return res.status(200).json({
                 message: "Application shortlisted successfully",
                 application: updated,
@@ -655,6 +662,12 @@ export async function manualShortlistByLead(req: Request, res: Response){
                 rejectionReason: reason.trim(),
             }
         })
+
+        const rejectedJob = await prisma.postJob.findFirst({ where: { id: application.jobId }, select: { id: true, roleTitle: true, companyName: true } })
+        const rejectedApplicant = await User.findById(application.userId).select("name email")
+        if (rejectedApplicant && rejectedJob) {
+            sendApplicationStatusEmail(rejectedApplicant.email, rejectedApplicant.name, rejectedJob.roleTitle, rejectedJob.companyName, "rejected", reason.trim()).catch(() => {})
+        }
 
         return res.status(200).json({
             message: "Application rejected successfully",

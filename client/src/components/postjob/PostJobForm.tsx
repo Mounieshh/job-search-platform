@@ -16,6 +16,7 @@ const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
 
     const form = useForm({
         resolver: zodResolver(postJobSchema),
+        mode: "onChange",
         defaultValues: {
             roleTitle: "",
             location: "",

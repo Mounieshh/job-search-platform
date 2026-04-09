@@ -65,6 +65,7 @@ export type UserTrackedApplication = {
     resume: string
     status: string
     aiScore: number | null
+    rejectionReason: string | null
     jobId: string
     createdAt: string
     updatedAt: string

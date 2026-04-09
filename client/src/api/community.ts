@@ -37,6 +37,7 @@ export const createCommunityPost = async (formData: CommunityFormData): Promise<
     const payload = new FormData()
     payload.append("content", formData.content)
     payload.append("title", formData.title)
+    payload.append("isHiring", String(formData.isHiring ?? false))
 
     for (const image of formData.images || []) {
         payload.append("images", image)

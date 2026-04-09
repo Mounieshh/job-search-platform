@@ -65,6 +65,8 @@ model CommunityPost {
   anonymousName String
   anonymousAvatar String
 
+  isHiring Boolean? @default(false)
+
   likes Int?
   comments CommentPost[]
   likedBy String[]

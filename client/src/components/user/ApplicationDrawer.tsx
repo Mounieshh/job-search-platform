@@ -40,6 +40,7 @@ const ApplicationDrawer = ({ jobId, onSuccess }: ApplicationDrawerProps) => {
 
     const form = useForm<ApplicationFormData>({
         resolver: zodResolver(applicationSchema),
+        mode: "onChange",
         defaultValues: {
             resume: undefined,
             githubLink: ""

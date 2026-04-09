@@ -17,6 +17,7 @@ const SignUpForm = () => {
 
   const form = useForm<ZodUserRegisterInput, any, ZodUserFormData>({
     resolver: zodResolver(zodRegisterSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       email: "",

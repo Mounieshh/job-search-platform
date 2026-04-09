@@ -18,6 +18,7 @@ const SignInForm = () => {
 
   const form = useForm<ZodUserLoginData>({
     resolver: zodResolver(zodLoginSchema),
+    mode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 

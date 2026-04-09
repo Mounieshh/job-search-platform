@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { ImageIcon, X } from "lucide-react"
+import { ImageIcon, X, Briefcase } from "lucide-react"
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog"
+import { useSession } from "@/hooks/queries/auth"
 
 const CommunityPost = () => {
   const { mutateAsync: createPost, isPending } = useCreateCommunityPost()
+  const { data: user } = useSession()
   const [isOpen, setIsOpen] = useState(false)
 
   const form = useForm<CommunityFormData>({
@@ -20,7 +22,8 @@ const CommunityPost = () => {
     defaultValues: {
       title: "",
       content: "",
-      images: []
+      images: [],
+      isHiring: false
     }
   })
 
@@ -39,7 +42,7 @@ const CommunityPost = () => {
     try {
       await createPost(formData)
       toast.success("Post shared with the community")
-      form.reset({ title: "", content: "", images: [] })
+      form.reset({ title: "", content: "", images: [], isHiring: false })
       setIsOpen(false)
     } catch (error: any) {
       toast.error(error.message || "Unable to create the community post")
@@ -181,6 +184,30 @@ const CommunityPost = () => {
               </div>
 
               <div className="flex gap-2 border-t border-border/30 pt-4 sm:justify-end">
+                {user?.role === "LEAD" && (
+                    <FormField
+                        name="isHiring"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem className="flex-1">
+                                <FormControl>
+                                    <button
+                                        type="button"
+                                        onClick={() => field.onChange(!field.value)}
+                                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm border transition-colors ${
+                                            field.value
+                                                ? "bg-green-50 border-green-200 text-green-700"
+                                                : "border-border text-muted-foreground hover:text-foreground"
+                                        }`}
+                                    >
+                                        <Briefcase className="size-3.5" />
+                                        {field.value ? "Hiring" : "Mark as hiring"}
+                                    </button>
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                )}
                 <Button
                   type="button"
                   variant="outline"

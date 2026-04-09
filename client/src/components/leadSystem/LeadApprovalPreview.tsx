@@ -128,7 +128,7 @@ const LeadApprovalPreview = () => {
                         <Button
                             onClick={handleApprove}
                             disabled={isReviewing}
-                            className="bg-green-600 hover:bg-green-700 text-white shadow-none"
+                            className="bg-primary text-white shadow-none"
                         >
                             <Check className="size-4 mr-1.5" />
                             {isReviewing ? "Approving..." : "Approve"}

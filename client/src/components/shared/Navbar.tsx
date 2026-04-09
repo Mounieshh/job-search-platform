@@ -214,7 +214,6 @@ const Navbar = () => {
           </Sheet>
         </div>
 
-          {/* LEFT — Logo + Nav links */}
           <div className="hidden lg:flex items-center gap-6 shrink-0">
             {/* Logo */}
             <Link
@@ -225,10 +224,8 @@ const Navbar = () => {
               Vettd
             </Link>
 
-            {/* Divider */}
             <span className="w-px h-5 bg-border" />
 
-            {/* Nav links */}
             <ul className="flex items-center gap-1 list-none">
               <li>
                 <Link
@@ -293,11 +290,8 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* RIGHT — Search + icon actions + avatar */}
           <div className="hidden lg:flex items-center gap-2 shrink-0">
 
-            {/* Become a Lead */}
-              
               { user && user.role === "USER" && user.isEmailVerified && (
                 <>
                   <Link
@@ -340,21 +334,18 @@ const Navbar = () => {
                     </>
                   )}
 
-            
-            {/* Divider */}
+    
             <span className="w-px h-5 bg-border mx-1" />
 
-            
-            {/* User section */}
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded hover:bg-accent transition-colors group">
-                    {/* Avatar circle */}
+        
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d9f8e8] border border-[#3ba66b] text-[#16784a] text-xs font-bold select-none">
                       {initial}
                     </span>
-                    {/* Chevron */}
                     <svg
                       className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors"
                       viewBox="0 0 12 12" fill="none"
@@ -372,15 +363,17 @@ const Navbar = () => {
                     <p className="text-xs text-muted-foreground truncate">{user.name ?? "User"}</p>
                   </div>
 
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
-                    >
-                      <UserIcon className="size-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
+                  {user.role !== "ADMIN" && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
+                      >
+                        <UserIcon className="size-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
 
                   <DropdownMenuSeparator className="bg-border" />
 
