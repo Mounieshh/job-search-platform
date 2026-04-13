@@ -32,17 +32,17 @@ const AboutSection = () => {
           <p className="inline-flex rounded-md border border-border bg-muted/40 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             About the community
           </p>
-          <h2 className="mt-4 text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+          <h2 className="mt-4 text-4xl font-semibold leading-tight text-foreground sm:text-4xl">
             <span className="block">How this community</span>
             <span className="block">Help you <span className="font-serif italic">grooow</span></span>
           </h2>
         </div>
 
-        <section className="mt-10 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mt-10 grid grid-cols-1 gap-12 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
         {cardContent.map((detail) => (
           <Card key={detail.id} className="h-full rounded-xl border border-border bg-card shadow-none">
             <CardHeader className="space-y-4">
-              <div className="flex aspect-4/3 w-full items-center justify-center overflow-hidden rounded-md border border-border bg-muted/30 p-4">
+              <div className="flex aspect-4/3 w-full items-center justify-center overflow-hidden rounded-md bg-muted/30 p-4">
                 <img
                   src={detail.imgSrc}
                   alt={detail.alt}

@@ -11,8 +11,18 @@ type PatchJobResponse = {
     job: JobData
 }
 
+type JobApprovalInfo = {
+    id: string
+    jobId: string
+    leadId: string
+    leadName: string
+    action: string
+    reason: string | null
+    createdAt: string
+}
+
 type GetPostJobsResponse = {
-    jobs: JobData[]
+    jobs: (JobData & { approval: JobApprovalInfo | null })[]
 }
 
 type GetApprovedJobResponse = {

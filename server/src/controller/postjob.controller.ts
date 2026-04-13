@@ -197,20 +197,42 @@ export async function getSingleJob(req: Request, res:Response){
 
 export async function getJobs(req: Request, res: Response){
     try {
-        
+        const user = (req as any).user
+
         const listJobs = await prisma.postJob.findMany({
             where: {
-                status: "pending"
+                userId: String(user._id)
             },
             orderBy: {
                 createdAt: "desc"
             }
         })
 
+        const jobIds = listJobs.map(j => j.id)
+
+        const approvals = await prisma.jobApproval.findMany({
+            where: {
+                jobId: { in: jobIds },
+                action: { in: ["approved", "rejected"] }
+            },
+            orderBy: { createdAt: "desc" }
+        })
+
+        const approvalMap = new Map<string, typeof approvals[0]>()
+        for (const approval of approvals) {
+            if (!approvalMap.has(approval.jobId)) {
+                approvalMap.set(approval.jobId, approval)
+            }
+        }
+
+        const jobsWithApproval = listJobs.map(job => ({
+            ...job,
+            approval: approvalMap.get(job.id) ?? null
+        }))
 
         return res.status(200).json({
-            message: "Pending Jobs fetched successfully",
-            jobs: listJobs
+            message: "Jobs fetched successfully",
+            jobs: jobsWithApproval
         })
     } catch (error) {   
         return res.status(500).json({

@@ -4,7 +4,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
 import { useGetpostJobs } from "@/hooks/queries/postjob"
 import StatusBadge from "../shared/StatusBadge"
-import { Search, X } from "lucide-react"
+import { Search, X, UserCheck } from "lucide-react"
 
 const PAGE_SIZE = 6
 
@@ -149,12 +149,32 @@ export default function TrackMyPosts() {
                                     <CardTitle className="text-base leading-snug">{job.roleTitle}</CardTitle>
                                     <CardDescription>{job.companyName}</CardDescription>
                                 </CardHeader>
-                                <CardContent className="flex items-end justify-between">
-                                    <div className="space-y-0.5">
-                                        <p className="text-xs text-muted-foreground">{job.location}</p>
-                                        <p className="text-xs text-muted-foreground">{TYPE_LABELS[job.employmentType] ?? job.employmentType}</p>
+                                <CardContent className="space-y-3">
+                                    <div className="flex items-end justify-between">
+                                        <div className="space-y-0.5">
+                                            <p className="text-xs text-muted-foreground">{job.location}</p>
+                                            <p className="text-xs text-muted-foreground">{TYPE_LABELS[job.employmentType] ?? job.employmentType}</p>
+                                        </div>
+                                        <StatusBadge status={job.status ?? "draft"} />
                                     </div>
-                                    <StatusBadge status={job.status ?? "draft"} />
+
+                                    {(job as any).approval && (
+                                        <div className={`rounded-md px-3 py-2 text-xs space-y-1 ${
+                                            (job as any).approval.action === "approved"
+                                                ? "bg-green-50 border border-green-100"
+                                                : "bg-red-50 border border-red-100"
+                                        }`}>
+                                            <p className={`flex items-center gap-1 font-medium ${
+                                                (job as any).approval.action === "approved" ? "text-green-700" : "text-red-700"
+                                            }`}>
+                                                <UserCheck className="size-3" />
+                                                {(job as any).approval.action === "approved" ? "Approved" : "Rejected"} by {(job as any).approval.leadName}
+                                            </p>
+                                            {(job as any).approval.reason && (
+                                                <p className="text-red-600 leading-relaxed">{(job as any).approval.reason}</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         ))}

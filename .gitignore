@@ -27,3 +27,5 @@ src/lib/generated/
 
 # Mongodb Local
 data/
+
+.kiro
