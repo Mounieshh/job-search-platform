@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { authorize, requireRoute } from "../middleware/auth.middleware.js";
-import { getJobApprovalInfo, getLeadApplicationsForJob, getLeadApprovedJobs, getLeadPostedJobApplications, getPendingJobApprovals, leadReviewJob, listLeadPostedJobs, manualShortlistByLead, shortlistTopApplications } from "../controller/lead.controller.js";
-
+import { getJobApprovalInfo, getLeadApplicationsForJob, getLeadApprovedJobs, getLeadPostedJobApplications, getPendingJobApprovals, leadReviewJob, listLeadPostedJobs, manualShortlistByLead, shortlistTopApplications, closeJobApplications } from "../controller/lead.controller.js";
 
 const leadRouter = Router()
 
@@ -13,11 +12,12 @@ leadRouter.get("/approval-info/:jobId", authorize, requireRoute("LEAD", "ADMIN")
 // lead approved job listing
 leadRouter.get("/approved-by-me", authorize, requireRoute("LEAD"), getLeadApprovedJobs)
 
-//lead posted jobs
+// lead posted jobs
 leadRouter.get("/posted", authorize, requireRoute("LEAD"), listLeadPostedJobs)
 leadRouter.get("/posted/applications", authorize, requireRoute("LEAD"), getLeadPostedJobApplications)
 leadRouter.get("/posted/:jobId/applications", authorize, requireRoute("LEAD"), getLeadApplicationsForJob)
 leadRouter.post("/posted/:jobId/applications/shortlist", authorize, requireRoute("LEAD"), shortlistTopApplications)
+leadRouter.patch("/posted/:jobId/close", authorize, requireRoute("LEAD"), closeJobApplications)
 leadRouter.patch("/applications/manual-shortlist", authorize, requireRoute("LEAD"), manualShortlistByLead)
 
 export default leadRouter

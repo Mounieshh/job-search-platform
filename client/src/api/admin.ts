@@ -82,3 +82,13 @@ export async function adminReviewLeadRequest(requestId: string, action: string, 
     const data = await response.json()
     return data.leadRequest
 }
+
+export async function activateLeadPromotion(): Promise<{ message: string }> {
+    const response = await fetch(`${baseUrl}/api/admin/activate-lead`, {
+        method: "POST",
+        credentials: "include",
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message || "Failed to activate lead account")
+    return data
+}

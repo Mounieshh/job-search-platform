@@ -30,136 +30,74 @@ async function createNotification(
 
 export async function getPendingJobApprovals(req: Request, res: Response){
     try {
-        
         const user = (req as any).user
-
         if(user.role !== "LEAD"){
-            return res.status(401).json({
-                warning: "Authorized People Only"
-            })
+            return res.status(401).json({ warning: "Authorized People Only" })
         }
 
         const pendingJobs = await prisma.postJob.findMany({
-            where: {
-                status: "pending",
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
-
-        const userIds = pendingJobs.map(job => job.userId).filter(Boolean)
-
-        const users = await User.find({
-            _id: { $in: userIds }
-        })
-
-        const userMap = new Map()
-
-        users.forEach(user => {
-            userMap.set(String(user._id), user)
-        })
-
-        const jobsWithUsers = pendingJobs.map(job => ({
-            ...job,
-            user: userMap.get(job.userId) || null
-        }))
-
-        return res.status(200).json({
-            message: "Fetched Pending Jobs Successfully for Lead Approval",
-            jobs: jobsWithUsers
-        })
-
-    } catch (error) {
-        return res.status(500).json({ message: "Internal Server Error" })
-    }
-}
-
-//
-export async function getLeadApprovedJobs(req: Request, res: Response) {
-    try {
-        const user = (req as any).user
-
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ message: "Forbidden" })
-        }
-
-        const approvals = await prisma.jobApproval.findMany({
-            where: {
-                leadId: String(user._id),
-                action: "approved"
-            },
-            include: {
-                job: true
-            },
+            where: { status: "pending" },
             orderBy: { createdAt: "desc" }
         })
 
-        const approvedJobs = approvals.map(approval => ({
-            ...approval.job,
-            approvedAt: approval.createdAt
-        }))
+        const userIds = pendingJobs.map(job => job.userId).filter(Boolean)
+        const users = await User.find({ _id: { $in: userIds } })
+        const userMap = new Map(users.map(u => [String(u._id), u]))
 
         return res.status(200).json({
-            message: "Approved jobs fetched successfully",
-            jobs: approvedJobs
+            message: "Fetched Pending Jobs Successfully for Lead Approval",
+            jobs: pendingJobs.map(job => ({ ...job, user: userMap.get(job.userId ?? "") || null }))
         })
-
     } catch (error) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
-// approve and reject the user requets
+export async function getLeadApprovedJobs(req: Request, res: Response) {
+    try {
+        const user = (req as any).user
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden" })
+
+        const approvals = await prisma.jobApproval.findMany({
+            where: { leadId: String(user._id), action: "approved" },
+            include: { job: true },
+            orderBy: { createdAt: "desc" }
+        })
+
+        return res.status(200).json({
+            message: "Approved jobs fetched successfully",
+            jobs: approvals.map(a => ({ ...a.job, approvedAt: a.createdAt }))
+        })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+
 export async function leadReviewJob(req: Request, res: Response) {
     try {
         const user = (req as any).user
         const { jobId } = req.params as { jobId: string }
         const { action, reason } = req.body
 
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ message: "Forbidden" })
-        }
-
-        if (!["approved", "rejected"].includes(action)) {
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden" })
+        if (!["approved", "rejected"].includes(action))
             return res.status(400).json({ message: "Invalid action. Must be approved or rejected" })
-        }
-
-        if (action === "rejected" && !reason?.trim()) {
+        if (action === "rejected" && !reason?.trim())
             return res.status(400).json({ message: "Reason is required when rejecting a job" })
-        }
 
         const job = await prisma.postJob.findUnique({ where: { id: jobId } })
         if (!job) return res.status(404).json({ message: "Job not found" })
+        if (job.status !== "pending") return res.status(400).json({ message: "Job has already been reviewed" })
 
-        if (job.status !== "pending") {
-            return res.status(400).json({ message: "Job has already been reviewed" })
-        }
+        await prisma.jobApproval.deleteMany({ where: { jobId, action: "pending" } })
 
-        await prisma.jobApproval.deleteMany({
-            where: { jobId, action: "pending" },
-        })
-
-        const updatedJob = await prisma.postJob.update({
-            where: { id: jobId },
-            data: { status: action }
-        })
+        const updatedJob = await prisma.postJob.update({ where: { id: jobId }, data: { status: action } })
 
         await prisma.jobApproval.create({
-            data: {
-                jobId,
-                leadId: String(user._id),
-                leadName: user.name,
-                action,
-                reason: reason ?? null
-            }
+            data: { jobId, leadId: String(user._id), leadName: user.name, action, reason: reason ?? null }
         })
 
-        return res.status(200).json({
-            message: `Job ${action} successfully`,
-            job: updatedJob
-        })
-
+        return res.status(200).json({ message: `Job ${action} successfully`, job: updatedJob })
     } catch (error) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
@@ -168,15 +106,12 @@ export async function leadReviewJob(req: Request, res: Response) {
 export async function getJobApprovalInfo(req: Request, res: Response) {
     try {
         const { jobId } = req.params as { jobId: string }
-
         const approval = await prisma.jobApproval.findFirst({
             where: { jobId, action: { in: ["approved", "rejected"] } },
             orderBy: { createdAt: "desc" }
         })
 
-        if (!approval) {
-            return res.status(200).json({ approval: null })
-        }
+        if (!approval) return res.status(200).json({ approval: null })
 
         return res.status(200).json({
             approval: {
@@ -187,109 +122,57 @@ export async function getJobApprovalInfo(req: Request, res: Response) {
                 createdAt: approval.createdAt
             }
         })
-
     } catch (error) {
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
-//list the lead posted jobs
 export async function listLeadPostedJobs(req: Request, res: Response){
     try {
-        
         const user = (req as any).user
-
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized: No user found" });
-        }
-
-        if(user.role !== "LEAD"){
-            return res.status(401).json({
-                message: "Forbidden: Only leads can access this"
-            })
-        }
-
+        if (!user) return res.status(401).json({ message: "Unauthorized: No user found" })
+        if(user.role !== "LEAD") return res.status(401).json({ message: "Forbidden: Only leads can access this" })
 
         const fetchJobs = await prisma.postJob.findMany({
-            where: {
-                userId: user._id
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
+            where: { userId: user._id },
+            orderBy: { createdAt: "desc" }
         })
 
-        return res.status(200).json({
-            message: "Lead Posted Jobs fetched..",
-            fetchJobs
-        })
+        return res.status(200).json({ message: "Lead Posted Jobs fetched..", fetchJobs })
     } catch (error) {
-        console.error("Error in listLeadPostedJobs:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error" })
     }
 }
 
-//list the applied jobs from the user
 export async function getLeadPostedJobApplications(req: Request, res: Response) {
     try {
         const user = (req as any).user
-
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized" })
-        }
-
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ message: "Forbidden: Only leads can access this" })
-        }
+        if (!user) return res.status(401).json({ message: "Unauthorized" })
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden: Only leads can access this" })
 
         const jobs = await prisma.postJob.findMany({
-            where: {
-                userId: String(user._id)
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
+            where: { userId: String(user._id) },
+            orderBy: { createdAt: "desc" }
         })
 
-        if (jobs.length === 0) {
-            return res.status(200).json({
-                message: "No posted jobs found",
-                jobs: []
-            })
-        }
+        if (jobs.length === 0) return res.status(200).json({ message: "No posted jobs found", jobs: [] })
 
         const jobIds = jobs.map((job) => job.id)
-
         const applications = await prisma.userApplication.findMany({
-            where: {
-                jobId: {
-                    in: jobIds
-                }
-            },
-            select: {
-                jobId: true,
-            }
+            where: { jobId: { in: jobIds } },
+            select: { jobId: true }
         })
+
         const applicationsCountByJob = new Map<string, number>()
-
         for (const application of applications) {
-            const currentCount = applicationsCountByJob.get(application.jobId) || 0
-            applicationsCountByJob.set(application.jobId, currentCount + 1)
+            applicationsCountByJob.set(application.jobId, (applicationsCountByJob.get(application.jobId) || 0) + 1)
         }
-
-        const jobsWithApplications = jobs.map((job) => {
-            return {
-                ...job,
-                applicationsCount: applicationsCountByJob.get(job.id) || 0,
-            }
-        })
 
         return res.status(200).json({
             message: "Lead job applications fetched successfully",
-            jobs: jobsWithApplications,
+            jobs: jobs.map((job) => ({ ...job, applicationsCount: applicationsCountByJob.get(job.id) || 0 }))
         })
     } catch (error) {
-        console.error("Error in getLeadPostedJobApplications:", error)
         return res.status(500).json({ message: "Internal server error" })
     }
 }
@@ -297,190 +180,114 @@ export async function getLeadPostedJobApplications(req: Request, res: Response) 
 export async function getLeadApplicationsForJob(req: Request, res: Response) {
     try {
         const user = (req as any).user
-
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized" })
-        }
-
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ message: "Forbidden: Only leads can access this" })
-        }
+        if (!user) return res.status(401).json({ message: "Unauthorized" })
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden: Only leads can access this" })
 
         const { jobId } = req.params as { jobId: string }
         const page = Math.max(1, Number(req.query.page) || 1)
         const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 10))
         const skip = (page - 1) * limit
 
-        const job = await prisma.postJob.findFirst({
-            where: {
-                id: jobId,
-                userId: String(user._id),
-            },
-        })
-
-        if (!job) {
-            return res.status(404).json({ message: "Job not found for this lead" })
-        }
+        const job = await prisma.postJob.findFirst({ where: { id: jobId, userId: String(user._id) } })
+        if (!job) return res.status(404).json({ message: "Job not found for this lead" })
 
         const [totalApplications, applications, statusBuckets] = await Promise.all([
-            prisma.userApplication.count({
-                where: { jobId },
-            }),
-            prisma.userApplication.findMany({
-                where: { jobId },
-                orderBy: { createdAt: "desc" },
-                skip,
-                take: limit,
-            }),
-            prisma.userApplication.groupBy({
-                by: ["status"],
-                where: { jobId },
-                _count: { status: true },
-            }),
+            prisma.userApplication.count({ where: { jobId } }),
+            prisma.userApplication.findMany({ where: { jobId }, orderBy: { createdAt: "desc" }, skip, take: limit }),
+            prisma.userApplication.groupBy({ by: ["status"], where: { jobId }, _count: { status: true } }),
         ])
 
         const countsByStatus = statusBuckets.reduce(
             (acc, bucket) => {
-                const normalizedStatus = (bucket.status || "").toLowerCase()
-                if (normalizedStatus === "shortlisted") {
-                    acc.shortlisted = bucket._count.status
-                } else if (normalizedStatus === "rejected") {
-                    acc.rejected = bucket._count.status
-                } else if (normalizedStatus === "pending") {
-                    acc.pending = bucket._count.status
-                }
-
+                const s = (bucket.status || "").toLowerCase()
+                if (s === "shortlisted") acc.shortlisted = bucket._count.status
+                else if (s === "rejected") acc.rejected = bucket._count.status
+                else if (s === "pending") acc.pending = bucket._count.status
                 return acc
             },
-            { shortlisted: 0, rejected: 0, pending: 0 },
+            { shortlisted: 0, rejected: 0, pending: 0 }
         )
 
-        const applicantUserIds = Array.from(new Set(applications.map((application) => application.userId)))
-        const applicantProfileIds = Array.from(new Set(applications.map((application) => application.profileId)))
+        const applicantUserIds = Array.from(new Set(applications.map((a) => a.userId)))
+        const applicantProfileIds = Array.from(new Set(applications.map((a) => a.profileId)))
 
         const [applicants, applicantProfiles] = await Promise.all([
-            User.find({
-                _id: { $in: applicantUserIds }
-            }).select("_id name email role"),
-            UserProfile.find({
-                _id: { $in: applicantProfileIds }
-            }).select("_id userId phone location resumeUrl workExperience education skills publicLinks"),
+            User.find({ _id: { $in: applicantUserIds } }).select("_id name email role"),
+            UserProfile.find({ _id: { $in: applicantProfileIds } }).select("_id userId phone location resumeUrl workExperience education skills publicLinks"),
         ])
 
-        const applicantMap = new Map(
-            applicants.map((applicant) => [String(applicant._id), applicant])
-        )
-
-        const profileMap = new Map(
-            applicantProfiles.map((profile) => [String(profile._id), profile])
-        )
-
-        const mappedApplications = applications.map((application) => ({
-            ...application,
-            applicant: applicantMap.get(application.userId) || null,
-            profile: profileMap.get(application.profileId) || null,
-        }))
-
-        const totalPages = Math.max(1, Math.ceil(totalApplications / limit))
+        const applicantMap = new Map(applicants.map((a) => [String(a._id), a]))
+        const profileMap = new Map(applicantProfiles.map((p) => [String(p._id), p]))
 
         return res.status(200).json({
             message: "Lead job applications fetched successfully",
             job,
-            applications: mappedApplications,
-            stats: {
-                total: totalApplications,
-                shortlisted: countsByStatus.shortlisted,
-                rejected: countsByStatus.rejected,
-                pending: countsByStatus.pending,
-            },
-            pagination: {
-                page,
-                limit,
-                total: totalApplications,
-                totalPages,
-            },
+            applications: applications.map((a) => ({ ...a, applicant: applicantMap.get(a.userId) || null, profile: profileMap.get(a.profileId) || null })),
+            stats: { total: totalApplications, ...countsByStatus },
+            pagination: { page, limit, total: totalApplications, totalPages: Math.max(1, Math.ceil(totalApplications / limit)) },
         })
     } catch (error) {
-        console.error("Error in getLeadApplicationsForJob:", error)
         return res.status(500).json({ message: "Internal server error" })
     }
 }
 
-// shortlist logic
+// Close applications for a job
+export async function closeJobApplications(req: Request, res: Response) {
+    try {
+        const user = (req as any).user
+        const { jobId } = req.params as { jobId: string }
+
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden" })
+
+        const job = await prisma.postJob.findFirst({
+            where: { id: jobId, userId: String(user._id) }
+        })
+
+        if (!job) return res.status(404).json({ message: "Job not found or not owned by you" })
+
+        if (job.status === "application_closed") {
+            return res.status(400).json({ message: "Applications are already closed for this job" })
+        }
+
+        const updatedJob = await prisma.postJob.update({
+            where: { id: jobId },
+            data: { status: "application_closed" }
+        })
+
+        return res.status(200).json({ message: "Applications closed successfully", job: updatedJob })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
 export async function shortlistTopApplications(req: Request, res: Response) {
     try {
         const user = (req as any).user
-
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized" })
-        }
-
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ 
-                message: "Forbidden: Only leads can access this" 
-            })
-        }
-
-       
-        if (!GEMINI_API_KEY) {
-            return res.status(400).json({ 
-                message: "Gemini API key is not configured" 
-            })
-        }
+        if (!user) return res.status(401).json({ message: "Unauthorized" })
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden: Only leads can access this" })
+        if (!GEMINI_API_KEY) return res.status(400).json({ message: "Gemini API key is not configured" })
 
         const { jobId } = req.params as { jobId: string }
+        const job = await prisma.postJob.findFirst({ where: { id: jobId, userId: String(user._id) } })
+        if (!job) return res.status(404).json({ message: "Job not found for this lead" })
 
-        const job = await prisma.postJob.findFirst({
-            where: {
-                id: jobId,
-                userId: String(user._id),
-            },
-        })
+        const applications = await prisma.userApplication.findMany({ where: { jobId }, orderBy: { createdAt: "desc" } })
+        if (applications.length === 0) return res.status(200).json({ message: "No applications found for this job", shortlisted: [] })
 
-        if (!job) {
-            return res.status(404).json({ message: "Job not found for this lead" })
-        }
-
-        const applications = await prisma.userApplication.findMany({
-            where: { 
-                jobId
-            },
-            orderBy: { 
-                createdAt: "desc" 
-            },
-        })
-
-        if (applications.length === 0) {
-            return res.status(200).json({
-                message: "No applications found for this job",
-                shortlisted: [],
-            })
-        }
-
-        const applicantUserIds = Array.from(new Set(applications.map((application) => application.userId)))
-        const applicantProfileIds = Array.from(new Set(applications.map((application) => application.profileId)))
+        const applicantUserIds = Array.from(new Set(applications.map((a) => a.userId)))
+        const applicantProfileIds = Array.from(new Set(applications.map((a) => a.profileId)))
 
         const [applicants, applicantProfiles] = await Promise.all([
-            User.find({
-                _id: { $in: applicantUserIds }
-            }).select("_id name email role"),
-            UserProfile.find({
-                _id: { $in: applicantProfileIds }
-            }).select("_id userId phone location resumeUrl workExperience education skills publicLinks"),
+            User.find({ _id: { $in: applicantUserIds } }).select("_id name email role"),
+            UserProfile.find({ _id: { $in: applicantProfileIds } }).select("_id userId phone location resumeUrl workExperience education skills publicLinks"),
         ])
 
-        const applicantMap = new Map(
-            applicants.map((applicant) => [String(applicant._id), applicant])
-        )
-
-        const profileMap = new Map(
-            applicantProfiles.map((profile) => [String(profile._id), profile])
-        )
+        const applicantMap = new Map(applicants.map((a) => [String(a._id), a]))
+        const profileMap = new Map(applicantProfiles.map((p) => [String(p._id), p]))
 
         const candidatePayload = applications.map((application) => {
             const applicant = applicantMap.get(application.userId)
             const profile = profileMap.get(application.profileId)
-
             return {
                 applicationId: application.id,
                 applicantName: applicant?.name || "",
@@ -495,11 +302,8 @@ export async function shortlistTopApplications(req: Request, res: Response) {
             }
         })
 
-        const targetCount = Math.min(10, candidatePayload.length)
-
         const ai = new GoogleGenAI({})
-        
-                const prompt = `
+        const prompt = `
 You are an expert ATS (Applicant Tracking System) and technical recruiter with 10+ years of experience.
 
 Your task is to analyze the **Job Description** and multiple **Candidate Profiles**, then provide honest, balanced, and actionable suggestions.
@@ -529,64 +333,28 @@ Rules you must strictly follow:
 - "suggestions" should help the lead/recruiter make a better decision
 
 Job Details:
-${JSON.stringify({
-    roleTitle: job.roleTitle,
-    companyName: job.companyName,
-    employmentType: job.employmentType,
-    location: job.location,
-    description: job.description || "",
-})}
+${JSON.stringify({ roleTitle: job.roleTitle, companyName: job.companyName, employmentType: job.employmentType, location: job.location, description: job.description || "" })}
 
 Candidates Data:
 ${JSON.stringify(candidatePayload)}
 `
 
-        const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json"
-            }
-        })
-
-        if (!result.text) {
-            return res.status(502).json({
-                message: "AI response was empty"
-            })
-        }
+        const result = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt, config: { responseMimeType: "application/json" } })
+        if (!result.text) return res.status(502).json({ message: "AI response was empty" })
 
         const response = JSON.parse(result.text)
+        if (!response?.scored || !Array.isArray(response.scored))
+            return res.status(400).json({ success: false, message: "Invalid AI response format." })
 
-        if (!response || !response.scored || !Array.isArray(response.scored)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid AI response format. Expected 'scored' array."
-            });
-        }
-
-        
         await prisma.$transaction(
             response.scored.map((application: any) => prisma.userApplication.update({
-                where: {
-                    id: application.applicationId
-                },
-                data: {
-                    aiScore: application.score,
-                    aiReason: application.reason,
-                    aiSuggestions: application.suggestions,
-                    status: "ai_suggested"
-                }
+                where: { id: application.applicationId },
+                data: { aiScore: application.score, aiReason: application.reason, aiSuggestions: application.suggestions, status: "ai_suggested" }
             }))
         )
 
-
-        return res.status(200).json({
-            message: "Suggestions for the Applications has been generated",
-            response
-        })
-
+        return res.status(200).json({ message: "Suggestions for the Applications has been generated", response })
     } catch (error) {
-        console.error("Error in shortlistTopApplications:", error)
         return res.status(500).json({ message: "Internal server error" })
     }
 }
@@ -594,95 +362,44 @@ ${JSON.stringify(candidatePayload)}
 export async function manualShortlistByLead(req: Request, res: Response){
     try {
         const user = (req as any).user
-        const { action, reason, applicationId } = req.body as {
-            action?: string
-            reason?: string
-            applicationId?: string
-        }
+        const { action, reason, applicationId } = req.body as { action?: string; reason?: string; applicationId?: string }
 
+        if(!user) return res.status(401).json({ message: "Unauthorized" })
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden: Only leads can access this" })
+        if (!applicationId) return res.status(400).json({ message: "applicationId is required" })
+        if (!action || !["shortlist", "reject", "rejected"].includes(action))
+            return res.status(400).json({ message: "Invalid action. Use 'shortlist' or 'reject'" })
 
-        if(!user){
-            return res.status(401).json({
-                message: "Unauthorized"
-            })
-        }
-
-        if (user.role !== "LEAD") {
-            return res.status(403).json({ 
-                message: "Forbidden: Only leads can access this" 
-            })
-        }
-
-        if (!applicationId) {
-            return res.status(400).json({ 
-                message: "applicationId is required" 
-            })
-        }
-
-        if (!action || !["shortlist", "reject", "rejected"].includes(action)) {
-            return res.status(400).json({ 
-                message: "Invalid action. Use 'shortlist' or 'reject'" 
-            })
-        }
-
-        const application = await prisma.userApplication.findFirst({
-            where: { id: applicationId }
-        })
-
-        if (!application) {
-            return res.status(404).json({ 
-                message: "Application not found" 
-            })
-        }
+        const application = await prisma.userApplication.findFirst({ where: { id: applicationId } })
+        if (!application) return res.status(404).json({ message: "Application not found" })
 
         const job = await prisma.postJob.findFirst({
-            where: {
-                id: application.jobId,
-                userId: String(user._id),
-            },
-            select: { id: true },
+            where: { id: application.jobId, userId: String(user._id) },
+            select: { id: true }
         })
-
-        if (!job) {
-            return res.status(403).json({ 
-                message: "You can only review applications for your own posted jobs" 
-            })
-        }
+        if (!job) return res.status(403).json({ message: "You can only review applications for your own posted jobs" })
 
         if (action === "shortlist") {
             const updated = await prisma.userApplication.update({
                 where: { id: application.id },
-                data: {
-                    status: "shortlisted",
-                    rejectionReason: null,
-                }
+                data: { status: "shortlisted", rejectionReason: null }
             })
 
-            const job = await prisma.postJob.findFirst({ where: { id: application.jobId }, select: { id: true, roleTitle: true, companyName: true } })
+            const jobData = await prisma.postJob.findFirst({ where: { id: application.jobId }, select: { id: true, roleTitle: true, companyName: true } })
             const applicant = await User.findById(application.userId).select("name email")
-            if (applicant && job) {
-                sendApplicationStatusEmail(applicant.email, applicant.name, job.roleTitle, job.companyName, "shortlisted").catch(() => {})
-                createNotification(application.userId, "shortlisted", job.roleTitle, job.companyName, application.id, job.id).catch(() => {})
+            if (applicant && jobData) {
+                sendApplicationStatusEmail(applicant.email, applicant.name, jobData.roleTitle, jobData.companyName, "shortlisted").catch(() => {})
+                createNotification(application.userId, "shortlisted", jobData.roleTitle, jobData.companyName, application.id, jobData.id).catch(() => {})
             }
 
-            return res.status(200).json({
-                message: "Application shortlisted successfully",
-                application: updated,
-            })
+            return res.status(200).json({ message: "Application shortlisted successfully", application: updated })
         }
 
-        if (!reason?.trim()) {
-            return res.status(400).json({ 
-                message: "Reason is required when rejecting an application" 
-            })
-        }
+        if (!reason?.trim()) return res.status(400).json({ message: "Reason is required when rejecting an application" })
 
         const updated = await prisma.userApplication.update({
             where: { id: application.id },
-            data: {
-                status: "rejected",
-                rejectionReason: reason.trim(),
-            }
+            data: { status: "rejected", rejectionReason: reason.trim() }
         })
 
         const rejectedJob = await prisma.postJob.findFirst({ where: { id: application.jobId }, select: { id: true, roleTitle: true, companyName: true } })
@@ -692,14 +409,8 @@ export async function manualShortlistByLead(req: Request, res: Response){
             createNotification(application.userId, "rejected", rejectedJob.roleTitle, rejectedJob.companyName, application.id, rejectedJob.id).catch(() => {})
         }
 
-        return res.status(200).json({
-            message: "Application rejected successfully",
-            application: updated,
-        })
+        return res.status(200).json({ message: "Application rejected successfully", application: updated })
     } catch (error) {
-        console.error("Error in manualShortlistByLead:", error)
-        return res.status(500).json({
-            message: "Internal Server Error"
-        })
+        return res.status(500).json({ message: "Internal Server Error" })
     }
 }

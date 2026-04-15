@@ -1,4 +1,4 @@
-import { manualShortlistApplication, reviewJob, shortlistTopApplications } from "@/api/lead"
+import { manualShortlistApplication, reviewJob, shortlistTopApplications, closeJobApplications } from "@/api/lead"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -47,6 +47,21 @@ export function useManualShortlist(jobId: string) {
         },
         onError: (error: any) => {
             toast.error(error.message || "Failed to update application")
+        },
+    })
+}
+
+export function useCloseJobApplications() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (jobId: string) => closeJobApplications(jobId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["lead_posted_job_applications"] })
+            toast.success("Applications closed — job removed from browse listings")
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to close applications")
         },
     })
 }

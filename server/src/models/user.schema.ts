@@ -7,6 +7,14 @@ export interface IUser extends Document {
   role: "USER" | "LEAD" | "ADMIN";
   isEmailVerified: boolean;
   mustChangePassword: boolean;
+  pendingLeadPromotion?: {
+    newEmail: string;
+    newPasswordHash: string;
+    companyId: mongoose.Types.ObjectId;
+    companyName: string;
+    position: string;
+    approvedAt: Date;
+  };
   company?: {
     companyId?: mongoose.Types.ObjectId;
     companyName?: string;
@@ -42,6 +50,14 @@ const userSchema = new Schema<IUser>(
     mustChangePassword: {
       type: Boolean,
       default: false,
+    },
+    pendingLeadPromotion: {
+      newEmail: { type: String },
+      newPasswordHash: { type: String },
+      companyId: { type: Schema.Types.ObjectId, ref: "Company" },
+      companyName: { type: String },
+      position: { type: String },
+      approvedAt: { type: Date },
     },
     role: {
       type: String,

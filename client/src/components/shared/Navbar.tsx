@@ -1,6 +1,6 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
 import { Link, useNavigate } from "react-router"
-import { ArrowRight, LogOutIcon, Menu, UserIcon } from "lucide-react"
+import { AppWindowIcon, ArrowRight, LogOutIcon, Menu, UserIcon } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -92,13 +92,6 @@ const Navbar = () => {
                             <SheetClose asChild>
                               <Link to="/my-posts" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
                                 Track Post
-                              </Link>
-                            </SheetClose>
-                          </li>
-                          <li>
-                            <SheetClose asChild>
-                              <Link to="/track-applications" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Applications
                               </Link>
                             </SheetClose>
                           </li>
@@ -270,11 +263,6 @@ const Navbar = () => {
                             Track Post
                         </Link>
                       </li>
-                      <li>
-                        <Link to="/track-applications" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                            Applications
-                        </Link>
-                      </li>
                     </>
                     
                   )}
@@ -384,6 +372,22 @@ const Navbar = () => {
                     
                   <DropdownMenuSeparator className="bg-border" />
 
+                  { user && user.role === "USER" && (
+                    <>
+                      <DropdownMenuItem asChild>
+                          <Link
+                            to="/track-applications"
+                            className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
+                          >
+                            <AppWindowIcon className="size-4" />
+                            Applications
+                          </Link>
+                        </DropdownMenuItem>
+                    </>
+                  )}
+
+                  <DropdownMenuSeparator className="bg-border"/>
+
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="flex items-center gap-2 cursor-pointer text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2"
@@ -391,7 +395,11 @@ const Navbar = () => {
                     <LogOutIcon className="size-4" />
                     Logout
                   </DropdownMenuItem>
+
+                  
                 </DropdownMenuContent>
+
+
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">

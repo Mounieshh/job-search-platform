@@ -40,7 +40,7 @@ export default function ChangePasswordPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="min-h-150 flex items-center justify-center bg-background px-4">
             <div className="w-full max-w-sm space-y-6">
                 <div className="flex flex-col items-center gap-3 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">

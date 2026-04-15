@@ -240,6 +240,10 @@ export async function createApplication(req: Request, res: Response){
     if (!existingJob) {
       return res.status(404).json({ message: "Job not found" })
     }
+
+    if (existingJob.status === "application_closed") {
+      return res.status(400).json({ message: "Applications are closed for this job" })
+    }
     
     const parsedData = applicationSchema.parse(req.body)
 

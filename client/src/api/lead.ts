@@ -217,10 +217,16 @@ export async function manualShortlistApplication(payload: {
     })
 
     const data = await response.json().catch(() => ({}))
-
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to update application")
-    }
-
+    if (!response.ok) throw new Error(data.message || "Failed to update application")
     return data.application
+}
+
+export async function closeJobApplications(jobId: string): Promise<JobData> {
+    const response = await fetch(`${baseUrl}/api/lead/posted/${jobId}/close`, {
+        method: "PATCH",
+        credentials: "include",
+    })
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(data.message || "Failed to close applications")
+    return data.job
 }

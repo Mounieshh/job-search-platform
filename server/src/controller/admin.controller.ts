@@ -141,7 +141,7 @@ export async function adminApprovetoUser(req: Request, res: Response) {
             const existingUser = await User.findById(leadRequest.userId)
             if (!existingUser) return res.status(404).json({ message: "User not found." })
 
-            // 1. Use the company email from the lead request as the new login email
+            // 1. Generate new credentials
             const newEmail = leadRequest.companyEmail.toLowerCase().trim()
             const plainPassword = crypto.randomBytes(10).toString("base64url").slice(0, 14)
             const hashedPassword = await bcrypt.hash(plainPassword, 12)
@@ -159,10 +159,7 @@ export async function adminApprovetoUser(req: Request, res: Response) {
                 promotedBy: admin._id,
             })
 
-            // 3. Invalidate all existing sessions
-            await Session.deleteMany({ userId: String(existingUser._id) })
-
-            // 4. Upsert company
+            // 3. Upsert company
             const companyName = leadRequest.companyName.trim()
             const uid = leadRequest.userId
             let company = await Company.findOne({ name: new RegExp("^" + escapeRegex(companyName) + "$", "i") })
@@ -185,17 +182,15 @@ export async function adminApprovetoUser(req: Request, res: Response) {
                 await company.save()
             }
 
-            // 5. Update user with company email, new password, role, mustChangePassword
+            // 4. Stage the promotion — don't apply yet, user must confirm manually
             await User.findByIdAndUpdate(leadRequest.userId, {
-                role: "LEAD",
-                email: newEmail,
-                password: hashedPassword,
-                isEmailVerified: true,
-                mustChangePassword: true,
-                company: {
+                pendingLeadPromotion: {
+                    newEmail,
+                    newPasswordHash: hashedPassword,
                     companyId: company._id,
                     companyName: company.name,
                     position: leadRequest.position,
+                    approvedAt: new Date(),
                 },
             })
 
@@ -205,11 +200,11 @@ export async function adminApprovetoUser(req: Request, res: Response) {
             leadRequest.processedBy = admin._id
             await leadRequest.save()
 
-            // 6. Send new credentials email (fire-and-forget)
+            // 5. Send credentials email (fire-and-forget)
             sendLeadCredentialsEmail(newEmail, existingUser.name, plainPassword, companyName, leadRequest.position).catch(() => {})
 
             return res.status(200).json({
-                message: "Lead request approved. New credentials sent to the lead's company email.",
+                message: "Lead request approved. Credentials staged — user must activate manually.",
                 leadRequest,
             })
         }
@@ -224,6 +219,46 @@ export async function adminApprovetoUser(req: Request, res: Response) {
         return res.status(200).json({ message: "Lead request rejected successfully", leadRequest })
     } catch (error) {
         console.error("adminApprovetoUser error:", error)
+        return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+
+// User activates their own lead promotion (deletes old creds, applies new ones)
+export async function activateLeadPromotion(req: Request, res: Response) {
+    try {
+        const user = (req as any).user
+
+        const freshUser = await User.findById(user._id)
+        if (!freshUser) return res.status(404).json({ message: "User not found." })
+
+        const pending = freshUser.pendingLeadPromotion
+        if (!pending?.newEmail) {
+            return res.status(400).json({ message: "No pending lead promotion found." })
+        }
+
+        // Apply the staged promotion
+        await User.findByIdAndUpdate(user._id, {
+            role: "LEAD",
+            email: pending.newEmail,
+            password: pending.newPasswordHash,
+            isEmailVerified: true,
+            mustChangePassword: true,
+            company: {
+                companyId: pending.companyId,
+                companyName: pending.companyName,
+                position: pending.position,
+            },
+            $unset: { pendingLeadPromotion: 1 },
+        })
+
+        // Invalidate all sessions — user must log in with new credentials
+        await Session.deleteMany({ userId: String(user._id) })
+
+        return res.status(200).json({
+            message: "Lead account activated. Please log in with your new credentials.",
+        })
+    } catch (error) {
+        console.error("activateLeadPromotion error:", error)
         return res.status(500).json({ message: "Internal Server Error" })
     }
 }
