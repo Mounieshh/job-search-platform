@@ -370,10 +370,10 @@ const Navbar = () => {
                       </Link>
                     </DropdownMenuItem>
                     
-                  <DropdownMenuSeparator className="bg-border" />
 
                   { user && user.role === "USER" && (
                     <>
+                      <DropdownMenuSeparator className="bg-border" />
                       <DropdownMenuItem asChild>
                           <Link
                             to="/track-applications"
