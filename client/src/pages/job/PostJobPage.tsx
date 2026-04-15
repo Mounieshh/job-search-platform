@@ -73,19 +73,37 @@ export default function JobBasicDetails() {
                 )}
                 {currentStep === 3 && (
                     <div className="text-center py-10">
-                        <h2 className="mb-4">
-                            {user && user.role === "USER" && (
-                                <>
-                                    <div>
-                                        <h2 className="text-2xl font-bold mb-2">Job Request Sent (Pending Approval)</h2>
-                                    </div>
-                                    <p className="text-lg font-normal mb-3">You can view or manage the job in the Track My Posts Page</p>
-                                    <Link to="/my-posts" className="bg-primary text-white px-3 py-2 rounded-lg">
-                                        View Posted Jobs
+                        {user?.role === "USER" && (
+                            <div className="flex flex-col items-center gap-4">
+                                <h2 className="text-2xl font-bold">Job Request Sent</h2>
+                                <p className="text-muted-foreground">Your job is pending approval. You can track it below.</p>
+                                <Link to="/my-posts" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                    View Posted Jobs
+                                </Link>
+                            </div>
+                        )}
+                        {user?.role === "LEAD" && (
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+                                    <svg className="size-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-bold">Job Posted Successfully</h2>
+                                <p className="text-muted-foreground text-sm">Your job is now live and pending lead review.</p>
+                                <div className="flex gap-3 mt-2">
+                                    <button
+                                        onClick={() => navigate("?step=1")}
+                                        className="border border-border px-4 py-2 rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+                                    >
+                                        Post another job
+                                    </button>
+                                    <Link to="/lead/posted" className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                        View posted jobs
                                     </Link>
-                                </>
-                            )}
-                        </h2>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </article>

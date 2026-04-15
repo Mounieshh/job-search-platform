@@ -6,13 +6,17 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useCreatePostJob } from "@/hooks/mutations/postjob"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-
+import { useLeadRequestStatus } from "@/hooks/queries/profile"
+import { useEffect } from "react"
+import { Lock } from "lucide-react"
 
 interface JobBasicDetailsProps {
     onNext: (jobId: string) => void
 }
 
 const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
+    const { data: leadStatus } = useLeadRequestStatus()
+    const isApprovedLead = leadStatus?.status === "approved"
 
     const form = useForm({
         resolver: zodResolver(postJobSchema),
@@ -25,6 +29,13 @@ const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
         }
     })
 
+    // Pre-fill and lock company name once lead status loads
+    useEffect(() => {
+        if (isApprovedLead && leadStatus?.companyName) {
+            form.setValue("companyName", leadStatus.companyName, { shouldValidate: true })
+        }
+    }, [isApprovedLead, leadStatus?.companyName, form])
+
     const { mutateAsync: postNewJob } = useCreatePostJob()
 
     const onSubmit = async (formData: PostJobFormData) => {
@@ -33,10 +44,8 @@ const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
     }
 
     return (
-
         <>
         <div className="min-h-fit flex items-center justify-center px-4 py-10 bg-background">
-
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -106,11 +115,23 @@ const PostJobForm = ({onNext}: JobBasicDetailsProps) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input
-                                            placeholder="Company name..."
-                                            {...field}
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Company name..."
+                                                {...field}
+                                                readOnly={isApprovedLead}
+                                                className={isApprovedLead ? "pr-9 bg-muted text-muted-foreground cursor-not-allowed" : ""}
+                                            />
+                                            {isApprovedLead && (
+                                                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                                            )}
+                                        </div>
                                     </FormControl>
+                                    {isApprovedLead && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Locked to your verified company — {leadStatus?.companyEmail}
+                                        </p>
+                                    )}
                                     <FormMessage />
                                 </FormItem>
                             )}

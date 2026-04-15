@@ -18,8 +18,7 @@ import { useLeadRequestStatus } from "@/hooks/queries/profile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { CheckCircle2, Clock, XCircle} from "lucide-react";
-
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
 
 export default function BecomeLeadPage() {
     const { data: status, isLoading: isStatusLoading } = useLeadRequestStatus();
@@ -135,7 +134,11 @@ export default function BecomeLeadPage() {
                                     disabled={isSubmitting || status?.status === "pending"}
                                 >
                                     {isSubmitting ? <Spinner className="mr-2 size-4" /> : null}
-                                    {status?.status === "pending" ? "Request already submitted" : "Submit application"}
+                                    {isSubmitting
+                                        ? "Submitting…"
+                                        : status?.status === "pending"
+                                        ? "Request already submitted"
+                                        : "Submit application"}
                                 </Button>
                             </form>
                         </Form>
@@ -144,7 +147,7 @@ export default function BecomeLeadPage() {
 
                 <div>
                     <h2 className="mb-1 text-lg font-semibold">Your request status</h2>
-                    
+
                     {isStatusLoading ? (
                         <div className="flex justify-center py-20">
                             <Spinner className="size-8" />
@@ -158,7 +161,7 @@ export default function BecomeLeadPage() {
                                         Submitted {new Date(status.createdAt).toLocaleString()}
                                     </CardDescription>
                                 </div>
-                                <Badge variant="outline" className={`gap-1.5 capitalize ${getStatusColor(status.status)}`}>
+                                <Badge variant="outline" className={["gap-1.5 capitalize", getStatusColor(status.status)].join(" ")}>
                                     {getStatusIcon(status.status)}
                                     {status.status}
                                 </Badge>
@@ -182,7 +185,7 @@ export default function BecomeLeadPage() {
                                 ) : null}
                                 {status.status === "approved" ? (
                                     <p className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-700 dark:text-emerald-400">
-                                        You are approved as a lead. Sign out and sign in again if your role does not update immediately.
+                                        You are approved as a lead. Check your work email for your new login credentials.
                                     </p>
                                 ) : null}
                             </CardContent>
@@ -203,4 +206,3 @@ export default function BecomeLeadPage() {
         </div>
     );
 }
-

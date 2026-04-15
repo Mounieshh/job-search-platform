@@ -26,9 +26,13 @@ import PasswordResetPage from "./pages/auth/PasswordResetPage"
 import BecomeLeadPage from "./pages/BecomeLeadPage"
 import AdminLeadRequestsPage from "./pages/adminSystem/AdminLeadRequestsPage"
 import AdminDashboardPage from "./pages/adminSystem/AdminDashboardPage"
+import AdminCommunityPage from "./pages/adminSystem/AdminCommunityPage"
+import CredentialHistoryPage from "./pages/adminSystem/CredentialHistoryPage"
 import JobsPosted from "./pages/leadSystem/JobsPosted"
 import ManageJobApplications from "./pages/leadSystem/ManageJobApplications"
 import TrackApplicationsPage from "./pages/TrackApplicationsPage"
+import NotificationsPage from "./pages/NotificationsPage"
+import ChangePasswordPage from "./pages/auth/ChangePasswordPage"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email", "/auth/password-reset"]
 
@@ -42,6 +46,16 @@ function AppLayout() {
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
+    )
+  }
+
+  // Force password change before accessing anything else
+  if (user?.mustChangePassword && pathname !== "/auth/change-password") {
+    return (
+      <Routes>
+        <Route path="*" element={<Navigate to="/auth/change-password" replace />} />
+        <Route path="/auth/change-password" element={<ChangePasswordPage />} />
+      </Routes>
     )
   }
 
@@ -64,12 +78,14 @@ function AppLayout() {
             <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
             <Route path="/auth/password-reset" element={<PasswordResetPage />} />
             <Route path="/auth/password-reset/:token" element={<PasswordResetPage />} />
+            <Route path="/auth/change-password" element={<ChangePasswordPage />} />
 
             {/* --USER ROUTE-- */}
 
             <Route path="/profile" element={<ProfilePage/>}/>
             <Route path="/my-posts" element={<TrackMyPosts/>}/>
             <Route path="/track-applications" element={<TrackApplicationsPage/>}/>
+            <Route path="/notifications" element={<NotificationsPage/>}/>
             <Route path="/become-a-lead" element={<BecomeLeadPage />} />
 
             
@@ -86,6 +102,8 @@ function AppLayout() {
             <Route path="/admin/requests" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed" element={<AdminApprovedPage/>}/>
             <Route path="/admin/lead-requests" element={<AdminLeadRequestsPage />} />
+            <Route path="/admin/community" element={<AdminCommunityPage />} />
+            <Route path="/admin/credential-history" element={<CredentialHistoryPage />} />
 
             <Route path="/admin/requests/:jobId" element={<AdminRequestsPage/>}/>
             <Route path="/admin/reviewed/:jobId" element={<AdminApprovedPage />} />

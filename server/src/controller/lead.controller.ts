@@ -5,6 +5,27 @@ import User from "../models/user.schema.js";
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_API_KEY } from "../config/env.js";
 import { sendApplicationStatusEmail } from "../utils/mail.js";
+import { Notification } from "../models/notification.schema.js";
+
+async function createNotification(
+    userId: string,
+    type: "shortlisted" | "rejected",
+    jobTitle: string,
+    companyName: string,
+    applicationId: string,
+    jobId: string
+) {
+    const isShortlisted = type === "shortlisted"
+    await Notification.create({
+        userId,
+        type,
+        title: isShortlisted ? "You've been shortlisted!" : "Application update",
+        message: isShortlisted
+            ? `Your application for ${jobTitle} at ${companyName} has been shortlisted. The team will reach out soon.`
+            : `Your application for ${jobTitle} at ${companyName} was not selected at this time.`,
+        meta: { jobId, applicationId, jobTitle, companyName },
+    })
+}
 
 
 export async function getPendingJobApprovals(req: Request, res: Response){
@@ -641,6 +662,7 @@ export async function manualShortlistByLead(req: Request, res: Response){
             const applicant = await User.findById(application.userId).select("name email")
             if (applicant && job) {
                 sendApplicationStatusEmail(applicant.email, applicant.name, job.roleTitle, job.companyName, "shortlisted").catch(() => {})
+                createNotification(application.userId, "shortlisted", job.roleTitle, job.companyName, application.id, job.id).catch(() => {})
             }
 
             return res.status(200).json({
@@ -667,6 +689,7 @@ export async function manualShortlistByLead(req: Request, res: Response){
         const rejectedApplicant = await User.findById(application.userId).select("name email")
         if (rejectedApplicant && rejectedJob) {
             sendApplicationStatusEmail(rejectedApplicant.email, rejectedApplicant.name, rejectedJob.roleTitle, rejectedJob.companyName, "rejected", reason.trim()).catch(() => {})
+            createNotification(application.userId, "rejected", rejectedJob.roleTitle, rejectedJob.companyName, application.id, rejectedJob.id).catch(() => {})
         }
 
         return res.status(200).json({

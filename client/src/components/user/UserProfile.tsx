@@ -11,9 +11,10 @@ import {
   Trash2,
   User,
   Globe,
+  Briefcase,
 } from "lucide-react"
 import { toast } from "sonner"
-import { useUserProfile } from "@/hooks/queries/profile"
+import { useUserProfile, useLeadRequestStatus } from "@/hooks/queries/profile"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -74,6 +75,7 @@ function resumeLabel(url: string) {
 
 const UserProfile = () => {
   const { data, isPending, error } = useUserProfile()
+  const { data: leadStatus } = useLeadRequestStatus()
   const { mutateAsync: saveProfile, isPending: isSavingProfile } = useUpdateProfile()
 
   const [identityOpen, setIdentityOpen] = useState(false)
@@ -136,6 +138,7 @@ const UserProfile = () => {
 
   const { user, profile } = data
   const handle = user.email?.split("@")[0] ?? "user"
+  const isLead = user.role === "LEAD"
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6">
@@ -150,6 +153,11 @@ const UserProfile = () => {
                 <div className="min-w-0 pt-1 text-left">
                   <h2 className="text-2xl font-bold tracking-tight text-foreground">{user.name}</h2>
                   <p className="text-sm text-muted-foreground">@{handle}</p>
+                  {isLead && (
+                    <Badge className="mt-1.5 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-100 text-xs font-medium">
+                      Lead
+                    </Badge>
+                  )}
                 </div>
               </div>
               <Button
@@ -163,6 +171,28 @@ const UserProfile = () => {
               </Button>
             </CardHeader>
           </Card>
+
+          {isLead && leadStatus?.status === "approved" && (
+            <Card className="border-border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold">Company information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex gap-3">
+                  <Building2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <span>{leadStatus.companyName}</span>
+                </div>
+                <div className="flex gap-3">
+                  <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <span className="break-all">{leadStatus.companyEmail}</span>
+                </div>
+                <div className="flex gap-3">
+                  <Briefcase className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <span>{leadStatus.position}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="border-border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
@@ -287,31 +317,20 @@ const UserProfile = () => {
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <Card className="border-zinc-800 bg-zinc-900 text-zinc-50 shadow-md">
-            <CardContent className="py-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="relative mx-auto flex h-16 w-16 shrink-0 items-center justify-center sm:mx-0">
-                  <svg className="absolute inset-0 -rotate-90 text-primary" viewBox="0 0 36 36" aria-hidden>
-                    <circle cx="18" cy="18" r="15.9155" pathLength="100" fill="none" className="stroke-zinc-700" strokeWidth="2.5" />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      pathLength="100"
-                      fill="none"
-                      className="stroke-primary transition-[stroke-dashoffset] duration-300 ease-out"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeDasharray="100"
-                      strokeDashoffset={100 - pct}
-                    />
-                  </svg>
-                  <span className="relative text-sm font-semibold tabular-nums">{pct}%</span>
+          <Card className="border-border shadow-sm">
+            <CardContent className="py-5">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-foreground">Profile completion</p>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">{pct}%</span>
                 </div>
-                <div className="min-w-0 flex-1 text-center sm:text-left">
-                  <p className="text-sm font-medium text-zinc-100">Profile completion</p>
-                  <p className="mt-1 text-xs text-zinc-400">Add your missing details to strengthen your profile.</p>
+                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
+                <p className="text-xs text-muted-foreground">Add your missing details to strengthen your profile.</p>
               </div>
             </CardContent>
           </Card>

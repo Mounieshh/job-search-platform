@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password: string;
   role: "USER" | "LEAD" | "ADMIN";
   isEmailVerified: boolean;
+  mustChangePassword: boolean;
   company?: {
     companyId?: mongoose.Types.ObjectId;
     companyName?: string;
@@ -35,6 +36,10 @@ const userSchema = new Schema<IUser>(
     },
 
     isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    mustChangePassword: {
       type: Boolean,
       default: false,
     },

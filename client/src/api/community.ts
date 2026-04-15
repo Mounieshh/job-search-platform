@@ -71,3 +71,28 @@ export async function likePost(postId: string | undefined){
     const data: LikePostResponse = await response.json()
     return data
 }
+
+export async function updateCommunityPost(postId: string, body: { title?: string; content?: string }): Promise<CommunityPostItem> {
+    const response = await fetch(`${baseUrl}/api/community/${postId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(data.message || "Failed to update post")
+    return data.post ?? data
+}
+
+export async function deleteCommunityPost(postId: string): Promise<void> {
+    const response = await fetch(`${baseUrl}/api/community/${postId}`, {
+        method: "DELETE",
+        credentials: "include",
+    })
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || "Failed to delete post")
+    }
+}

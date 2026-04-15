@@ -1,4 +1,4 @@
-import { getCompanies, getCompanyUsers } from "@/api/company";
+import { getCompanies, getCompanyUsers, getCredentialHistory } from "@/api/company";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCompanyList(){
@@ -13,5 +13,12 @@ export function useCompanyUsers(companyId: string | undefined){
         queryKey: ["company_users_list", companyId],
         queryFn: () => getCompanyUsers(companyId),
         enabled: Boolean(companyId),
+    })
+}
+
+export function useCredentialHistory() {
+    return useQuery({
+        queryKey: ["credential_history"],
+        queryFn: getCredentialHistory,
     })
 }

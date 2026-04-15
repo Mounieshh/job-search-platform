@@ -140,7 +140,8 @@ declare global {
         name: string,
         email: string,
         role: "USER" | "LEAD" | "ADMIN",
-        isEmailVerified: boolean
+        isEmailVerified: boolean,
+        mustChangePassword?: boolean,
     }
 
     type LeadRequest = {

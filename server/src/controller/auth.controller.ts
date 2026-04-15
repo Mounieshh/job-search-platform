@@ -113,6 +113,7 @@ export async function loginUser(req: Request, res: Response) {
         email: existingUser.email,
         role: existingUser.role,
         isEmailVerified: existingUser.isEmailVerified,
+        mustChangePassword: existingUser.mustChangePassword ?? false,
       },
     });
   } catch (error: any) {
@@ -268,5 +269,24 @@ export async function resetPassword(req: Request, res: Response){
       return res.status(500).json({
         message: "Internal Server Error"
       })
+  }
+}
+
+// Forced password change (first login after lead promotion)
+export async function changePassword(req: Request, res: Response) {
+  try {
+    const user = (req as any).user
+    const { newPassword } = req.body
+
+    if (!newPassword || String(newPassword).length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." })
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 12)
+    await User.findByIdAndUpdate(user._id, { password: hashed, mustChangePassword: false })
+
+    return res.status(200).json({ message: "Password changed successfully." })
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" })
   }
 }

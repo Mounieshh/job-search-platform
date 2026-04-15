@@ -69,6 +69,63 @@ export async function sendResetEmail(email: string, token: string) {
     });
 }
 
+export async function sendLeadCredentialsEmail(
+    newEmail: string,
+    name: string,
+    plainPassword: string,
+    companyName: string,
+    position: string
+) {
+    const loginUrl = `${APP_ORIGIN}/auth/login`
+
+    await transporter.sendMail({
+        from: FROM,
+        to: newEmail,
+        subject: "You're now a Lead on Vettd — your new login credentials",
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="border-left: 4px solid #10b981; padding-left: 20px; margin-bottom: 24px;">
+                    <h1 style="color: #111; margin: 0 0 6px 0;">Welcome to the Lead program, ${name}!</h1>
+                    <p style="color: #555; margin: 0;">Your account has been upgraded to Lead status.</p>
+                </div>
+
+                <p style="font-size: 15px; color: #444; line-height: 1.6;">
+                    Your admin has approved your request to represent <strong>${companyName}</strong> as <strong>${position}</strong>.
+                    A new set of login credentials has been created for your lead account.
+                </p>
+
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 24px 0;">
+                    <p style="margin: 0 0 12px 0; font-weight: 700; color: #111; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">Your new login credentials</p>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-size: 14px; width: 100px;">Email</td>
+                            <td style="padding: 8px 0; color: #111; font-size: 14px; font-weight: 600;">${newEmail}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Password</td>
+                            <td style="padding: 8px 0; color: #111; font-size: 14px; font-weight: 600; font-family: monospace; letter-spacing: 0.05em;">${plainPassword}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p style="font-size: 13px; color: #ef4444; line-height: 1.5;">
+                    Your previous login credentials have been deactivated. Please use the credentials above going forward.
+                    We recommend changing your password after your first login.
+                </p>
+
+                <div style="margin-top: 28px;">
+                    <a href="${loginUrl}" style="display: inline-block; padding: 12px 28px; background-color: #111; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                        Log in to Vettd
+                    </a>
+                </div>
+
+                <p style="font-size: 12px; color: #9ca3af; margin-top: 32px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+                    This is an automated message from Vettd. If you did not expect this, please contact support immediately.
+                </p>
+            </div>
+        `,
+    })
+}
 export async function sendApplicationStatusEmail(
     email: string,
     applicantName: string,

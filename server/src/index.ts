@@ -17,6 +17,7 @@ import communityRouter from "./routes/community.route.js"
 import userRouter from "./routes/profile.route.js"
 import postJobRouter from "./routes/postjob.route.js"
 import adminRouter from "./routes/admin.route.js"
+import notificationRouter from "./routes/notification.route.js"
 import { fileURLToPath } from "node:url"
 import path from "node:path"
 import fs from "node:fs"
@@ -125,6 +126,7 @@ app.use("/api/community", communityRouter)
 app.use("/api/user", userRouter)
 app.use("/api/jobs", postJobRouter)
 app.use("/api/admin", adminRouter)
+app.use("/api/notifications", notificationRouter)
 
 async function startServer() {
     try {

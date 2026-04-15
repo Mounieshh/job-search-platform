@@ -55,3 +55,24 @@ export async function getAdminCompanyDirectory(): Promise<AdminCompanyDirectoryI
     const data = await response.json()
     return data.companies ?? []
 }
+
+export type CredentialHistoryItem = {
+    _id: string
+    userId: { _id: string; name: string; email: string; role: string } | null
+    previousEmail: string
+    newEmail: string
+    companyName: string
+    position: string
+    promotedAt: string
+    promotedBy: { _id: string; name: string; email: string } | null
+}
+
+export async function getCredentialHistory(): Promise<CredentialHistoryItem[]> {
+    const response = await fetch(`${baseUrl}/api/admin/credential-history`, {
+        method: "GET",
+        credentials: "include",
+    })
+    if (!response.ok) throw new Error("Failed to fetch credential history")
+    const data = await response.json()
+    return data.history ?? []
+}

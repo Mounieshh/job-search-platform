@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet"
+import NotificationBell from "./NotificationBell"
 
 const Navbar = () => {
   const { data: user } = useSession()
@@ -173,6 +174,13 @@ const Navbar = () => {
                         <SheetClose asChild>
                           <Link to="/profile" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
                             Profile
+                          </Link>
+                        </SheetClose>
+                      </li>
+                      <li>
+                        <SheetClose asChild>
+                          <Link to="/notifications" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
+                            Notifications
                           </Link>
                         </SheetClose>
                       </li>
@@ -337,6 +345,7 @@ const Navbar = () => {
     
             <span className="w-px h-5 bg-border mx-1" />
 
+            {user && <NotificationBell />}
 
             {user ? (
               <DropdownMenu>

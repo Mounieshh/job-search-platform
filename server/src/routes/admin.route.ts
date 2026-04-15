@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { authorize, requireRoute } from "../middleware/auth.middleware.js";
-import { adminReviewJob, getAdminApprovedJobs, getAdminPendingJobs, getAdminSingleJob, adminApprovetoUser, getUserRequestForLeadToAdmin } from "../controller/admin.controller.js";
+import { adminReviewJob, getAdminApprovedJobs, getAdminPendingJobs, getAdminSingleJob, adminApprovetoUser, getUserRequestForLeadToAdmin, getCredentialHistory } from "../controller/admin.controller.js";
 
 const adminRouter = Router()
-
 
 adminRouter.get("/jobs/pending", authorize, requireRoute("ADMIN"), getAdminPendingJobs)
 adminRouter.get("/jobs/reviewed", authorize, requireRoute("ADMIN"), getAdminApprovedJobs)
@@ -12,5 +11,7 @@ adminRouter.get("/job/preview/:jobId", authorize, requireRoute("ADMIN"), getAdmi
 
 adminRouter.get("/lead-requests", authorize, requireRoute("ADMIN"), getUserRequestForLeadToAdmin)
 adminRouter.patch("/lead-requests/:requestId", authorize, requireRoute("ADMIN"), adminApprovetoUser)
+
+adminRouter.get("/credential-history", authorize, requireRoute("ADMIN"), getCredentialHistory)
 
 export default adminRouter

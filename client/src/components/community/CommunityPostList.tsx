@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react"
-import { Heart, Search, Briefcase } from "lucide-react"
+import { Heart, Search, Briefcase, Pencil, Trash2 } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter as DialogFoot, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { useCommunityPosts } from "@/hooks/queries/community"
-import { useLikePost } from "@/hooks/mutations/community"
+import { useDeleteCommunityPost, useLikePost, useUpdateCommunityPost } from "@/hooks/mutations/community"
 import { useSession } from "@/hooks/queries/auth"
 import { Input } from "../ui/input"
+import { Button } from "../ui/button"
+import { Textarea } from "../ui/textarea"
 
 const PREVIEW_LENGTH = 150
 
@@ -26,9 +28,16 @@ const CommunityPostList = () => {
 
     const { data = [], isPending, error } = useCommunityPosts()
     const { mutateAsync: likePost } = useLikePost()
+    const { mutate: deletePost, isPending: isDeleting } = useDeleteCommunityPost()
+    const { mutate: updatePost, isPending: isUpdating } = useUpdateCommunityPost()
     const { data: user } = useSession()
     const [selectedPost, setSelectedPost] = useState<CommunityPostItem | null>(null)
+    const [editPost, setEditPost] = useState<CommunityPostItem | null>(null)
+    const [editTitle, setEditTitle] = useState("")
+    const [editContent, setEditContent] = useState("")
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
+    const isAdmin = user?.role === "ADMIN"
 
     const [searchText, setSearchText] = useState("")
 
@@ -107,9 +116,37 @@ const CommunityPostList = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <span className="shrink-0 border border-border px-2 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                                <div className="flex shrink-0 items-center gap-1">
+                                    {(isAdmin || user?.id === post.postedUser) && (
+                                        <>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                                onClick={() => {
+                                                    setEditPost(post)
+                                                    setEditTitle(post.title ?? "")
+                                                    setEditContent(post.content)
+                                                }}
+                                            >
+                                                <Pencil className="size-3.5" />
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                                onClick={() => setDeleteConfirmId(post.id)}
+                                            >
+                                                <Trash2 className="size-3.5" />
+                                            </Button>
+                                        </>
+                                    )}
+                                    <span className="border border-border px-2 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
                                         {formatPostDate(post.createdAt)}
-                                </span>
+                                    </span>
+                                </div>
                             </div>
 
                             <CardTitle className="text-lg leading-snug">
@@ -206,6 +243,73 @@ const CommunityPostList = () => {
                     ))}
                 </div>
             )}
+        </DialogContent>
+    </Dialog>
+
+    {/* Edit dialog */}
+    <Dialog open={!!editPost} onOpenChange={(open) => { if (!open) setEditPost(null) }}>
+        <DialogContent className="rounded-none max-w-lg">
+            <DialogHeader>
+                <DialogTitle>Edit post</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+                <Input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Title"
+                    className="rounded-none"
+                />
+                <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    placeholder="Content"
+                    className="rounded-none min-h-32 resize-none"
+                />
+            </div>
+            <DialogFoot className="gap-2 sm:gap-0">
+                <Button variant="outline" className="rounded-none" onClick={() => setEditPost(null)}>
+                    Cancel
+                </Button>
+                <Button
+                    className="rounded-none"
+                    disabled={isUpdating || !editContent.trim()}
+                    onClick={() => {
+                        if (!editPost) return
+                        updatePost(
+                            { postId: editPost.id, title: editTitle, content: editContent },
+                            { onSuccess: () => setEditPost(null) }
+                        )
+                    }}
+                >
+                    {isUpdating ? "Saving..." : "Save"}
+                </Button>
+            </DialogFoot>
+        </DialogContent>
+    </Dialog>
+
+    {/* Delete confirm dialog */}
+    <Dialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null) }}>
+        <DialogContent className="rounded-none max-w-sm">
+            <DialogHeader>
+                <DialogTitle>Delete post?</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
+            <DialogFoot className="gap-2 sm:gap-0">
+                <Button variant="outline" className="rounded-none" onClick={() => setDeleteConfirmId(null)}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="destructive"
+                    className="rounded-none"
+                    disabled={isDeleting}
+                    onClick={() => {
+                        if (!deleteConfirmId) return
+                        deletePost(deleteConfirmId, { onSuccess: () => setDeleteConfirmId(null) })
+                    }}
+                >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
+            </DialogFoot>
         </DialogContent>
     </Dialog>
     </>
