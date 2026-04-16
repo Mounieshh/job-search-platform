@@ -54,7 +54,7 @@ export function IdentityEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<IdentityFormData>({
     resolver: zodResolver(identitySchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: { name },
   })
 
@@ -121,7 +121,7 @@ export function PersonalEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<PersonalFormData>({
     resolver: zodResolver(personalSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: { email, phone: phone ?? "", location: location ?? "" },
   })
 
@@ -214,7 +214,7 @@ export function SkillsEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<SkillsFormData>({
     resolver: zodResolver(skillsFormSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: { skillsText: skills.join(", ") },
   })
 
@@ -282,7 +282,7 @@ export function WorkExperienceEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<WorkExperienceFormData>({
     resolver: zodResolver(workExperienceFormSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: { items: [] },
   })
   const { fields, append, remove } = useFieldArray({
@@ -475,7 +475,7 @@ export function EducationEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<EducationFormData>({
     resolver: zodResolver(educationFormSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: { items: [] },
   })
   const { fields, append, remove } = useFieldArray({
@@ -685,7 +685,7 @@ export function PublicLinksEditDialog({
   const { mutate, isPending } = useUpdateProfile()
   const form = useForm<PublicLinksFormData>({
     resolver: zodResolver(publicLinksFormSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       github: publicLinks.github ?? "",
       linkedin: publicLinks.linkedin ?? "",

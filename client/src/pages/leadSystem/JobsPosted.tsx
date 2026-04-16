@@ -37,7 +37,7 @@ export default function JobsPosted() {
 
     return (
         <div className="space-y-4 max-w-6xl mx-auto p-4 sm:p-6">
-            <h1 className="text-xl font-semibold tracking-tight">Your posted jobs</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Your posted jobs</h1>
 
             {!data || data.length === 0 ? (
                 <p className="text-sm text-gray-500 py-20 text-center">You have not posted any jobs yet.</p>

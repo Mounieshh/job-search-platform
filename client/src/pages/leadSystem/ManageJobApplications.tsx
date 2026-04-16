@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { LeadApplicationItem } from "@/api/lead"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 
 const PAGE_SIZE = 10
 const STATUS_OPTIONS = ["all", "pending", "shortlisted", "rejected"]
@@ -203,6 +204,7 @@ export default function ManageJobApplications() {
     const { data, isPending, error } = useLeadJobApplications(jobId, 1, 1000)
     const { mutate: generateSuggestions, isPending: isGenerating } = useShortlistTopApplications()
     const { mutate: manualAction, isPending: isUpdating } = useManualShortlist(jobId ?? "")
+    const applications = data?.applications ?? []
 
     const handleShortlist = (applicationId: string) => {
         manualAction(
@@ -229,24 +231,6 @@ export default function ManageJobApplications() {
         )
     }
 
-    if (isPending) {
-        return (
-            <div className="min-h-50 flex justify-center items-center">
-                <Spinner className="size-6 text-gray-400" />
-            </div>
-        )
-    }
-
-    if (error || !data) {
-        return (
-            <div className="min-h-50 flex justify-center items-center text-sm text-gray-500">
-                Unable to load applications for this job
-            </div>
-        )
-    }
-
-    const { job, applications, stats } = data
-
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase()
         return applications.filter((app) => {
@@ -263,6 +247,24 @@ export default function ManageJobApplications() {
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
     const hasActiveFilters = search || statusFilter !== "all"
+
+    if (isPending) {
+        return (
+            <div className="min-h-50 flex justify-center items-center">
+                <Spinner className="size-6 text-gray-400" />
+            </div>
+        )
+    }
+
+    if (error || !data) {
+        return (
+            <div className="min-h-50 flex justify-center items-center text-sm text-gray-500">
+                Unable to load applications for this job
+            </div>
+        )
+    }
+
+    const { job, stats } = data
 
     const resetFilters = () => {
         setSearch("")
@@ -284,19 +286,46 @@ export default function ManageJobApplications() {
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">{job.roleTitle}</h1>
                         <p className="text-sm text-gray-400 mt-0.5">
-                            {job.companyName} &middot; {job.location} &middot; {job.employmentType}
+                            {job.companyName} &middot; {job.location} &middot; {job.employmentType.replace("_", " ")}
                         </p>
                     </div>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={isGenerating || applications.length === 0}
-                        onClick={() => jobId && generateSuggestions({ jobId })}
-                        className="shrink-0 gap-1.5 shadow-none"
-                    >
-                        <Sparkles className="size-3.5" />
-                        {isGenerating ? "Analyzing..." : "AI Suggestions"}
-                    </Button>
+
+                    <div className="flex gap-3">
+                        <Drawer direction="right">
+                            <DrawerTrigger asChild>
+                                <Button 
+                                variant="outline"
+                                className="shrink-0 gap-1.5 shadow-none"
+                                size="sm"
+                                >
+                                    Job Description
+                                </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                                <DrawerHeader>
+                                    <DrawerTitle className="text-xl">
+                                        Description
+                                    </DrawerTitle>
+                                </DrawerHeader>
+                                <div className="no-scrollbar overflow-y-auto px-4">
+                                    <div
+                                    dangerouslySetInnerHTML={{__html: job.description}}
+                                    className="text-justify"
+                                    />
+                                </div>
+                            </DrawerContent>
+                        </Drawer>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={isGenerating || applications.length === 0}
+                            onClick={() => jobId && generateSuggestions({ jobId })}
+                            className="shrink-0 gap-1.5 shadow-none"
+                        >
+                            <Sparkles className="size-3.5" />
+                            {isGenerating ? "Analyzing..." : "AI Suggestions"}
+                        </Button>
+                    </div>
                 </div>
             </div>
 

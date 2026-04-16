@@ -29,6 +29,7 @@ export interface IUserProfile extends Document {
   userId: mongoose.Types.ObjectId;
   phone?: string;         
   location?: string;
+  avatarUrl?: string;
   resumeUrl?: string;
   resumeParsedText?: string;
   workExperience: IWorkExperience[];
@@ -72,6 +73,7 @@ const profileSchema = new Schema<IUserProfile>(
     },
     phone: { type: String },
     location: { type: String },
+    avatarUrl: { type: String },
     resumeUrl: { type: String },
     resumeParsedText: { type: String },
     workExperience: [workExperienceSchema],

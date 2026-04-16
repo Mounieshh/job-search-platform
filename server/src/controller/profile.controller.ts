@@ -88,6 +88,9 @@ export async function updateUserProfile(req: Request, res: Response) {
     if (parsed.workExperience !== undefined)
       $set.workExperience = parsed.workExperience;
     if (parsed.education !== undefined) $set.education = parsed.education;
+    if (parsed.avatarUrl !== undefined && parsed.avatarUrl !== "") {
+      $set.avatarUrl = parsed.avatarUrl;
+    }
     if (parsed.publicLinks !== undefined) {
       const existing = await UserProfile.findOne({ userId: user._id }).lean();
       const merged: Record<string, string> = {
@@ -105,8 +108,11 @@ export async function updateUserProfile(req: Request, res: Response) {
 
     const updateOps: { $set?: Record<string, unknown>; $unset?: Record<string, 1> } =
       {};
+    const $unset: Record<string, 1> = {};
     if (Object.keys($set).length > 0) updateOps.$set = $set;
-    if (parsed.resumeUrl === "") updateOps.$unset = { resumeUrl: 1 };
+    if (parsed.avatarUrl === "") $unset.avatarUrl = 1;
+    if (parsed.resumeUrl === "") $unset.resumeUrl = 1;
+    if (Object.keys($unset).length > 0) updateOps.$unset = $unset;
 
     if (updateOps.$set || updateOps.$unset) {
       await UserProfile.findOneAndUpdate(

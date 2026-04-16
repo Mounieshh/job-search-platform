@@ -35,6 +35,7 @@ export const updateProfileSchema = z
     workExperience: z.array(workExperienceItemSchema).optional(),
     education: z.array(educationItemSchema).optional(),
     publicLinks: publicLinksSchema.optional(),
+    avatarUrl: z.union([z.string().url(), z.literal("")]).optional(),
     resumeUrl: z.union([z.string().url(), z.literal("")]).optional(),
   })
   .strict()

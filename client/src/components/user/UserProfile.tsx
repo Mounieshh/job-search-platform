@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import {
   Building2,
   Eye,
@@ -12,6 +12,7 @@ import {
   User,
   Globe,
   Briefcase,
+  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { useUserProfile, useLeadRequestStatus } from "@/hooks/queries/profile"
@@ -27,7 +28,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { uploadResumePdfToSupabase } from "@/lib/cloudinaryUpload"
+import {
+  deleteAvatarPhotoFromSupabase,
+  uploadAvatarPhotoToSupabase,
+  uploadResumePdfToSupabase,
+} from "@/lib/cloudinaryUpload"
 import {
   IdentityEditDialog,
   PersonalEditDialog,
@@ -88,6 +93,8 @@ const UserProfile = () => {
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false)
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [isUploadingToCloudinary, setIsUploadingToCloudinary] = useState(false)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement | null>(null)
 
   const pct = useMemo(() => {
     if (!data) return 0
@@ -95,6 +102,8 @@ const UserProfile = () => {
   }, [data])
 
   const busyResume = isUploadingToCloudinary || isSavingProfile
+  const busyAvatar = isUploadingAvatar || isSavingProfile
+  const currentAvatarUrl = data?.profile?.avatarUrl || ""
 
   const handleResumeUpload = async () => {
     if (!resumeFile) {
@@ -112,6 +121,55 @@ const UserProfile = () => {
       toast.error(msg)
     } finally {
       setIsUploadingToCloudinary(false)
+    }
+  }
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose a valid image file")
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be 5MB or less")
+      return
+    }
+
+    setIsUploadingAvatar(true)
+    try {
+      const uploadedUrl = await uploadAvatarPhotoToSupabase(file)
+      await saveProfile({ avatarUrl: uploadedUrl })
+
+      if (currentAvatarUrl && currentAvatarUrl !== uploadedUrl) {
+        try {
+          await deleteAvatarPhotoFromSupabase(currentAvatarUrl)
+        } catch (cleanupError) {
+          console.warn("Failed to delete previous avatar from Supabase:", cleanupError)
+        }
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Could not upload avatar"
+      toast.error(msg)
+    } finally {
+      setIsUploadingAvatar(false)
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = ""
+      }
+    }
+  }
+
+  const handleAvatarRemove = async () => {
+    if (!currentAvatarUrl) return
+
+    setIsUploadingAvatar(true)
+    try {
+      await saveProfile({ avatarUrl: "" })
+      await deleteAvatarPhotoFromSupabase(currentAvatarUrl)
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Could not remove avatar"
+      toast.error(msg)
+    } finally {
+      setIsUploadingAvatar(false)
     }
   }
 
@@ -147,12 +205,52 @@ const UserProfile = () => {
           <Card className="border-border shadow-sm">
             <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-2">
               <div className="flex min-w-0 flex-1 items-start gap-4">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-border bg-muted">
-                  <User className="size-9 text-muted-foreground" />
+                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-border bg-muted">
+                  {profile.avatarUrl ? (
+                    <img
+                      src={profile.avatarUrl}
+                      alt="Profile avatar"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="size-10 text-muted-foreground" />
+                  )}
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const selected = e.target.files?.[0]
+                      if (selected) {
+                        void handleAvatarUpload(selected)
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="absolute -right-1 -bottom-1 h-7 w-7 rounded-full border border-border"
+                    disabled={busyAvatar}
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    {busyAvatar ? <Loader2 className="size-3.5 animate-spin" /> : <Pencil className="size-3.5" />}
+                  </Button>
                 </div>
                 <div className="min-w-0 pt-1 text-left">
                   <h2 className="text-2xl font-bold tracking-tight text-foreground">{user.name}</h2>
                   <p className="text-sm text-muted-foreground">@{handle}</p>
+                  {profile.avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={() => void handleAvatarRemove()}
+                      disabled={busyAvatar}
+                      className="mt-1 text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-60"
+                    >
+                      Remove photo
+                    </button>
+                  )}
                   {isLead && (
                     <Badge className="mt-1.5 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-100 text-xs font-medium">
                       Lead

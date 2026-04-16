@@ -41,6 +41,7 @@ declare global {
         userId: string
         phone?: string
         location?: string
+        avatarUrl?: string
         resumeUrl?: string
         resumeParsedText?: string
         workExperience: WorkExperience[]

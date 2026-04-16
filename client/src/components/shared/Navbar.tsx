@@ -1,4 +1,5 @@
 import { useLogout, useSession } from "@/hooks/queries/auth"
+import { useUserProfile } from "@/hooks/queries/profile"
 import { Link, useNavigate } from "react-router"
 import { AppWindowIcon, ArrowRight, LogOutIcon, Menu, UserIcon } from "lucide-react"
 import {
@@ -21,15 +22,16 @@ import NotificationBell from "./NotificationBell"
 
 const Navbar = () => {
   const { data: user } = useSession()
+  const { data: profileData } = useUserProfile()
   const { mutateAsync: logout } = useLogout()
   const navigate = useNavigate()
+  const initial = user?.name?.trim()?.charAt(0)?.toUpperCase() || "U"
+  const avatarUrl = profileData?.profile?.avatarUrl
 
   const handleLogout = async () => {
     await logout()
     navigate("/auth/login")
   }
-
-  const initial = user?.name?.charAt(0)?.toUpperCase() || "U"
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-white shadow-2xl">
@@ -339,10 +341,18 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded hover:bg-accent transition-colors group">
-        
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d9f8e8] border border-[#3ba66b] text-[#16784a] text-xs font-bold select-none">
-                      {initial}
-                    </span>
+
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt="Profile avatar"
+                        className="h-7 w-7 rounded-full border border-[#3ba66b] object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d9f8e8] border border-[#3ba66b] text-[#16784a] text-xs font-bold select-none">
+                        {initial}
+                      </span>
+                    )}
                     <svg
                       className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors"
                       viewBox="0 0 12 12" fill="none"
