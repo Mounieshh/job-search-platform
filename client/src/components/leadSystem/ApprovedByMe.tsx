@@ -1,20 +1,27 @@
-import { Spinner } from '@/components/ui/spinner'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { useLeadApprovedJobs } from '@/hooks/queries/lead'
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { useLeadApprovedJobs } from "@/hooks/queries/lead"
 
 const ApprovedByMe = () => {
   const { data, error, isPending } = useLeadApprovedJobs()
-  
+
   if (isPending) {
     return (
-      <div className="min-h-[200px] flex justify-center items-center">
-        <Spinner className="size-6 text-gray-400"/>
+      <div className="min-h-50 flex justify-center items-center">
+        <Spinner className="size-6 text-gray-400" />
       </div>
     )
   }
 
-  if(error){
+  if (error) {
     return (
       <div className="text-center text-sm text-gray-500 py-10">
         You have not reviewed any jobs yet
@@ -23,33 +30,58 @@ const ApprovedByMe = () => {
   }
 
   return (
-    <div className="px-3 py-4 sm:px-6 sm:py-6 max-w-5xl mx-auto">
+    <div className="px-3 py-4 sm:px-6 sm:py-6 max-w-6xl mx-auto">
       {!data || data.length === 0 ? (
-        <p className="text-center text-sm text-gray-500 py-20">You have not reviewed any jobs yet</p>
+        <p className="text-center text-sm text-gray-500 py-20">
+          You have not reviewed any jobs yet
+        </p>
       ) : (
         <>
           <div className="hidden md:block">
             <Table className="w-full">
               <TableHeader>
                 <TableRow className="border-b border-gray-200 hover:bg-transparent">
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Job Title</TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Company</TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500">Date Approved</TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 text-right">Status</TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                    Job Title
+                  </TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                    Company
+                  </TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                    Date Approved
+                  </TableHead>
+                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-right">
+                    Status
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.map((job) => (
-                  <TableRow key={job.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                    <TableCell className="font-medium text-gray-900">{job.roleTitle}</TableCell>
-                    <TableCell className="text-gray-500">{job.companyName}</TableCell>
-                    <TableCell className="text-gray-500">{(job as any).updatedAt ? new Date((job as any).updatedAt).toLocaleDateString() : '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <Badge className={`rounded-full px-2.5 py-0.5 font-medium text-[10px] ${
-                        job.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-100" :
-                        job.status === "rejected" ? "bg-red-100 text-red-800 hover:bg-red-100" :
-                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                      }`}>
+                  <TableRow
+                    key={job.id}
+                    className="border-b border-gray-100 hover:bg-gray-50/70 transition-colors"
+                  >
+                    <TableCell className="px-4 py-3 font-medium text-gray-900">
+                      {job.roleTitle}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500">
+                      {job.companyName}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500">
+                      {(job as any).updatedAt
+                        ? new Date((job as any).updatedAt).toLocaleDateString()
+                        : "-"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right">
+                      <Badge
+                        className={`rounded-full px-2.5 py-0.5 font-medium text-[10px] ${
+                          job.status === "approved"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : job.status === "rejected"
+                            ? "bg-red-100 text-red-800 hover:bg-red-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        }`}
+                      >
                         {job.status.toUpperCase()}
                       </Badge>
                     </TableCell>
@@ -61,16 +93,25 @@ const ApprovedByMe = () => {
 
           <div className="md:hidden flex flex-col">
             {data.map((job) => (
-              <div key={job.id} className="flex justify-between items-start py-4 border-b border-gray-100">
+              <div
+                key={job.id}
+                className="flex justify-between items-start py-4 border-b border-gray-100"
+              >
                 <div>
-                  <p className="font-medium text-sm text-gray-900">{job.roleTitle}</p>
+                  <p className="font-medium text-sm text-gray-900">
+                    {job.roleTitle}
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">{job.companyName}</p>
                 </div>
-                <Badge className={`mt-0.5 rounded-full px-2 py-0.5 font-medium text-[10px] ${
-                  job.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-100" :
-                  job.status === "rejected" ? "bg-red-100 text-red-800 hover:bg-red-100" :
-                  "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                }`}>
+                <Badge
+                  className={`mt-0.5 rounded-full px-2 py-0.5 font-medium text-[10px] ${
+                    job.status === "approved"
+                      ? "bg-green-100 text-green-800 hover:bg-green-100"
+                      : job.status === "rejected"
+                      ? "bg-red-100 text-red-800 hover:bg-red-100"
+                      : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                  }`}
+                >
                   {job.status.toUpperCase()}
                 </Badge>
               </div>

@@ -1,17 +1,20 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useParams, Link } from "react-router"
-import { ArrowLeft, Github, FileText, Sparkles, ChevronDown, ChevronUp, Check, X } from "lucide-react"
+import { ArrowLeft, Github, FileText, Sparkles, ChevronDown, ChevronUp, Check, X, Search } from "lucide-react"
 import { useLeadJobApplications } from "@/hooks/queries/lead"
 import { useShortlistTopApplications, useManualShortlist } from "@/hooks/mutations/lead"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import StatusBadge from "@/components/shared/StatusBadge"
-import { JobPagination } from "@/components/shared/JobPagination"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { LeadApplicationItem } from "@/api/lead"
+
+const PAGE_SIZE = 10
+const STATUS_OPTIONS = ["all", "pending", "shortlisted", "rejected"]
 
 type ApplicationCardProps = {
     application: LeadApplicationItem
@@ -143,15 +146,21 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                             ))}
                         </div>
                     )}
-                    {application.profile.publicLinks && Object.entries(application.profile.publicLinks).filter(([, v]) => v).length > 0 && (
+                    {application.profile.publicLinks && (
                         <div className="flex flex-wrap gap-2">
                             {Object.entries(application.profile.publicLinks)
-                                .filter(([, v]) => v)
-                                .map(([key, url]) => (
-                                    <a key={key} href={url as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline capitalize">
-                                        {key}
-                                    </a>
-                                ))}
+                            .filter(([key, url]) => !!url && key !== "_id")
+                            .map(([key, url]) => (
+                                <a
+                                key={key}
+                                href={url as string}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline capitalize"
+                                >
+                                    {key}
+                                </a>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -185,10 +194,13 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
 export default function ManageJobApplications() {
     const { jobId } = useParams<{ jobId: string }>()
     const [page, setPage] = useState(1)
+    const [search, setSearch] = useState("")
+    const [statusFilter, setStatusFilter] = useState("all")
     const [rejectTarget, setRejectTarget] = useState<string | null>(null)
     const [rejectReason, setRejectReason] = useState("")
 
-    const { data, isPending, error } = useLeadJobApplications(jobId, page)
+    // Fetch all at once for client-side filtering
+    const { data, isPending, error } = useLeadJobApplications(jobId, 1, 1000)
     const { mutate: generateSuggestions, isPending: isGenerating } = useShortlistTopApplications()
     const { mutate: manualAction, isPending: isUpdating } = useManualShortlist(jobId ?? "")
 
@@ -233,10 +245,33 @@ export default function ManageJobApplications() {
         )
     }
 
-    const { job, applications, stats, pagination } = data
+    const { job, applications, stats } = data
+
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase()
+        return applications.filter((app) => {
+            const matchesSearch = !q || [app.applicant?.name, app.applicant?.email]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .includes(q)
+            const matchesStatus = statusFilter === "all" || app.status === statusFilter
+            return matchesSearch && matchesStatus
+        })
+    }, [applications, search, statusFilter])
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    const hasActiveFilters = search || statusFilter !== "all"
+
+    const resetFilters = () => {
+        setSearch("")
+        setStatusFilter("all")
+        setPage(1)
+    }
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
             <div>
                 <Link
                     to="/lead/posted"
@@ -279,30 +314,101 @@ export default function ManageJobApplications() {
                 ))}
             </div>
 
-            {applications.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-16">No applications yet for this job.</p>
-            ) : (
-                <div className="space-y-3">
-                    {applications.map((application) => (
-                        <ApplicationCard
-                            key={application.id}
-                            application={application}
-                            onShortlist={handleShortlist}
-                            onReject={(id) => setRejectTarget(id)}
-                            isUpdating={isUpdating}
-                        />
-                    ))}
-                </div>
-            )}
-
-            {pagination.totalPages > 1 && (
-                <div className="pt-2">
-                    <JobPagination
-                        currentPage={pagination.page}
-                        totalPages={pagination.totalPages}
-                        onPageChange={setPage}
+            <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Input
+                        value={search}
+                        onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+                        placeholder="Search by name or email..."
+                        className="pl-9"
                     />
                 </div>
+                <div className="flex gap-2">
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
+                        className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    >
+                        {STATUS_OPTIONS.map((s) => (
+                            <option key={s} value={s}>
+                                {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                    {hasActiveFilters && (
+                        <button
+                            onClick={resetFilters}
+                            className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-input text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                        >
+                            <X className="size-3.5" /> Clear
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {paginated.length === 0 ? (
+                <div className="min-h-50 flex flex-col items-center justify-center gap-2 text-center">
+                    <p className="text-sm text-gray-500">
+                        {hasActiveFilters ? "No applications match your filters." : "No applications yet for this job."}
+                    </p>
+                    {hasActiveFilters && (
+                        <button onClick={resetFilters} className="text-sm text-blue-400 underline underline-offset-2">
+                            Clear filters
+                        </button>
+                    )}
+                </div>
+            ) : (
+                <>
+                    <div className="space-y-3">
+                        {paginated.map((application) => (
+                            <ApplicationCard
+                                key={application.id}
+                                application={application}
+                                onShortlist={handleShortlist}
+                                onReject={(id) => setRejectTarget(id)}
+                                isUpdating={isUpdating}
+                            />
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between pt-2">
+                            <p className="text-xs text-muted-foreground">
+                                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+                            </p>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={page <= 1}
+                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+                                >
+                                    Prev
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setPage(p)}
+                                        className={`h-8 w-8 rounded-md text-sm border transition-colors ${
+                                            p === page
+                                                ? "bg-primary text-primary-foreground border-primary"
+                                                : "border-input hover:bg-accent"
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={page >= totalPages}
+                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
 
             <Dialog open={Boolean(rejectTarget)} onOpenChange={(open) => {
