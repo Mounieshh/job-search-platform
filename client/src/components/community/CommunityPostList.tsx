@@ -27,9 +27,12 @@ function formatVerificationStatus(post: CommunityPostItem) {
 const CommunityPostList = () => {
     const { data = [], isPending, error } = useCommunityPosts()
     const { mutateAsync: likePost } = useLikePost()
+
     const { mutate: deletePost, isPending: isDeleting } = useDeleteCommunityPost()
     const { mutate: updatePost, isPending: isUpdating } = useUpdateCommunityPost()
     const { data: user } = useSession()
+
+
     const [selectedPost, setSelectedPost] = useState<CommunityPostItem | null>(null)
     const [editPost, setEditPost] = useState<CommunityPostItem | null>(null)
     const [editTitle, setEditTitle] = useState("")
@@ -114,16 +117,22 @@ const CommunityPostList = () => {
 
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <img
-                                            src={post.anonymousAvatar}
-                                            alt="Avatar"
-                                            className="size-9 rounded-full border object-cover shrink-0"
-                                            height={36}
-                                            width={36}
-                                        />
+                                        {post.user?.avatarUrl ? (
+                                            <img
+                                                src={post.user.avatarUrl}
+                                                alt={`${post.user.name}'s avatar`}
+                                                className="size-9 shrink-0 rounded-full border border-border object-cover"
+                                                width={36}
+                                                height={36}
+                                            />
+                                        ) : (
+                                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary/15 border border-secondary text-secondary text-sm font-semibold select-none">
+                                                {post.user?.name ? post.user.name.trim().charAt(0).toUpperCase() : "?"}
+                                            </span>
+                                        )}
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-medium text-card-foreground">
-                                                {post.user?.name}
+                                                {post.user?.name ?? "Community Member"}
                                             </p>
                                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                 <span>{formatVerificationStatus(post)}</span>

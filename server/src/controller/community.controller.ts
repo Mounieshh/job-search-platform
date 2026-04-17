@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { communitySchema } from "../validate/community.zod.js";
 import { prisma } from "../config/prisma.js";
 import User from "../models/user.schema.js";
+import UserProfile from "../models/profile.schema.js";
 import { generateName, generateAvatar } from "../utils/generator.js";
 import { uploadToCloudinary } from "../utils/upload.js";
 
@@ -74,8 +75,19 @@ export async function getCommunityPost(req: Request, res: Response){
             }
         }).select("_id name email isEmailVerified role")
 
+        const profiles = await UserProfile.find({
+            userId: { $in: validUserIds }
+        }).select("userId avatarUrl")
+
+        const profileMap = new Map(
+            profiles.map(p => [p.userId.toString(), p.avatarUrl ?? null])
+        )
+
         const userMap = new Map(
-            users.map(user => [user._id.toString(), user])
+            users.map(user => [user._id.toString(), {
+                ...user.toObject(),
+                avatarUrl: profileMap.get(user._id.toString()) ?? null
+            }])
         )
 
         const postsWithUser = posts.map(post => ({

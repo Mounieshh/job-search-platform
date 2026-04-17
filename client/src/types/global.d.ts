@@ -8,7 +8,8 @@ declare global {
         name: string,
         email: string,
         role: string,
-        isEmailVerified: boolean
+        isEmailVerified: boolean,
+        avatarUrl?: string | null
     }
 
     type WorkExperience = {
