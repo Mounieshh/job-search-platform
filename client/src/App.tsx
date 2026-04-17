@@ -19,7 +19,6 @@ import TrackMyPosts from "./components/user/TrackMyPosts"
 import BrowseJobsPage from "./pages/BrowseJobsPage"
 import AdminRequestsPage from "./pages/adminSystem/AdminRequestsPage"
 
-
 import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
 import PasswordResetPage from "./pages/auth/PasswordResetPage"
@@ -33,12 +32,14 @@ import ManageJobApplications from "./pages/leadSystem/ManageJobApplications"
 import TrackApplicationsPage from "./pages/TrackApplicationsPage"
 import NotificationsPage from "./pages/NotificationsPage"
 import ChangePasswordPage from "./pages/auth/ChangePasswordPage"
+import AdminLayout from "./components/admin/AdminLayout"
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email", "/auth/password-reset"]
 
 function AppLayout() {
   const { pathname } = useLocation()
-  const hideNavbar = AUTH_ROUTES.includes(pathname) || pathname.startsWith("/auth/password-reset/")
+  const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/company") || /^\/[^/]+\/users/.test(pathname)
+  const hideNavbar = AUTH_ROUTES.includes(pathname) || pathname.startsWith("/auth/password-reset/") || isAdminRoute
   const { data: user, isPending } = useSession()
 
   if (isPending) {
@@ -56,6 +57,30 @@ function AppLayout() {
         <Route path="*" element={<Navigate to="/auth/change-password" replace />} />
         <Route path="/auth/change-password" element={<ChangePasswordPage />} />
       </Routes>
+    )
+  }
+
+  // Admin routes get their own layout
+  if (isAdminRoute) {
+    return (
+      <AdminLayout>
+        <div className="px-4 py-6 sm:px-6">
+          <Routes>
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/requests" element={<AdminRequestsPage />} />
+            <Route path="/admin/requests/:jobId" element={<AdminRequestsPage />} />
+            <Route path="/admin/reviewed" element={<AdminApprovedPage />} />
+            <Route path="/admin/reviewed/:jobId" element={<AdminApprovedPage />} />
+            <Route path="/admin/lead-requests" element={<AdminLeadRequestsPage />} />
+            <Route path="/admin/community" element={<AdminCommunityPage />} />
+            <Route path="/admin/credential-history" element={<CredentialHistoryPage />} />
+            <Route path="/company" element={<CompanyList />} />
+            <Route path="/:companyId/users" element={<CompanyUsers />} />
+            <Route path="/:companyId/users/:userId" element={<CompanyUsers />} />
+          </Routes>
+        </div>
+        <Toaster />
+      </AdminLayout>
     )
   }
 
@@ -95,23 +120,6 @@ function AppLayout() {
             <Route path="/browseJobs" element={<BrowseJobsPage/>}/>
             <Route path="/browseJobs/:jobId" element={<BrowseJobsPage/>}/>
 
-
-            {/* --ADMIN ROUTE-- */}
-
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            <Route path="/admin/requests" element={<AdminRequestsPage/>}/>
-            <Route path="/admin/reviewed" element={<AdminApprovedPage/>}/>
-            <Route path="/admin/lead-requests" element={<AdminLeadRequestsPage />} />
-            <Route path="/admin/community" element={<AdminCommunityPage />} />
-            <Route path="/admin/credential-history" element={<CredentialHistoryPage />} />
-
-            <Route path="/admin/requests/:jobId" element={<AdminRequestsPage/>}/>
-            <Route path="/admin/reviewed/:jobId" element={<AdminApprovedPage />} />
-
-            <Route path="/:companyId/users" element={<CompanyUsers/>}/>
-            <Route path="/:companyId/users/:userId" element={<CompanyUsers/>}/>
-            <Route path="/company" element={<CompanyList/>}/>
-
             {/* --LEADS ROUTE-- */}
 
             <Route path="/lead-approval" element={<LeadApprovalPage />} />
@@ -120,13 +128,11 @@ function AppLayout() {
             <Route path="/lead/posted" element={<JobsPosted/>}/>
             <Route path="/lead/posted/:jobId/applications" element={<ManageJobApplications/>}/>
 
-
             {/* --JOB ROUTE COMMON-- */}
 
             <Route path="/job-basic-details" element={<PostJobPage/>}>
                 <Route index element={<Navigate to="?step=1" replace />} />
             </Route>
-
 
           </Routes>
         </div>

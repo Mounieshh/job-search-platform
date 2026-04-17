@@ -8,72 +8,63 @@ import { Input } from "../ui/input"
 const AdminRequestFeed = () => {
     const { data, isPending, error } = useAdminPendingJobs()
     const { jobId } = useParams()
-
     const [searchText, setSearchText] = useState("")
 
     const filteredJobs = useMemo(() => {
-        const normalizedQuery = searchText.trim().toLowerCase()
-
+        const q = searchText.trim().toLowerCase()
         return data?.filter((job: JobDataWithUser) => {
             const combined = [job.roleTitle, job.location, job.companyName]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase()
-            return !normalizedQuery || combined.includes(normalizedQuery)
+                .filter(Boolean).join(" ").toLowerCase()
+            return !q || combined.includes(q)
         })
     }, [data, searchText])
 
-    if (isPending) {
-        return (
-            <div className="min-h-screen flex justify-center items-center">
-                <Spinner className="size-7" />
-            </div>
-        )
-    }
+    if (isPending) return (
+        <div className="flex justify-center items-center py-20">
+            <Spinner className="size-6 text-muted-foreground" />
+        </div>
+    )
 
-    if (error) {
-        return (
-            <div className="p-4 text-muted-foreground">Something went wrong</div>
-        )
-    }
+    if (error) return (
+        <div className="p-4 text-sm text-muted-foreground">Something went wrong.</div>
+    )
 
     return (
         <section className="flex flex-col h-full">
-            <section className="p-3 border-b">
+            <div className="p-3 border-b border-border">
                 <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                     <Input
                         value={searchText}
-                        onChange={(event) => setSearchText(event.target.value)}
-                        placeholder="Search by title or keyword"
-                        className="pl-9 h-10 w-full"
+                        onChange={e => setSearchText(e.target.value)}
+                        placeholder="Search by title or keyword…"
+                        aria-label="Search pending jobs"
+                        className="pl-9 h-9 w-full"
                     />
                 </div>
-            </section>
-            <section className="flex flex-col overflow-y-auto">
+            </div>
+            <div className="flex flex-col overflow-y-auto">
                 {!filteredJobs || filteredJobs.length === 0 ? (
-                    <div className="p-4 text-sm text-muted-foreground">No pending jobs to approve</div>
+                    <div className="p-4 text-sm text-muted-foreground">No pending jobs to approve.</div>
                 ) : (
-                    filteredJobs.map((job) => (
+                    filteredJobs.map(job => (
                         <Link
                             to={`/admin/requests/${job.id}`}
                             key={job.id}
-                            className={`p-4 border-b hover:bg-muted transition-colors flex flex-col gap-0.5 ${
-                                jobId === job.id ? "bg-muted border-l-2 border-l-primary" : ""
+                            className={`p-4 border-b border-border transition-colors flex flex-col gap-0.5 ${
+                                jobId === job.id ? "bg-primary/5" : "hover:bg-accent"
                             }`}
                         >
-                            <p className="font-medium text-sm">{job.roleTitle}</p>
+                            <p className="font-medium text-sm text-foreground">{job.roleTitle}</p>
                             <p className="text-xs text-muted-foreground">{job.companyName}</p>
                             <p className="text-xs text-muted-foreground">{job.location}</p>
                             {job.user && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    by {job.user.name}
-                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">by {job.user.name}</p>
                             )}
                         </Link>
                     ))
                 )}
-            </section>
+            </div>
         </section>
     )
 }

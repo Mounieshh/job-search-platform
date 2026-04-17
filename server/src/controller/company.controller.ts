@@ -14,6 +14,16 @@ export async function getCompanyList(req: Request, res: Response) {
                 "company.companyId": company._id
             })
 
+            const leadUserCount = await User.countDocuments({
+                "company.companyId": company._id,
+                role: "LEAD"
+            })
+
+            const normalUserCount = await User.countDocuments({
+                "company.companyId": company._id,
+                role: "USER"
+            })
+
             const jobPostCount = await prisma.postJob.count({
                 where: {
                     companyId: company._id.toString(),
@@ -24,6 +34,8 @@ export async function getCompanyList(req: Request, res: Response) {
                 id: company._id,
                 name: company.name,
                 companyUsers: companyUserCount,
+                leadUsers: leadUserCount,
+                normalUsers: normalUserCount,
                 totalJobs: jobPostCount
             })
         }

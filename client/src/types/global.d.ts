@@ -126,7 +126,9 @@ declare global {
         id:string,
         name: string,
         companyUsers: number,
-        totalJobs: number
+        totalJobs: number,
+        leadUsers: number,
+        normalUsers: number,
     }
     
     type CompanyUsersList = User & {

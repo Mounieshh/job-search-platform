@@ -123,16 +123,6 @@ const Navbar = () => {
                               <Link to="/admin" className={navLinkClass}>Admin</Link>
                             </SheetClose>
                           </li>
-                          <li>
-                            <SheetClose asChild>
-                              <Link to="/admin/lead-requests" className={navLinkClass}>Lead requests</Link>
-                            </SheetClose>
-                          </li>
-                          <li>
-                            <SheetClose asChild>
-                              <Link to="/company" className={navLinkClass}>Company List</Link>
-                            </SheetClose>
-                          </li>
                         </>
                       )}
 
@@ -249,8 +239,6 @@ const Navbar = () => {
           {user && user.role === "ADMIN" && (
             <>
               <Link to="/admin" className={desktopLinkClass}>Admin</Link>
-              <Link to="/admin/lead-requests" className={desktopLinkClass}>Lead requests</Link>
-              <Link to="/company" className={desktopLinkClass}>Company List</Link>
             </>
           )}
 
