@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { LeadApplicationItem } from "@/api/lead"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 
 const PAGE_SIZE = 10
 const STATUS_OPTIONS = ["all", "pending", "shortlisted", "rejected"]

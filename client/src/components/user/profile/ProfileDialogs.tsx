@@ -71,7 +71,7 @@ export function IdentityEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit name</DialogTitle>
         </DialogHeader>
@@ -84,17 +84,17 @@ export function IdentityEditDialog({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>
@@ -132,7 +132,6 @@ export function PersonalEditDialog({
   const onSubmit = (data: PersonalFormData) => {
     mutate(
       {
-        email: data.email,
         phone: data.phone || undefined,
         location: data.location || undefined,
       },
@@ -142,25 +141,19 @@ export function PersonalEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit personal information</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input className="rounded-none" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Email</label>
+              <p className="flex h-9 w-full items-center rounded-md border border-border bg-muted/50 px-3 text-sm text-muted-foreground select-none">
+                {email}
+              </p>
+              <p className="text-xs text-muted-foreground/70">Email cannot be changed.</p>
+            </div>
             <FormField
               control={form.control}
               name="phone"
@@ -168,7 +161,7 @@ export function PersonalEditDialog({
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,17 +174,17 @@ export function PersonalEditDialog({
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>
@@ -232,7 +225,7 @@ export function SkillsEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit skills</DialogTitle>
         </DialogHeader>
@@ -246,7 +239,7 @@ export function SkillsEditDialog({
                   <FormLabel>Skills</FormLabel>
                   <FormControl>
                     <Textarea
-                      className="rounded-none min-h-30"
+                      className="min-h-30"
                       placeholder="Comma or newline separated"
                       {...field}
                     />
@@ -256,10 +249,10 @@ export function SkillsEditDialog({
               )}
             />
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>
@@ -333,7 +326,7 @@ export function WorkExperienceEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Work experience</DialogTitle>
         </DialogHeader>
@@ -342,9 +335,11 @@ export function WorkExperienceEditDialog({
             {fields.map((field, index) => (
               <div key={field.id} className="space-y-3 rounded-lg border border-border p-4">
                 <div className="flex justify-between gap-2">
-                  <span className="text-sm font-medium">Entry {index + 1}</span>
+                  <span className="text-sm font-medium">
+                    {form.watch(`items.${index}.company`) || `Position ${index + 1}`}
+                  </span>
                   {fields.length > 1 && (
-                    <Button type="button" variant="ghost" size="sm" className="h-8 rounded-none" onClick={() => remove(index)}>
+                    <Button type="button" variant="ghost" size="sm" className="h-8" onClick={() => remove(index)}>
                       Remove
                     </Button>
                   )}
@@ -356,7 +351,7 @@ export function WorkExperienceEditDialog({
                     <FormItem>
                       <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +364,7 @@ export function WorkExperienceEditDialog({
                     <FormItem>
                       <FormLabel>Role</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -382,7 +377,7 @@ export function WorkExperienceEditDialog({
                     <FormItem>
                       <FormLabel>Location</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -396,7 +391,7 @@ export function WorkExperienceEditDialog({
                       <FormItem>
                         <FormLabel>Start</FormLabel>
                         <FormControl>
-                          <Input className="rounded-none" type="date" {...f} />
+                          <Input type="date" {...f} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -409,7 +404,7 @@ export function WorkExperienceEditDialog({
                       <FormItem>
                         <FormLabel>End</FormLabel>
                         <FormControl>
-                          <Input className="rounded-none" type="date" {...f} />
+                          <Input type="date" {...f} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -423,7 +418,7 @@ export function WorkExperienceEditDialog({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea className="rounded-none min-h-20" {...f} />
+                        <Textarea className="min-h-20" {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -434,7 +429,7 @@ export function WorkExperienceEditDialog({
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-none"
+              className="w-full"
               onClick={() =>
                 append({
                   company: "",
@@ -449,10 +444,10 @@ export function WorkExperienceEditDialog({
               Add entry
             </Button>
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>
@@ -529,7 +524,7 @@ export function EducationEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Education</DialogTitle>
         </DialogHeader>
@@ -538,9 +533,11 @@ export function EducationEditDialog({
             {fields.map((field, index) => (
               <div key={field.id} className="space-y-3 rounded-lg border border-border p-4">
                 <div className="flex justify-between gap-2">
-                  <span className="text-sm font-medium">Entry {index + 1}</span>
+                  <span className="text-sm font-medium">
+                    {form.watch(`items.${index}.college`) || `School ${index + 1}`}
+                  </span>
                   {fields.length > 1 && (
-                    <Button type="button" variant="ghost" size="sm" className="h-8 rounded-none" onClick={() => remove(index)}>
+                    <Button type="button" variant="ghost" size="sm" className="h-8" onClick={() => remove(index)}>
                       Remove
                     </Button>
                   )}
@@ -552,7 +549,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>College</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -565,7 +562,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>Degree</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -578,7 +575,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>Department</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -592,7 +589,7 @@ export function EducationEditDialog({
                       <FormItem>
                         <FormLabel>From</FormLabel>
                         <FormControl>
-                          <Input className="rounded-none" type="date" {...f} />
+                          <Input type="date" {...f} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -605,7 +602,7 @@ export function EducationEditDialog({
                       <FormItem>
                         <FormLabel>To</FormLabel>
                         <FormControl>
-                          <Input className="rounded-none" type="date" {...f} />
+                          <Input type="date" {...f} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -619,7 +616,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>Score / GPA</FormLabel>
                       <FormControl>
-                        <Input className="rounded-none" {...f} />
+                        <Input {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -632,7 +629,7 @@ export function EducationEditDialog({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea className="rounded-none min-h-20" {...f} />
+                        <Textarea className="min-h-20" {...f} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -643,7 +640,7 @@ export function EducationEditDialog({
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-none"
+              className="w-full"
               onClick={() =>
                 append({
                   college: "",
@@ -659,10 +656,10 @@ export function EducationEditDialog({
               Add entry
             </Button>
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>
@@ -718,7 +715,7 @@ export function PublicLinksEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-none sm:max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Public links</DialogTitle>
         </DialogHeader>
@@ -731,7 +728,7 @@ export function PublicLinksEditDialog({
                 <FormItem>
                   <FormLabel>GitHub</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" placeholder="https://github.com/..." {...field} />
+                    <Input placeholder="https://github.com/..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -744,7 +741,7 @@ export function PublicLinksEditDialog({
                 <FormItem>
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" placeholder="https://linkedin.com/in/..." {...field} />
+                    <Input placeholder="https://linkedin.com/in/..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -757,17 +754,17 @@ export function PublicLinksEditDialog({
                 <FormItem>
                   <FormLabel>Portfolio</FormLabel>
                   <FormControl>
-                    <Input className="rounded-none" placeholder="https://..." {...field} />
+                    <Input placeholder="https://..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="outline" className="rounded-none" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-none" disabled={isPending}>
+              <Button type="submit" disabled={isPending}>
                 Save
               </Button>
             </DialogFooter>

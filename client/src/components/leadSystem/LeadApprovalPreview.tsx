@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Button } from "../ui/button"
 import { Textarea } from "../ui/textarea"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Badge } from "../ui/badge"
+import StatusBadge from "../shared/StatusBadge"
 
 const LeadApprovalPreview = () => {
     const { jobId } = useParams()
@@ -47,7 +47,7 @@ const LeadApprovalPreview = () => {
 
     if (!jobId) {
         return (
-            <div className="flex justify-center items-center h-full py-20 text-sm text-gray-500">
+            <div className="flex justify-center items-center h-full py-20 text-sm text-muted-foreground">
                 Select a job from the queue to review
             </div>
         )
@@ -56,14 +56,14 @@ const LeadApprovalPreview = () => {
     if (isPending) {
         return (
             <div className="flex justify-center items-center py-20">
-                <Spinner className="size-6 text-gray-400" />
+                <Spinner className="size-6 text-muted-foreground" />
             </div>
         )
     }
 
     if (error || !data) {
         return (
-            <div className="p-4 text-sm text-gray-500">Something went wrong</div>
+            <div className="p-4 text-sm text-muted-foreground">Something went wrong</div>
         )
     }
 
@@ -75,21 +75,21 @@ const LeadApprovalPreview = () => {
 
             <div className="space-y-1">
                 <h1 className="text-2xl font-semibold tracking-tight">{data.roleTitle}</h1>
-                <p className="text-base text-gray-500">{data.companyName}</p>
+                <p className="text-base text-muted-foreground">{data.companyName}</p>
                 {data.postedUser?.name && (
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-muted-foreground/70 mt-2">
                         Submitted by {data.postedUser.name}
                     </p>
                 )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100 font-normal">
+                <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                     {data.location}
-                </Badge>
-                <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100 font-normal">
+                </span>
+                <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                     {data.employmentType}
-                </Badge>
+                </span>
                 {data.url && (
                     <Link
                         to={data.url}
@@ -97,70 +97,62 @@ const LeadApprovalPreview = () => {
                         rel="noopener noreferrer"
                         className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1 ml-2"
                     >
-                        View posting <ArrowRight className="size-3" />
+                        View posting <ArrowRight aria-hidden="true" className="size-3" />
                     </Link>
                 )}
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-border" />
 
             {data.description && (
                 <div
-                    className="prose prose-sm max-w-none border border-gray-200 rounded-lg p-5 text-gray-600"
+                    className="prose prose-sm max-w-none border border-border rounded-lg p-5 text-muted-foreground"
                     dangerouslySetInnerHTML={{ __html: data.description }}
                 />
             )}
-            
-            <hr className="border-gray-200" />
-            
-            <section className="flex flex-col items-end pb-8">
-                <h2 className="text-xs font-semibold uppercase text-muted-foreground mb-4 tracking-wider">Actions</h2>   
-                {data.status === "pending" ? (
-                    <div className="flex justify-end gap-3">
+
+            <hr className="border-border" />
+
+            <section className="flex flex-col pb-8 gap-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Actions</h2>
+                    {data.status !== "pending" && <StatusBadge status={data.status} />}
+                </div>
+                {data.status === "pending" && (
+                    <div className="flex gap-3">
                         <Button
                             variant="outline"
                             onClick={() => setShowRejectForm(true)}
                             disabled={isReviewing}
-                            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 shadow-none"
+                            className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive shadow-none"
                         >
-                            <X className="size-4 mr-1.5" /> Reject
+                            <X aria-hidden="true" className="size-4 mr-1.5" /> Reject
                         </Button>
                         <Button
                             onClick={handleApprove}
                             disabled={isReviewing}
-                            className="bg-primary text-white shadow-none"
+                            className="shadow-none"
                         >
-                            <Check className="size-4 mr-1.5" />
-                            {isReviewing ? "Approving..." : "Approve"}
+                            <Check aria-hidden="true" className="size-4 mr-1.5" />
+                            {isReviewing ? "Approving…" : "Approve"}
                         </Button>
                     </div>
-                ) : (
-                    <Badge className={`rounded-full px-3 py-1 font-medium text-xs ${
-                        data.status === "approved" ? "bg-green-100 text-green-800 hover:bg-green-100" :
-                        data.status === "rejected" ? "bg-red-100 text-red-800 hover:bg-red-100" :
-                        data.status === "shortlisted" ? "bg-blue-100 text-blue-800 hover:bg-blue-100" :
-                        "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                    }`}>
-                        {data.status.toUpperCase()}
-                    </Badge>
                 )}
-                
+
                 <Dialog open={showRejectForm} onOpenChange={(open) => {
                     setShowRejectForm(open)
                     if (!open) setReason("")
                 }}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Reason for Rejection</DialogTitle>
+                            <DialogTitle>Reason for rejection</DialogTitle>
                         </DialogHeader>
-
                         <Textarea
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            placeholder="Explain why this job is being rejected..."
+                            placeholder="Explain why this job is being rejected…"
                             className="min-h-30"
                         />
-
                         <DialogFooter className="flex gap-2">
                             <Button
                                 variant="outline"
@@ -176,9 +168,8 @@ const LeadApprovalPreview = () => {
                                 variant="destructive"
                                 onClick={handleReject}
                                 disabled={isReviewing || !reason.trim()}
-                                className="gap-2"
                             >
-                                {isReviewing ? "Rejecting..." : "Confirm Reject"}
+                                {isReviewing ? "Rejecting…" : "Confirm reject"}
                             </Button>
                         </DialogFooter>
                     </DialogContent>

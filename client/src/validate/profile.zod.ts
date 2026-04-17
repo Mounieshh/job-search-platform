@@ -6,7 +6,7 @@ export const identitySchema = z.object({
 
 export const personalSchema = z.object({
   email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
+  phone: z.string().min(1, "Enter valid phone number").max(10, "Enter 10 numbers only"),
   location: z.string().optional(),
 })
 

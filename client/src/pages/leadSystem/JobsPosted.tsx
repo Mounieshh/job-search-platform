@@ -22,15 +22,15 @@ export default function JobsPosted() {
     if (isPending) {
         return (
             <div className="min-h-50 flex justify-center items-center">
-                <Spinner className="size-6 text-gray-400" />
+                <Spinner className="size-6 text-muted-foreground" />
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="p-4 text-sm text-gray-500 text-center py-10">
-                Unable to fetch your posted jobs and applications
+            <div className="p-4 text-sm text-muted-foreground text-center py-10">
+                Unable to fetch your posted jobs and applications.
             </div>
         )
     }
@@ -40,69 +40,71 @@ export default function JobsPosted() {
             <h1 className="text-2xl font-semibold tracking-tight">Your posted jobs</h1>
 
             {!data || data.length === 0 ? (
-                <p className="text-sm text-gray-500 py-20 text-center">You have not posted any jobs yet.</p>
+                <div className="py-20 text-center space-y-1">
+                    <p className="text-sm text-muted-foreground">No jobs posted yet.</p>
+                    <p className="text-xs text-muted-foreground/70">Post a job to start receiving applications.</p>
+                </div>
             ) : (
                 <div className="flex flex-col">
                     {data.map((job) => {
                         const isClosed = job.status === "application_closed"
                         return (
-                        <div key={job.id} className="flex justify-between items-center py-4 border-b border-gray-100 gap-4">
-                            <div className="min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <p className="text-sm font-medium text-gray-900">{job.roleTitle}</p>
-                                    {isClosed && (
-                                        <Badge className="bg-gray-100 text-gray-500 hover:bg-gray-100 rounded-full font-medium text-[10px] uppercase shadow-none border-none">
-                                            Closed
-                                        </Badge>
+                            <div key={job.id} className="flex justify-between items-center py-4 border-b border-border gap-4">
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <p className="text-sm font-medium text-foreground">{job.roleTitle}</p>
+                                        {isClosed && (
+                                            <Badge className="bg-muted text-muted-foreground hover:bg-muted rounded-full font-medium text-[10px] uppercase shadow-none border-none">
+                                                Closed
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        {job.companyName} &middot; {job.location} &middot; {job.employmentType}
+                                    </p>
+                                </div>
+                                <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3 shrink-0">
+                                    <Badge className="bg-primary/10 text-primary hover:bg-primary/10 rounded-full font-medium text-[10px] uppercase shadow-none border-none">
+                                        {job.applicationsCount} Applications
+                                    </Badge>
+                                    <Link
+                                        to={`/lead/posted/${job.id}/applications`}
+                                        className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline transition-colors"
+                                    >
+                                        Manage <ArrowRight aria-hidden="true" className="size-3" />
+                                    </Link>
+                                    {!isClosed && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-9 text-xs border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive shadow-none gap-1"
+                                            onClick={() => setConfirmCloseId(job.id)}
+                                        >
+                                            <XCircle aria-hidden="true" className="size-3.5" />
+                                            Close
+                                        </Button>
                                     )}
                                 </div>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    {job.companyName} &middot; {job.location} &middot; {job.employmentType}
-                                </p>
                             </div>
-                            <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3 shrink-0">
-                                <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 rounded-full font-medium text-[10px] uppercase shadow-none border-none">
-                                    {job.applicationsCount} Applications
-                                </Badge>
-                                <Link
-                                    to={`/lead/posted/${job.id}/applications`}
-                                    className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline transition-colors"
-                                >
-                                    Manage <ArrowRight className="size-3" />
-                                </Link>
-                                {!isClosed && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 shadow-none rounded-none gap-1"
-                                        onClick={() => setConfirmCloseId(job.id)}
-                                    >
-                                        <XCircle className="size-3" />
-                                        Close
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
                         )
                     })}
                 </div>
             )}
 
             <Dialog open={!!confirmCloseId} onOpenChange={(open) => { if (!open) setConfirmCloseId(null) }}>
-                <DialogContent className="rounded-none max-w-sm">
+                <DialogContent className="max-w-sm">
                     <DialogHeader>
                         <DialogTitle>Close applications?</DialogTitle>
                     </DialogHeader>
                     <p className="text-sm text-muted-foreground">
-                        This will stop accepting new applications and remove the job from the browse listings. Existing applications are not affected.
+                        This will stop accepting new applications and remove the job from browse listings. Existing applications are not affected.
                     </p>
                     <DialogFooter className="gap-2 sm:gap-0">
-                        <Button variant="outline" className="rounded-none" onClick={() => setConfirmCloseId(null)}>
+                        <Button variant="outline" onClick={() => setConfirmCloseId(null)}>
                             Cancel
                         </Button>
                         <Button
                             variant="destructive"
-                            className="rounded-none"
                             disabled={isClosing}
                             onClick={() => {
                                 if (!confirmCloseId) return

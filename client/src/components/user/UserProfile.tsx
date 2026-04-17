@@ -15,6 +15,7 @@ import {
   Loader2,
   FileText,
   CheckCircle2,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 import { useUserProfile, useLeadRequestStatus } from "@/hooks/queries/profile"
@@ -212,21 +213,21 @@ const UserProfile = () => {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-2 pb-8 sm:px-6">
-      <h1 className="sr-only">Your profile</h1>
-
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
+      
+      <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
 
         <aside aria-label="Profile sidebar">
-          <div className="rounded-lg border border-border bg-card">
+          <div className="rounded-lg bg-card">
 
-            <div className="p-5 pb-4">
+            <div className="bg-card pb-4">
               <div className="flex items-start gap-4">
                 <div className="relative shrink-0">
                   <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-border bg-muted overflow-hidden">
                     {profile.avatarUrl ? (
                       <img
                         src={profile.avatarUrl}
-                        alt={`${user.name}'s avatar`}
+                        alt={`Profile photo of ${user.name}`}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -251,12 +252,15 @@ const UserProfile = () => {
                   />
                   <button
                     type="button"
-                    aria-label="Change profile photo"
+                    aria-label={profile.avatarUrl ? "Remove profile photo" : "Upload profile photo"}
                     disabled={busyAvatar}
-                    onClick={() => avatarInputRef.current?.click()}
+                    onClick={() => profile.avatarUrl ? void handleAvatarRemove() : avatarInputRef.current?.click()}
                     className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
                   >
-                    <Pencil className="size-3" aria-hidden="true" />
+                    {profile.avatarUrl
+                      ? <Pencil className="size-3" aria-hidden="true" />
+                      : <Pencil className="size-3" aria-hidden="true" />
+                    }
                   </button>
                 </div>
 
@@ -288,16 +292,6 @@ const UserProfile = () => {
                       </span>
                     )}
                   </div>
-                  {profile.avatarUrl && (
-                    <button
-                      type="button"
-                      onClick={() => void handleAvatarRemove()}
-                      disabled={busyAvatar}
-                      className="mt-2 text-xs text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline disabled:opacity-50"
-                    >
-                      Remove photo
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -322,12 +316,12 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="border-t border-border px-5">
+            <div className="px-1 pt-2 border-t">
               <SectionHeader title="Personal" onEdit={() => setPersonalOpen(true)} editLabel="Edit personal information" />
               <div className="space-y-2.5 pb-4 text-sm">
                 <div className="flex items-center gap-2.5 text-muted-foreground">
                   <Mail className="size-3.5 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{user.email}</span>
+                  <span className="truncate" >{user.email}</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-muted-foreground">
                   <Phone className="size-3.5 shrink-0" aria-hidden="true" />
@@ -340,7 +334,7 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="border-t border-border px-5">
+            <div className="px-1 border-t">
               <SectionHeader title="Links" onEdit={() => setLinksOpen(true)} editLabel="Edit public links" />
               <div className="space-y-2.5 pb-4 text-sm">
                 <div className="flex items-center gap-2.5">
@@ -376,7 +370,7 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="border-t border-border px-5">
+            <div className="px-1 border-t">
               <SectionHeader title="Resume" onEdit={() => setResumeDialogOpen(true)} editLabel="Upload or replace resume" />
               <div className="pb-4">
                 {profile.resumeUrl ? (
@@ -393,7 +387,7 @@ const UserProfile = () => {
                       </a>
                     </div>
                     <div className="flex shrink-0 gap-0.5">
-                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7" asChild>
+                      <Button type="button" variant="ghost" size="icon" className="h-9 w-9" asChild>
                         <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" aria-label="View resume">
                           <Eye className="size-3.5" aria-hidden="true" />
                         </a>
@@ -402,7 +396,7 @@ const UserProfile = () => {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                        className="h-9 w-9 text-destructive hover:bg-destructive/10"
                         disabled={isSavingProfile}
                         aria-label="Remove resume"
                         onClick={() => saveProfile({ resumeUrl: "" })}
@@ -424,7 +418,7 @@ const UserProfile = () => {
             </div>
 
             {isLead && leadStatus?.status === "approved" && (
-              <div className="border-t border-border px-5">
+              <div className="px-1">
                 <SectionHeader title="Company" />
                 <div className="space-y-2.5 pb-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2.5">
@@ -442,6 +436,7 @@ const UserProfile = () => {
                 </div>
               </div>
             )}
+
           </div>
         </aside>
 
@@ -580,10 +575,13 @@ const UserProfile = () => {
             <DialogDescription>PDF only. Uploaded directly from your browser, then saved to your profile.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground" htmlFor="resume-file-input">
+              PDF file
+            </label>
             <input
+              id="resume-file-input"
               type="file"
               accept=".pdf,application/pdf"
-              aria-label="Choose PDF file"
               className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded file:border file:border-border file:bg-background file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground"
               onChange={(e) => setResumeFile(e.target.files?.[0] ?? null)}
             />
