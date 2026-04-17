@@ -23,7 +23,7 @@ export default function JobInstructions({ onBack, onPostJob, jobId }: JobInstruc
             url: "",
             description: ""
         },
-        mode: "onChange"   // Optional: helps with real-time validation
+        mode: "onChange" 
     });
 
     const { mutateAsync: patchJob } = usePatchPostJob();
@@ -46,8 +46,7 @@ export default function JobInstructions({ onBack, onPostJob, jobId }: JobInstruc
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-                
-                {/* Job Link Field */}
+
                 <FormField
                     name="url"
                     control={form.control}
@@ -67,7 +66,6 @@ export default function JobInstructions({ onBack, onPostJob, jobId }: JobInstruc
                     )}
                 />
 
-                {/* Tiptap Editor Field */}
                 <FormField
                     name="description"
                     control={form.control}
@@ -85,7 +83,6 @@ export default function JobInstructions({ onBack, onPostJob, jobId }: JobInstruc
                     )}
                 />
 
-                {/* Action Buttons */}
                 <div className="flex flex-row gap-4 justify-between pt-4">
                     <Button 
                         type="button" 

@@ -14,8 +14,7 @@ import {
   Briefcase,
   Loader2,
   FileText,
-  CheckCircle2,
-  X,
+  CheckCircle2
 } from "lucide-react"
 import { toast } from "sonner"
 import { useUserProfile, useLeadRequestStatus } from "@/hooks/queries/profile"

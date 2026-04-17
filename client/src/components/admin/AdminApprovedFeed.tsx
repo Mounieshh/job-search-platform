@@ -1,74 +1,116 @@
 import { useAdminReviewedJobs } from "@/hooks/queries/admin"
 import { Spinner } from "../ui/spinner"
-import { Badge } from "@/components/ui/badge"
-import { Inbox } from "lucide-react"
 import { Link, useParams } from "react-router"
+import { Input } from "../ui/input"
+import { Search } from "lucide-react"
+import { useMemo, useState } from "react"
+
+type StatusFilter = "all" | "approved" | "rejected"
 
 const AdminApprovedFeed = () => {
     const { data, isPending, error } = useAdminReviewedJobs()
     const { jobId } = useParams()
+    const [search, setSearch] = useState("")
+    const [status, setStatus] = useState<StatusFilter>("all")
 
-    if (isPending) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Spinner className="size-7" />
-            </div>
-        )
-    }
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase()
+        return (data ?? []).filter(job => {
+            const matchesStatus = status === "all" || job.status === status
+            const matchesSearch = !q || [job.roleTitle, job.companyName].join(" ").toLowerCase().includes(q)
+            return matchesStatus && matchesSearch
+        })
+    }, [data, search, status])
 
-    if (error) {
-        return (
-            <div className="p-4 border border-destructive/20 bg-destructive/5 text-destructive text-xs rounded-sm">
-                Error loading reviewed jobs.
-            </div>
-        )
-    }
+    if (isPending) return (
+        <div className="flex justify-center items-center py-20">
+            <Spinner className="size-6 text-muted-foreground" />
+        </div>
+    )
+
+    if (error) return (
+        <div className="p-4 text-sm text-destructive">Error loading reviewed jobs.</div>
+    )
 
     return (
-        <section className="h-screen overflow-y-auto border-r border-border p-4 space-y-4">
-            <header className="flex justify-between items-center mb-6">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">History</h2>
-                <Badge variant="secondary" className="text-[10px]">{data.length}</Badge>
-            </header>
-
-            {data.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-center opacity-50">
-                    <Inbox className="size-8 mb-2" />
-                    <p className="text-xs">No records found</p>
+        <nav aria-label="Reviewed jobs list">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-border space-y-3">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        History
+                    </h2>
+                    <span className="text-xs text-muted-foreground">{filtered.length}</span>
                 </div>
-            ) : (
-                <div className="space-y-2">
-                    {data.map((job: any) => (
-                        <Link
-                            to={`/admin/reviewed/${job.id}`}
-                            key={job.id}
-                            className={`block p-3 border rounded-sm transition-all ${
-                                jobId === job.id
-                                    ? "bg-card border-primary/50 shadow-sm"
-                                    : "bg-transparent border-transparent hover:border-border hover:bg-card/50"
+
+                {/* Search */}
+                <div className="relative">
+                    <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                    <Input
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        placeholder="Search…"
+                        aria-label="Search reviewed jobs"
+                        className="pl-8 h-8 text-sm"
+                    />
+                </div>
+
+                {/* Filter tabs */}
+                <div className="flex gap-1" role="group" aria-label="Filter by status">
+                    {(["all", "approved", "rejected"] as StatusFilter[]).map(s => (
+                        <button
+                            key={s}
+                            type="button"
+                            onClick={() => setStatus(s)}
+                            className={`flex-1 rounded py-1 text-xs font-medium capitalize transition-colors ${
+                                status === s
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                             }`}
                         >
-                            <div className="flex justify-between items-start gap-2">
-                                <div className="min-w-0">
-                                    <h3 className="text-sm font-semibold truncate">{job.companyName}</h3>
-                                    <p className="text-xs text-muted-foreground truncate">{job.roleTitle}</p>
-                                </div>
-                                <Badge
-                                    className={`text-[9px] h-4 px-1 uppercase italic shrink-0 ${job.status === "approved" ? "bg-green-700   ": "bg-destructive"}`}
-                                >
-                                    {job.status}
-                                </Badge>
-                            </div>
-                            {job.approval && (
-                                <p className="text-[10px] text-muted-foreground mt-1">
-                                    by {job.approval.leadName}
-                                </p>
-                            )}
-                        </Link>
+                            {s}
+                        </button>
                     ))}
                 </div>
+            </div>
+
+            {/* List */}
+            {filtered.length === 0 ? (
+                <p className="p-4 text-sm text-muted-foreground">
+                    {search || status !== "all" ? "No jobs match your filters." : "No reviewed jobs yet."}
+                </p>
+            ) : (
+                <ul role="list">
+                    {filtered.map(job => {
+                        const isActive = jobId === job.id
+                        const isApproved = job.status === "approved"
+                        return (
+                            <li key={job.id}>
+                                <Link
+                                    to={`/admin/reviewed/${job.id}`}
+                                    aria-current={isActive ? "page" : undefined}
+                                    className={`flex items-start justify-between gap-3 px-4 py-3 border-b border-border transition-colors ${
+                                        isActive ? "bg-primary/5" : "hover:bg-accent"
+                                    }`}
+                                >
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-foreground truncate">{job.roleTitle}</p>
+                                        <p className="text-xs text-muted-foreground truncate mt-0.5">{job.companyName}</p>
+                                    </div>
+                                    <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase ${
+                                        isApproved
+                                            ? "bg-primary/10 text-primary"
+                                            : "bg-destructive/10 text-destructive"
+                                    }`}>
+                                        {job.status}
+                                    </span>
+                                </Link>
+                            </li>
+                        )
+                    })}
+                </ul>
             )}
-        </section>
+        </nav>
     )
 }
 
