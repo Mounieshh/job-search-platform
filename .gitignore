@@ -29,3 +29,5 @@ src/lib/generated/
 data/
 
 .kiro
+.impeccable.md
+skills-lock.json

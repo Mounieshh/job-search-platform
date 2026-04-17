@@ -114,7 +114,7 @@ const LeadApprovalPreview = () => {
             <hr className="border-gray-200" />
             
             <section className="flex flex-col items-end pb-8">
-                <h2 className="text-xs font-mono uppercase text-gray-500 mb-4 tracking-wider">Actions</h2>   
+                <h2 className="text-xs font-semibold uppercase text-muted-foreground mb-4 tracking-wider">Actions</h2>   
                 {data.status === "pending" ? (
                     <div className="flex justify-end gap-3">
                         <Button

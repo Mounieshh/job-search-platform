@@ -20,6 +20,9 @@ import {
 } from "../ui/sheet"
 import NotificationBell from "./NotificationBell"
 
+const navLinkClass = "block rounded-md px-3 py-3 text-sm text-foreground hover:bg-accent transition-colors duration-150"
+const desktopLinkClass = "px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors duration-150"
+
 const Navbar = () => {
   const { data: user } = useSession()
   const { data: profileData } = useUserProfile()
@@ -34,15 +37,15 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-white shadow-2xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 h-14 border-b border-border bg-background">
       <div className="h-full max-w-screen-2xl mx-auto px-4 flex items-center justify-between gap-4">
 
         <div className="flex items-center gap-3 lg:hidden">
           <Link
             to="/"
-            className="font-mono font-bold text-xl text-foreground tracking-tight flex items-center gap-1.5"
+            className="font-display font-extrabold text-xl text-foreground tracking-tight flex items-center gap-1.5"
           >
-            <span className="inline-block w-3.5 h-3.5 rounded-sm bg-[#E68844]" aria-hidden="true" />
+            <span className="inline-block w-3.5 h-3.5 rounded-sm bg-primary" aria-hidden="true" />
             Vettd
           </Link>
         </div>
@@ -50,7 +53,7 @@ const Navbar = () => {
         <div className="lg:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="h-9 w-9 rounded-md">
+              <Button variant="outline" size="icon" className="h-11 w-11 rounded-md">
                 <Menu className="size-5" />
                 <span className="sr-only">Open navigation menu</span>
               </Button>
@@ -61,13 +64,11 @@ const Navbar = () => {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
 
-              <nav className="px-2 py-2">
-                <ul className="flex flex-col list-none">
+              <nav aria-label="Mobile navigation">
+                <ul className="flex flex-col list-none px-2 py-2">
                   <li>
                     <SheetClose asChild>
-                      <Link to="/browseJobs" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                        Browse Jobs
-                      </Link>
+                      <Link to="/browseJobs" className={navLinkClass}>Browse Jobs</Link>
                     </SheetClose>
                   </li>
 
@@ -75,45 +76,33 @@ const Navbar = () => {
                     <>
                       <li>
                         <SheetClose asChild>
-                          <Link to="/community" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                            Community
-                          </Link>
+                          <Link to="/community" className={navLinkClass}>Community</Link>
                         </SheetClose>
                       </li>
                       <li>
                         <SheetClose asChild>
-                          <Link to="/job-basic-details" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                            Post a Job
-                          </Link>
+                          <Link to="/job-basic-details" className={navLinkClass}>Post a Job</Link>
                         </SheetClose>
                       </li>
 
                       {user.role === "USER" && (
-                        <>
-                          <li>
-                            <SheetClose asChild>
-                              <Link to="/my-posts" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Track Post
-                              </Link>
-                            </SheetClose>
-                          </li>
-                        </>
+                        <li>
+                          <SheetClose asChild>
+                            <Link to="/my-posts" className={navLinkClass}>Track Jobs</Link>
+                          </SheetClose>
+                        </li>
                       )}
 
                       {user.role === "LEAD" && (
                         <>
                           <li>
                             <SheetClose asChild>
-                              <Link to="/lead-approval" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                  Review Queue
-                              </Link>
+                              <Link to="/lead-approval" className={navLinkClass}>Review Queue</Link>
                             </SheetClose>
                           </li>
                           <li>
                             <SheetClose asChild>
-                              <Link to="/lead/approved-by-me" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                  Reviewed Jobs
-                              </Link>
+                              <Link to="/lead/approved-by-me" className={navLinkClass}>Reviewed Jobs</Link>
                             </SheetClose>
                           </li>
                         </>
@@ -122,68 +111,54 @@ const Navbar = () => {
                       {user.role === "USER" && user.isEmailVerified && (
                         <li>
                           <SheetClose asChild>
-                            <Link to="/become-a-lead" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                              Become a Lead
-                            </Link>
+                            <Link to="/become-a-lead" className={navLinkClass}>Become a Lead</Link>
                           </SheetClose>
                         </li>
                       )}
 
-                      {user?.role === "ADMIN" && (
+                      {user.role === "ADMIN" && (
                         <>
                           <li>
                             <SheetClose asChild>
-                              <Link to="/admin" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Admin
-                              </Link>
+                              <Link to="/admin" className={navLinkClass}>Admin</Link>
                             </SheetClose>
                           </li>
                           <li>
                             <SheetClose asChild>
-                              <Link to="/admin/lead-requests" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Lead requests
-                              </Link>
+                              <Link to="/admin/lead-requests" className={navLinkClass}>Lead requests</Link>
                             </SheetClose>
                           </li>
                           <li>
                             <SheetClose asChild>
-                              <Link to="/company" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                                Company List
-                              </Link>
+                              <Link to="/company" className={navLinkClass}>Company List</Link>
                             </SheetClose>
                           </li>
                         </>
                       )}
 
-                      {user?.role === "LEAD" && (
+                      {user.role === "LEAD" && (
                         <li>
                           <SheetClose asChild>
-                            <Link to="/lead/posted" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                              Applications
-                            </Link>
+                            <Link to="/lead/posted" className={navLinkClass}>Applications</Link>
                           </SheetClose>
                         </li>
                       )}
 
                       <li>
                         <SheetClose asChild>
-                          <Link to="/profile" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                            Profile
-                          </Link>
+                          <Link to="/profile" className={navLinkClass}>Profile</Link>
                         </SheetClose>
                       </li>
                       <li>
                         <SheetClose asChild>
-                          <Link to="/notifications" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                            Notifications
-                          </Link>
+                          <Link to="/notifications" className={navLinkClass}>Notifications</Link>
                         </SheetClose>
                       </li>
                       <li>
                         <SheetClose asChild>
                           <button
                             onClick={handleLogout}
-                            className="block w-full rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                            className="block w-full rounded-md px-3 py-3 text-left text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150"
                           >
                             Logout
                           </button>
@@ -196,14 +171,12 @@ const Navbar = () => {
                     <>
                       <li>
                         <SheetClose asChild>
-                          <Link to="/auth/login" className="block rounded-md px-3 py-2 text-sm text-foreground hover:bg-accent">
-                            Sign in
-                          </Link>
+                          <Link to="/auth/login" className={navLinkClass}>Sign in</Link>
                         </SheetClose>
                       </li>
                       <li>
                         <SheetClose asChild>
-                          <Link to="/auth/register" className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
+                          <Link to="/auth/register" className="flex items-center gap-1.5 rounded-md px-3 py-3 text-sm font-medium text-foreground hover:bg-accent transition-colors duration-150">
                             Get started
                             <ArrowRight className="size-3.5" />
                           </Link>
@@ -217,218 +190,170 @@ const Navbar = () => {
           </Sheet>
         </div>
 
-          <div className="hidden lg:flex items-center gap-6 shrink-0">
-            {/* Logo */}
+        <div className="hidden lg:flex items-center gap-6 shrink-0">
+          <Link
+            to="/"
+            className="font-display font-extrabold text-xl text-foreground tracking-tight flex items-center gap-1.5"
+          >
+            <span className="inline-block w-3.5 h-3.5 rounded-sm bg-primary" aria-hidden="true" />
+            Vettd
+          </Link>
+
+          <span className="w-px h-5 bg-border" aria-hidden="true" />
+
+          <ul className="flex items-center gap-1 list-none" role="list">
+            <li>
+              <Link to="/browseJobs" className={desktopLinkClass}>Browse Jobs</Link>
+            </li>
+
+            {user && (
+              <>
+                <li>
+                  <Link to="/community" className={desktopLinkClass}>Community</Link>
+                </li>
+                <li>
+                  <Link to="/job-basic-details" className={desktopLinkClass}>Post a Job</Link>
+                </li>
+
+                {user.role === "USER" && (
+                  <li>
+                    <Link to="/my-posts" className={desktopLinkClass}>Track Jobs</Link>
+                  </li>
+                )}
+
+                {user.role === "LEAD" && (
+                  <>
+                    <li>
+                      <Link to="/lead-approval" className={desktopLinkClass}>Review Queue</Link>
+                    </li>
+                    <li>
+                      <Link to="/lead/approved-by-me" className={desktopLinkClass}>Reviewed Jobs</Link>
+                    </li>
+                  </>
+                )}
+              </>
+            )}
+          </ul>
+        </div>
+
+        <div className="hidden lg:flex items-center gap-2 shrink-0">
+          {user && user.role === "USER" && user.isEmailVerified && (
             <Link
-              to="/"
-              className="font-mono font-bold text-xl text-foreground tracking-tight flex items-center gap-1.5"
+              to="/become-a-lead"
+              className="px-3 py-1.5 rounded text-sm bg-foreground text-background hover:opacity-90 transition-opacity duration-150"
             >
-              <span className="inline-block w-3.5 h-3.5 rounded-sm bg-[#E68844]" aria-hidden="true" />
-              Vettd
+              Become a Lead
             </Link>
+          )}
 
-            <span className="w-px h-5 bg-border" />
+          {user && user.role === "ADMIN" && (
+            <>
+              <Link to="/admin" className={desktopLinkClass}>Admin</Link>
+              <Link to="/admin/lead-requests" className={desktopLinkClass}>Lead requests</Link>
+              <Link to="/company" className={desktopLinkClass}>Company List</Link>
+            </>
+          )}
 
-            <ul className="flex items-center gap-1 list-none">
-              <li>
-                <Link
-                  to="/browseJobs"
-                  className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
+          {user && user.role === "LEAD" && (
+            <Link to="/lead/posted" className={desktopLinkClass}>Applications</Link>
+          )}
+
+          <span className="w-px h-5 bg-border mx-1" aria-hidden="true" />
+
+          {user && <NotificationBell />}
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Open user menu"
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded hover:bg-accent transition-colors duration-150 group"
                 >
-                  Browse Jobs
-                </Link>
-              </li>
-
-              {user && (
-                <>
-                  <li>
-                    <Link
-                      to="/community"
-                      className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
-                    >
-                      Community
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/job-basic-details"
-                      className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors"
-                    >
-                      Post a Job
-                    </Link>
-                  </li>
-                  
-                  {user.role === "USER" && (
-                    <>
-                      <li>
-                        <Link to="/my-posts" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                            Track Post
-                        </Link>
-                      </li>
-                    </>
-                    
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={`${user.name ?? "User"}'s avatar`}
+                      className="h-7 w-7 rounded-full border border-secondary object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/15 border border-secondary text-secondary text-xs font-bold select-none">
+                      {initial}
+                    </span>
                   )}
-                  {user.role === "LEAD" && (
-                     <>
-                        <li>
-                        <Link to="/lead-approval" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                                Review Queue
-                            </Link>
-                        </li>
-                        <li>
-                        <Link to="/lead/approved-by-me" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                                Reviewed Jobs
-                            </Link>
-                        </li>
-                     </>
-                  )}
-                  
-                </>
-              )}
-            </ul>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
-
-              { user && user.role === "USER" && user.isEmailVerified && (
-                <>
-                  <Link
-                    to="/become-a-lead"
-                    className="px-3 py-1.5 rounded text-sm bg-[#474b3a] text-[#f8f8f2] hover:opacity-90 transition-opacity"
+                  <svg
+                    className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors duration-150"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
                   >
-                    Become a Lead
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="w-44 bg-background border border-border text-foreground shadow-lg"
+              >
+                <div className="px-3 py-2 border-b border-border">
+                  <p className="text-xs text-muted-foreground truncate">{user.name ?? "User"}</p>
+                </div>
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
+                  >
+                    <UserIcon className="size-4" />
+                    Profile
                   </Link>
-                </>
-              )}
+                </DropdownMenuItem>
 
-              {user && user?.role === "ADMIN" && (
-                    <>
-                      <div>
-                        <Link to="/admin" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                          Admin
-                        </Link>
-                      </div>
-                      <div>
-                        <Link to="/admin/lead-requests" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                          Lead requests
-                        </Link>
-                      </div>
-
-                      <div>
-                        <Link to="/company" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                          Company List
-                        </Link>
-                      </div>
-                    </>
-                  )}
-
-                  {user && user?.role === "LEAD" && (
-                      <>
-                        <div>
-                          <Link to="/lead/posted" className="px-3 py-1.5 rounded text-sm text-foreground/80 hover:text-foreground hover:bg-accent transition-colors">
-                            Applications
-                          </Link>
-                      </div>
-                    </>
-                  )}
-
-    
-            <span className="w-px h-5 bg-border mx-1" />
-
-            {user && <NotificationBell />}
-
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded hover:bg-accent transition-colors group">
-
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt="Profile avatar"
-                        className="h-7 w-7 rounded-full border border-[#3ba66b] object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#d9f8e8] border border-[#3ba66b] text-[#16784a] text-xs font-bold select-none">
-                        {initial}
-                      </span>
-                    )}
-                    <svg
-                      className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors"
-                      viewBox="0 0 12 12" fill="none"
-                    >
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="end"
-                  className="w-44 bg-background border border-border text-foreground shadow-xl"
-                >
-                  <div className="px-3 py-2 border-b border-border">
-                    <p className="text-xs text-muted-foreground truncate">{user.name ?? "User"}</p>
-                  </div>
-
+                {user.role === "USER" && (
+                  <>
+                    <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem asChild>
                       <Link
-                        to="/profile"
+                        to="/track-applications"
                         className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
                       >
-                        <UserIcon className="size-4" />
-                        Profile
+                        <AppWindowIcon className="size-4" />
+                        Applications
                       </Link>
                     </DropdownMenuItem>
-                    
+                  </>
+                )}
 
-                  { user && user.role === "USER" && (
-                    <>
-                      <DropdownMenuSeparator className="bg-border" />
-                      <DropdownMenuItem asChild>
-                          <Link
-                            to="/track-applications"
-                            className="flex items-center gap-2 cursor-pointer text-sm hover:text-foreground hover:bg-accent px-3 py-2"
-                          >
-                            <AppWindowIcon className="size-4" />
-                            Applications
-                          </Link>
-                        </DropdownMenuItem>
-                    </>
-                  )}
+                <DropdownMenuSeparator className="bg-border" />
 
-                  <DropdownMenuSeparator className="bg-border"/>
-
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 cursor-pointer text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2"
-                  >
-                    <LogOutIcon className="size-4" />
-                    Logout
-                  </DropdownMenuItem>
-
-                  
-                </DropdownMenuContent>
-
-
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/auth/login"
-                  className="text-sm text-foreground/80 hover:text-foreground px-3 py-1.5 rounded hover:bg-accent transition-colors"
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 cursor-pointer text-sm text-destructive hover:text-destructive hover:bg-destructive/10 px-3 py-2"
                 >
-                  Sign in
-                </Link>
-                <Link
-                  to="/auth/register"
-                  className="text-sm text-white bg-primary hover:opacity-90 px-3 py-1.5 rounded font-medium transition-opacity flex items-center gap-1.5"
-                >
-                  Get started
-                  <ArrowRight className="size-3.5" />
-                </Link>
-              </div>
-            )}
-          </div>
+                  <LogOutIcon className="size-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/auth/login"
+                className="text-sm text-foreground/80 hover:text-foreground px-3 py-1.5 rounded hover:bg-accent transition-colors duration-150"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/auth/register"
+                className="text-sm text-primary-foreground bg-primary hover:opacity-90 px-3 py-1.5 rounded font-medium transition-opacity duration-150 flex items-center gap-1.5"
+              >
+                Get started
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+          )}
+        </div>
+
       </div>
     </nav>
   )

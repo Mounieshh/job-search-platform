@@ -91,7 +91,9 @@ export default function NotificationBell() {
                                     <p className="text-[10px] text-muted-foreground/60 mt-1">{timeAgo(n.createdAt)}</p>
                                 </div>
                                 {!n.isRead && (
-                                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500">
+                                        <span className="sr-only">Unread</span>
+                                    </span>
                                 )}
                             </button>
                         ))

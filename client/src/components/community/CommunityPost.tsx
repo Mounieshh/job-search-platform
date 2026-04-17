@@ -44,8 +44,8 @@ const CommunityPost = () => {
       toast.success("Post shared with the community")
       form.reset({ title: "", content: "", images: [], isHiring: false })
       setIsOpen(false)
-    } catch (error: any) {
-      toast.error(error.message || "Unable to create the community post")
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Unable to create the community post")
     }
   }
 
@@ -53,16 +53,19 @@ const CommunityPost = () => {
     <div>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <div className="group cursor-pointer rounded-lg border border-border/50 bg-linear-to-br from-background to-background/80 p-4 transition-all hover:border-border hover:shadow-sm">
-            <div className="flex items-center gap-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-background/50 group-hover:bg-background">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button
+            type="button"
+            className="w-full group cursor-pointer rounded-lg border border-border/60 bg-background p-4 text-left transition-all duration-150 hover:border-border hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <div className="flex items-center gap-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-150">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <span>Share your thoughts with the community...</span>
+              <span>Share something with the community…</span>
             </div>
-          </div>
+          </button>
         </DialogTrigger>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-background p-6">
           <Form {...form}>
@@ -194,9 +197,9 @@ const CommunityPost = () => {
                                     <button
                                         type="button"
                                         onClick={() => field.onChange(!field.value)}
-                                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm border transition-colors ${
+                                        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm border transition-colors duration-150 ${
                                             field.value
-                                                ? "bg-green-50 border-green-200 text-green-700"
+                                                ? "bg-primary/10 border-primary/20 text-primary"
                                                 : "border-border text-muted-foreground hover:text-foreground"
                                         }`}
                                     >

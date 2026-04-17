@@ -41,16 +41,16 @@ const ApprovedByMe = () => {
             <Table className="w-full">
               <TableHeader>
                 <TableRow className="border-b border-gray-200 hover:bg-transparent">
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground px-4 py-2 text-left font-semibold">
                     Job Title
                   </TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground px-4 py-2 text-left font-semibold">
                     Company
                   </TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-left">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground px-4 py-2 text-left font-semibold">
                     Date Approved
                   </TableHead>
-                  <TableHead className="font-mono text-xs uppercase tracking-wider text-gray-500 px-4 py-2 text-right">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground px-4 py-2 text-right font-semibold">
                     Status
                   </TableHead>
                 </TableRow>

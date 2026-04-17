@@ -35,7 +35,7 @@ function ScoreBar({ score }: { score: number }) {
             <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${score}%` }} />
             </div>
-            <span className="text-xs font-mono font-medium text-gray-600 w-7 text-right">{score}</span>
+            <span className="text-xs font-semibold text-muted-foreground w-7 text-right tabular-nums">{score}</span>
         </div>
     )
 }
@@ -61,7 +61,7 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                     {application.aiScore !== null && (
                         <button
                             onClick={() => setShowAiBreakdown((prev) => !prev)}
-                            className="inline-flex items-center gap-1 text-xs font-mono text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors"
                         >
                             <Sparkles className="size-3" /> {application.aiScore}
                         </button>
@@ -73,7 +73,7 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
             {showAiBreakdown && hasAiData && (
                 <div className="mt-3 rounded-md bg-amber-50 border border-amber-100 p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-mono uppercase tracking-wider text-amber-600 flex items-center gap-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 flex items-center gap-1">
                             <Sparkles className="size-3" /> AI Score Breakdown
                         </p>
                         {application.aiScore !== null && (
@@ -82,13 +82,13 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                     </div>
                     {application.aiReason && (
                         <div className="space-y-0.5">
-                            <p className="text-[10px] font-mono uppercase tracking-wider text-gray-400">Why this score</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Why this score</p>
                             <p className="text-xs text-gray-700 leading-relaxed">{application.aiReason}</p>
                         </div>
                     )}
                     {application.aiSuggestions && (
                         <div className="space-y-0.5 pt-1 border-t border-amber-100">
-                            <p className="text-[10px] font-mono uppercase tracking-wider text-gray-400">Recruiter suggestion</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recruiter suggestion</p>
                             <p className="text-xs text-gray-700 leading-relaxed">{application.aiSuggestions}</p>
                         </div>
                     )}
@@ -337,8 +337,8 @@ export default function ManageJobApplications() {
                     { label: "Rejected", value: stats.rejected },
                 ].map((stat) => (
                     <div key={stat.label} className="rounded-lg border border-gray-100 p-3 text-center">
-                        <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
-                        <p className="text-xs text-gray-400 mt-0.5 font-mono uppercase tracking-wider">{stat.label}</p>
+                        <p className="text-xl font-semibold text-foreground">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 font-semibold uppercase tracking-wider">{stat.label}</p>
                     </div>
                 ))}
             </div>

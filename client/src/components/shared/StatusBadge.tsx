@@ -4,17 +4,16 @@ interface BadgeProps {
     status: string
 }
 
+const statusClasses: Record<string, string> = {
+    approved:    "bg-primary/10 text-primary border-primary/20",
+    pending:     "bg-muted text-muted-foreground border-border",
+    rejected:    "bg-destructive/10 text-destructive border-destructive/20",
+    shortlisted: "bg-secondary/10 text-secondary border-secondary/20",
+    draft:       "bg-muted text-muted-foreground border-border",
+}
+
 const StatusBadge = ({ status }: BadgeProps) => {
-
-    const classColors: Record<string, string> = {
-        approved: "bg-green-100 text-green-800 border-green-200",
-        pending:  "bg-yellow-100 text-yellow-800 border-yellow-200",
-        rejected: "bg-red-100 text-red-800 border-red-200",
-        shortlisted: "bg-blue-100 text-blue-800 border-blue-200",
-        draft:    "bg-gray-100 text-gray-800 border-gray-200",
-    }
-
-    const classes = classColors[status.toLowerCase()] ?? "bg-gray-100 text-gray-800 border-gray-200"
+    const classes = statusClasses[status.toLowerCase()] ?? "bg-muted text-muted-foreground border-border"
 
     return (
         <Badge className={classes}>

@@ -65,7 +65,7 @@ const CommunityPostList = () => {
 
     if (isPending) {
         return (
-            <div className="min-h-screen flex justify-center items-center">
+            <div className="flex justify-center items-center py-20">
                 <Spinner className="size-7" />
             </div>
         )
@@ -73,8 +73,8 @@ const CommunityPostList = () => {
 
     if (error) {
         return (
-            <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-                Please Sign in to see post
+            <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+                Sign in to see community posts.
             </div>
         )
     }
@@ -84,19 +84,21 @@ const CommunityPostList = () => {
         <div className="space-y-4">
             <div className="flex items-end justify-between pb-3">
                 <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" aria-hidden="true" />
+                    <label htmlFor="community-search" className="sr-only">Search posts</label>
                     <Input
+                        id="community-search"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
-                        placeholder="Search by title or content keyword"
+                        placeholder="Search by title, content, or author"
                         className="pl-9 h-10 w-full"
                     />
                 </div>
             </div>
 
             {filteredJobs.length === 0 ? (
-                <div className="border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-                    No community posts yet.
+                <div className="rounded-lg border border-border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
+                    {searchText ? "No posts match your search." : "No community posts yet. Be the first to share."}
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -107,9 +109,9 @@ const CommunityPostList = () => {
                         const isLiking = likingIds.has(post.id)
 
                         return (
-                        <Card key={post.id} className="rounded-none overflow-hidden">
+                        <Card key={post.id} className="overflow-hidden">
                             <CardHeader className="space-y-3 border-b border-border pb-4">
-                                {/* Avatar + name + date inline, actions on the right */}
+
                                 <div className="flex items-center justify-between gap-3">
                                     <div className="flex items-center gap-3 min-w-0">
                                         <img
@@ -137,7 +139,8 @@ const CommunityPostList = () => {
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                                                aria-label="Edit post"
                                                 onClick={() => {
                                                     setEditPost(post)
                                                     setEditTitle(post.title ?? "")
@@ -150,7 +153,8 @@ const CommunityPostList = () => {
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                                className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                                                aria-label="Delete post"
                                                 onClick={() => setDeleteConfirmId(post.id)}
                                             >
                                                 <Trash2 className="size-3.5" />
@@ -163,8 +167,8 @@ const CommunityPostList = () => {
                                     {post.title || "Untitled post"}
                                 </CardTitle>
                                 {post.isHiring && (
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full w-fit">
-                                        <Briefcase className="size-3" /> Hiring
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full w-fit">
+                                        <Briefcase className="size-3" aria-hidden="true" /> Hiring
                                     </span>
                                 )}
                             </CardHeader>
@@ -214,20 +218,23 @@ const CommunityPostList = () => {
                                 <button
                                     onClick={() => handleLike(post.id)}
                                     disabled={isLiking}
+                                    aria-label={hasLiked ? `Unlike post, ${likeCount} likes` : `Like post, ${likeCount} likes`}
+                                    aria-pressed={hasLiked}
                                     className={[
-                                        "group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 select-none",
+                                        "group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-150 select-none",
                                         hasLiked
-                                            ? "text-red-500 bg-red-50 hover:bg-red-100"
-                                            : "text-muted-foreground hover:text-red-500 hover:bg-red-50",
+                                            ? "text-destructive bg-destructive/10 hover:bg-destructive/15"
+                                            : "text-muted-foreground hover:text-destructive hover:bg-destructive/10",
                                         isLiking ? "opacity-60 cursor-not-allowed" : "cursor-pointer active:scale-95",
                                     ].join(" ")}
                                 >
                                     <Heart
                                         className={[
-                                            "size-4 transition-all duration-200",
-                                            hasLiked ? "fill-red-500 text-red-500 scale-110" : "group-hover:scale-110",
+                                            "size-4 transition-all duration-150",
+                                            hasLiked ? "fill-destructive text-destructive scale-110" : "group-hover:scale-110",
                                             isLiking ? "animate-pulse" : "",
                                         ].join(" ")}
+                                        aria-hidden="true"
                                     />
                                     <span className="tabular-nums">{likeCount}</span>
                                 </button>
@@ -241,11 +248,11 @@ const CommunityPostList = () => {
 
         {/* Read more dialog */}
         <Dialog open={!!selectedPost} onOpenChange={(open) => { if (!open) setSelectedPost(null) }}>
-            <DialogContent className="rounded-none max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="font-semibold italic">{selectedPost?.title}</DialogTitle>
+                    <DialogTitle className="font-semibold">{selectedPost?.title}</DialogTitle>
                 </DialogHeader>
-                <p className="text-sm leading-7 whitespace-pre-line text-card-foreground text-justify">
+                <p className="text-sm leading-7 whitespace-pre-line text-card-foreground">
                     {selectedPost?.content}
                 </p>
                 {selectedPost?.images && selectedPost.images.length > 0 && (
@@ -265,7 +272,7 @@ const CommunityPostList = () => {
 
         {/* Edit dialog */}
         <Dialog open={!!editPost} onOpenChange={(open) => { if (!open) setEditPost(null) }}>
-            <DialogContent className="rounded-none max-w-lg">
+            <DialogContent className="max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Edit post</DialogTitle>
                 </DialogHeader>
@@ -274,21 +281,19 @@ const CommunityPostList = () => {
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         placeholder="Title"
-                        className="rounded-none"
                     />
                     <Textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
                         placeholder="Content"
-                        className="rounded-none min-h-32 resize-none"
+                        className="min-h-32 resize-none"
                     />
                 </div>
                 <DialogFoot className="gap-2 sm:gap-0">
-                    <Button variant="outline" className="rounded-none" onClick={() => setEditPost(null)}>
+                    <Button variant="outline" onClick={() => setEditPost(null)}>
                         Cancel
                     </Button>
                     <Button
-                        className="rounded-none"
                         disabled={isUpdating || !editContent.trim()}
                         onClick={() => {
                             if (!editPost) return
@@ -306,18 +311,17 @@ const CommunityPostList = () => {
 
         {/* Delete confirm dialog */}
         <Dialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null) }}>
-            <DialogContent className="rounded-none max-w-sm">
+            <DialogContent className="max-w-sm">
                 <DialogHeader>
                     <DialogTitle>Delete post?</DialogTitle>
                 </DialogHeader>
                 <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
                 <DialogFoot className="gap-2 sm:gap-0">
-                    <Button variant="outline" className="rounded-none" onClick={() => setDeleteConfirmId(null)}>
+                    <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
-                        className="rounded-none"
                         disabled={isDeleting}
                         onClick={() => {
                             if (!deleteConfirmId) return

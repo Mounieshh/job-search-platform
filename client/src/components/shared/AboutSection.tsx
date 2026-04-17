@@ -1,69 +1,73 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-
-const cardContent = [
+const steps = [
   {
-    id: 1,
-    imgSrc: "https://res.cloudinary.com/dxhree9z7/image/upload/v1773993052/discover_hrsdnp.png",
-    alt: "Search Jobs",
-    title: "Discover Jobs",
-    content: "Find opportunities that match your skills with clearly structured listings and relevant job details.",
+    index: "01",
+    title: "Discover vetted jobs",
+    content:
+      "Every listing on Vettd is reviewed by a community Lead before it goes live. No spam, no duplicates — just roles worth your time.",
   },
   {
-    id: 2,
-    imgSrc: "https://res.cloudinary.com/dxhree9z7/image/upload/v1773993053/information_g1ki6v.png",
-    alt: "Information Spread",
-    title: "Stay Informed",
-    content: "Get a clear overview of roles, requirements, and sources so you can confidently navigate to the original application pages.",
+    index: "02",
+    title: "Understand the full picture",
+    content:
+      "Listings include role details, requirements, and direct links to the original source. You get context, not just a title and a link.",
   },
   {
-    id: 3,
-    imgSrc: "https://res.cloudinary.com/dxhree9z7/image/upload/v1773993052/learn_iwjfhv.png",
-    alt: "Learnings",
-    title: "Learn from Others",
-    content: "Access community-driven insights about roles, companies, and interview experiences.",
+    index: "03",
+    title: "Learn from the community",
+    content:
+      "Members share insights about roles, companies, and interview experiences. The community's knowledge compounds over time.",
   },
 ]
 
 const AboutSection = () => {
   return (
-    <main className="w-full min-h-105 md:min-h-150 py-12 sm:py-16">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="inline-flex rounded-md border border-border bg-muted/40 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            About the community
+    <section className="w-full py-16 sm:py-20">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
+
+        <div className="max-w-xl">
+          <p className="mb-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <span
+              className="inline-block h-px w-6 bg-primary"
+              aria-hidden="true"
+            />
+            How it works
           </p>
-          <h2 className="mt-4 text-4xl font-semibold leading-tight text-foreground sm:text-4xl">
-            <span className="block">How this community</span>
-            <span className="block">Help you <span className="font-serif italic">grooow</span></span>
+          <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] leading-[0.95] tracking-tight text-foreground font-extrabold">
+            Quality over quantity,<br />every time.
           </h2>
+          <p className="mt-4 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
+            Vettd's lead system means every job you see has been reviewed by someone who knows what a good listing looks like.
+          </p>
         </div>
 
-        <section className="mt-10 grid grid-cols-1 gap-12 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
-        {cardContent.map((detail) => (
-          <Card key={detail.id} className="h-full rounded-xl border border-border bg-card shadow-none">
-            <CardHeader className="space-y-4">
-              <div className="flex aspect-4/3 w-full items-center justify-center overflow-hidden rounded-md bg-muted/30 p-4">
-                <img
-                  src={detail.imgSrc}
-                  alt={detail.alt}
-                  className="h-full w-full object-contain"
-                />
+        <ol className="mt-14 space-y-0 divide-y divide-border" aria-label="How Vettd works">
+          {steps.map((step) => (
+            <li
+              key={step.index}
+              className="group grid grid-cols-[3rem_1fr] gap-6 py-8 sm:grid-cols-[4rem_1fr] sm:gap-10 lg:grid-cols-[4rem_1fr_auto]"
+            >
+              <span
+                className="font-display text-[2rem] leading-none text-primary/40 transition-colors duration-200 group-hover:text-primary sm:text-[2.5rem] font-extrabold"
+                aria-hidden="true"
+              >
+                {step.index}
+              </span>
+
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-foreground sm:text-lg">
+                  {step.title}
+                </h3>
+                <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {step.content}
+                </p>
               </div>
+            </li>
+          ))}
+        </ol>
 
-              <CardTitle className="text-lg font-semibold text-foreground">
-                {detail.title}
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="text-sm leading-7 text-muted-foreground">
-              {detail.content}
-            </CardContent>
-          </Card>
-        ))}
-        </section>
       </div>
-    </main>
-  )
-}
+    </section>
+  );
+};
 
-export default AboutSection
+export default AboutSection;

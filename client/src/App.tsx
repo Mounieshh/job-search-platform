@@ -19,7 +19,7 @@ import TrackMyPosts from "./components/user/TrackMyPosts"
 import BrowseJobsPage from "./pages/BrowseJobsPage"
 import AdminRequestsPage from "./pages/adminSystem/AdminRequestsPage"
 
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+
 import AdminApprovedPage from "./pages/adminSystem/AdminApprovedPage"
 import VerifyEmailPage from "./pages/auth/VerifyEmailPage"
 import PasswordResetPage from "./pages/auth/PasswordResetPage"
@@ -144,7 +144,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
         <AppLayout />
 
-        <ReactQueryDevtools initialIsOpen={false}/>
+        {/* <ReactQueryDevtools initialIsOpen={false}/> */}
     </QueryClientProvider>
   )
 }
