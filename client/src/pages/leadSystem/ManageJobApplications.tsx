@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { LeadApplicationItem } from "@/api/lead"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 
 const PAGE_SIZE = 10
 const STATUS_OPTIONS = ["all", "pending", "shortlisted", "rejected"]
@@ -32,7 +32,7 @@ function ScoreBar({ score }: { score: number }) {
 
     return (
         <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${score}%` }} />
             </div>
             <span className="text-xs font-semibold text-muted-foreground w-7 text-right tabular-nums">{score}</span>
@@ -47,13 +47,13 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
     const isActioned = application.status === "shortlisted" || application.status === "rejected"
 
     return (
-        <div className="border border-gray-100 rounded-lg p-4 hover:bg-gray-50/50 transition-colors">
+        <div className="border border-border rounded-lg p-4 hover:bg-muted/30 transition-colors">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                         {application.applicant?.name ?? "Unknown applicant"}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
                         {application.applicant?.email ?? ""}
                     </p>
                 </div>
@@ -61,7 +61,9 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                     {application.aiScore !== null && (
                         <button
                             onClick={() => setShowAiBreakdown((prev) => !prev)}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors"
+                            aria-label="Toggle AI score breakdown"
+                            aria-expanded={showAiBreakdown}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                         >
                             <Sparkles className="size-3" /> {application.aiScore}
                         </button>
@@ -83,13 +85,13 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                     {application.aiReason && (
                         <div className="space-y-0.5">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Why this score</p>
-                            <p className="text-xs text-gray-700 leading-relaxed">{application.aiReason}</p>
+                            <p className="text-xs text-foreground/70 leading-relaxed">{application.aiReason}</p>
                         </div>
                     )}
                     {application.aiSuggestions && (
                         <div className="space-y-0.5 pt-1 border-t border-amber-100">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recruiter suggestion</p>
-                            <p className="text-xs text-gray-700 leading-relaxed">{application.aiSuggestions}</p>
+                            <p className="text-xs text-foreground/70 leading-relaxed">{application.aiSuggestions}</p>
                         </div>
                     )}
                 </div>
@@ -119,7 +121,9 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                 {application.profile && (
                     <button
                         onClick={() => setExpanded((prev) => !prev)}
-                        className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 ml-auto"
+                        aria-label={expanded ? "Collapse profile" : "Expand profile"}
+                        aria-expanded={expanded}
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground ml-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded"
                     >
                         {expanded ? <><ChevronUp className="size-3" /> Less</> : <><ChevronDown className="size-3" /> Profile</>}
                     </button>
@@ -127,21 +131,21 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
             </div>
 
             {expanded && application.profile && (
-                <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                <div className="mt-3 pt-3 border-t border-border space-y-3">
                     {application.profile.location && (
-                        <p className="text-xs text-gray-500">
-                            <span className="font-medium text-gray-700">Location:</span> {application.profile.location}
+                        <p className="text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">Location:</span> {application.profile.location}
                         </p>
                     )}
                     {application.profile.phone && (
-                        <p className="text-xs text-gray-500">
-                            <span className="font-medium text-gray-700">Phone:</span> {application.profile.phone}
+                        <p className="text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">Phone:</span> {application.profile.phone}
                         </p>
                     )}
                     {application.profile.skills && application.profile.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1">
-                            {application.profile.skills.map((skill, i) => (
-                                <Badge key={i} variant="secondary" className="text-[10px] px-2 py-0 font-normal bg-gray-100 text-gray-600 hover:bg-gray-100">
+                            {application.profile.skills.map((skill) => (
+                                <Badge key={skill} variant="secondary" className="text-[10px] px-2 py-0 font-normal bg-muted text-muted-foreground hover:bg-muted">
                                     {skill}
                                 </Badge>
                             ))}
@@ -168,13 +172,13 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
             )}
 
             {!isActioned && (
-                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-border">
                     <Button
                         size="sm"
                         variant="outline"
                         disabled={isUpdating}
                         onClick={() => onReject(application.id)}
-                        className="h-7 text-xs border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 shadow-none"
+                        className="h-7 text-xs border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive shadow-none"
                     >
                         <X className="size-3 mr-1" /> Reject
                     </Button>
@@ -182,7 +186,7 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                         size="sm"
                         disabled={isUpdating}
                         onClick={() => onShortlist(application.id)}
-                        className="h-7 text-xs bg-primary hover:bg-green-700 text-white shadow-none"
+                        className="h-7 text-xs shadow-none"
                     >
                         <Check className="size-3 mr-1" /> Shortlist
                     </Button>
@@ -251,14 +255,14 @@ export default function ManageJobApplications() {
     if (isPending) {
         return (
             <div className="min-h-50 flex justify-center items-center">
-                <Spinner className="size-6 text-gray-400" />
+                <Spinner className="size-6 text-muted-foreground" />
             </div>
         )
     }
 
     if (error || !data) {
         return (
-            <div className="min-h-50 flex justify-center items-center text-sm text-gray-500">
+            <div className="min-h-50 flex justify-center items-center text-sm text-muted-foreground">
                 Unable to load applications for this job
             </div>
         )
@@ -277,7 +281,7 @@ export default function ManageJobApplications() {
             <div>
                 <Link
                     to="/lead/posted"
-                    className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
                 >
                     <ArrowLeft className="size-3.5" /> Back to posted jobs
                 </Link>
@@ -285,7 +289,7 @@ export default function ManageJobApplications() {
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">{job.roleTitle}</h1>
-                        <p className="text-sm text-gray-400 mt-0.5">
+                        <p className="text-sm text-muted-foreground mt-0.5">
                             {job.companyName} &middot; {job.location} &middot; {job.employmentType.replace("_", " ")}
                         </p>
                     </div>
@@ -293,24 +297,33 @@ export default function ManageJobApplications() {
                     <div className="flex gap-3">
                         <Drawer direction="right">
                             <DrawerTrigger asChild>
-                                <Button 
-                                variant="outline"
-                                className="shrink-0 gap-1.5 shadow-none"
-                                size="sm"
+                                <Button
+                                    variant="outline"
+                                    className="shrink-0 gap-1.5 shadow-none"
+                                    size="sm"
                                 >
                                     Job Description
                                 </Button>
                             </DrawerTrigger>
                             <DrawerContent>
-                                <DrawerHeader>
-                                    <DrawerTitle className="text-xl">
-                                        Description
+                                <DrawerHeader className="border-b border-border pb-4">
+                                    <DrawerTitle className="text-base font-semibold pr-10">
+                                        {job.roleTitle}
                                     </DrawerTitle>
+                                    <DrawerDescription className="text-xs text-muted-foreground mt-0.5">
+                                        {job.companyName} &middot; {job.location}
+                                    </DrawerDescription>
+                                    <DrawerClose asChild>
+                                        <Button variant="ghost" size="icon-sm" className="absolute right-3 top-3">
+                                            <X className="size-4" />
+                                            <span className="sr-only">Close</span>
+                                        </Button>
+                                    </DrawerClose>
                                 </DrawerHeader>
-                                <div className="no-scrollbar overflow-y-auto px-4">
+                                <div className="no-scrollbar overflow-y-auto px-4 py-4 pb-8 flex-1">
                                     <div
-                                    dangerouslySetInnerHTML={{__html: job.description}}
-                                    className="text-justify"
+                                        dangerouslySetInnerHTML={{ __html: job.description }}
+                                        className="prose prose-sm max-w-none text-foreground"
                                     />
                                 </div>
                             </DrawerContent>
@@ -336,7 +349,7 @@ export default function ManageJobApplications() {
                     { label: "Shortlisted", value: stats.shortlisted },
                     { label: "Rejected", value: stats.rejected },
                 ].map((stat) => (
-                    <div key={stat.label} className="rounded-lg border border-gray-100 p-3 text-center">
+                    <div key={stat.label} className="rounded-lg border border-border p-3 text-center">
                         <p className="text-xl font-semibold text-foreground">{stat.value}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 font-semibold uppercase tracking-wider">{stat.label}</p>
                     </div>
@@ -354,7 +367,9 @@ export default function ManageJobApplications() {
                     />
                 </div>
                 <div className="flex gap-2">
+                    <label htmlFor="status-filter" className="sr-only">Filter by status</label>
                     <select
+                        id="status-filter"
                         value={statusFilter}
                         onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
                         className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
@@ -368,7 +383,8 @@ export default function ManageJobApplications() {
                     {hasActiveFilters && (
                         <button
                             onClick={resetFilters}
-                            className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-input text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                            aria-label="Clear all filters"
+                            className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-input text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                         >
                             <X className="size-3.5" /> Clear
                         </button>
@@ -378,11 +394,14 @@ export default function ManageJobApplications() {
 
             {paginated.length === 0 ? (
                 <div className="min-h-50 flex flex-col items-center justify-center gap-2 text-center">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                         {hasActiveFilters ? "No applications match your filters." : "No applications yet for this job."}
                     </p>
                     {hasActiveFilters && (
-                        <button onClick={resetFilters} className="text-sm text-blue-400 underline underline-offset-2">
+                        <button
+                            onClick={resetFilters}
+                            className="text-sm text-primary underline underline-offset-2 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded"
+                        >
                             Clear filters
                         </button>
                     )}
@@ -410,7 +429,8 @@ export default function ManageJobApplications() {
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page <= 1}
-                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+                                    aria-label="Previous page"
+                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                                 >
                                     Prev
                                 </button>
@@ -418,7 +438,9 @@ export default function ManageJobApplications() {
                                     <button
                                         key={p}
                                         onClick={() => setPage(p)}
-                                        className={`h-8 w-8 rounded-md text-sm border transition-colors ${
+                                        aria-label={`Page ${p}`}
+                                        aria-current={p === page ? "page" : undefined}
+                                        className={`h-8 w-8 rounded-md text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
                                             p === page
                                                 ? "bg-primary text-primary-foreground border-primary"
                                                 : "border-input hover:bg-accent"
@@ -430,7 +452,8 @@ export default function ManageJobApplications() {
                                 <button
                                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={page >= totalPages}
-                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors"
+                                    aria-label="Next page"
+                                    className="h-8 px-3 rounded-md border border-input text-sm disabled:opacity-40 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                                 >
                                     Next
                                 </button>
