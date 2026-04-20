@@ -34,6 +34,10 @@ import NotificationsPage from "./pages/NotificationsPage"
 import ChangePasswordPage from "./pages/auth/ChangePasswordPage"
 import AdminLayout from "./components/admin/AdminLayout"
 
+import { AgGridProvider } from "ag-grid-react"
+import { AllCommunityModule } from "ag-grid-community"
+import AgDataGridExample from "./pages/test/AgDataGridExample"
+
 const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/verify-email", "/auth/password-reset"]
 
 function AppLayout() {
@@ -119,6 +123,7 @@ function AppLayout() {
             <Route path="/" element={user ? <Navigate to="/community" replace /> : <HeroPage />} />
             <Route path="/browseJobs" element={<BrowseJobsPage/>}/>
             <Route path="/browseJobs/:jobId" element={<BrowseJobsPage/>}/>
+            <Route path="/example-ag-grid" element={<AgDataGridExample/>}/>
 
             {/* --LEADS ROUTE-- */}
 
@@ -144,14 +149,18 @@ function AppLayout() {
 
 
 const queryClient = new QueryClient()
+const modules = [AllCommunityModule]
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-        <AppLayout />
+    <AgGridProvider modules={modules}>
+      <QueryClientProvider client={queryClient}>
+          <AppLayout />
 
-        {/* <ReactQueryDevtools initialIsOpen={false}/> */}
-    </QueryClientProvider>
+          {/* <ReactQueryDevtools initialIsOpen={false}/> */}
+      </QueryClientProvider>
+    </AgGridProvider>
+    
   )
 }
 

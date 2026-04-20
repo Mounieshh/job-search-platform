@@ -1,18 +1,17 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, Link } from "react-router"
-import { ArrowLeft, Github, FileText, Sparkles, ChevronDown, ChevronUp, Check, X, Search, Loader2, ArrowUpDown } from "lucide-react"
+import { ArrowLeft, Sparkles, X, Search, Loader2, ArrowUpDown } from "lucide-react"
 import { useLeadJobApplications } from "@/hooks/queries/lead"
 import { useShortlistByText, useManualShortlist } from "@/hooks/mutations/lead"
+import { type ColDef } from "ag-grid-community"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import StatusBadge from "@/components/shared/StatusBadge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import type { LeadApplicationItem } from "@/api/lead"
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { AgGridReact } from "ag-grid-react"
 
 const PAGE_SIZE = 10
 const STATUS_OPTIONS = [
@@ -23,190 +22,16 @@ const STATUS_OPTIONS = [
     { value: "rejected", label: "Rejected" },
 ]
 
-const EXAMPLE_CHIPS = [
-    "Candidates with 3+ years React experience",
-    "Strong TypeScript and Node.js background",
-    "Remote-friendly with prior startup experience",
-]
 
-type ApplicationCardProps = {
-    application: LeadApplicationItem
-    onShortlist: (id: string) => void
-    onReject: (id: string) => void
-    isUpdating: boolean
+type ApplicationGridRow = {
+    index: number
+    name: string
+    email: string
+    status: string
+    aiScore: number | null
+    appliedOn: string
 }
 
-function ScoreBar({ score }: { score: number }) {
-    const color =
-        score >= 75 ? "bg-green-500" :
-        score >= 50 ? "bg-amber-400" :
-        "bg-red-400"
-
-    return (
-        <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${score}%` }} />
-            </div>
-            <span className="text-xs font-semibold text-muted-foreground w-7 text-right tabular-nums">{score}</span>
-        </div>
-    )
-}
-
-function ApplicationCard({ application, onShortlist, onReject, isUpdating }: ApplicationCardProps) {
-    const [expanded, setExpanded] = useState(false)
-    const [showAiBreakdown, setShowAiBreakdown] = useState(false)
-    const hasAiData = application.aiScore !== null || application.aiReason || application.aiSuggestions
-    const isActioned = application.status === "shortlisted" || application.status === "rejected"
-
-    return (
-        <div className="border border-border rounded-lg p-4 hover:bg-muted/30 transition-colors">
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">
-                        {application.applicant?.name ?? "Unknown applicant"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                        {application.applicant?.email ?? ""}
-                    </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    {application.aiScore !== null && (
-                        <button
-                            onClick={() => setShowAiBreakdown((prev) => !prev)}
-                            aria-label="Toggle AI score breakdown"
-                            aria-expanded={showAiBreakdown}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
-                        >
-                            <Sparkles className="size-3" /> {application.aiScore}
-                        </button>
-                    )}
-                    <StatusBadge status={application.status} />
-                </div>
-            </div>
-
-            {showAiBreakdown && hasAiData && (
-                <div className="mt-3 rounded-md bg-amber-50 border border-amber-100 p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 flex items-center gap-1">
-                            <Sparkles className="size-3" /> AI Score Breakdown
-                        </p>
-                        {application.aiScore !== null && (
-                            <ScoreBar score={application.aiScore} />
-                        )}
-                    </div>
-                    {application.aiReason && (
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Why this score</p>
-                            <p className="text-xs text-foreground/70 leading-relaxed">{application.aiReason}</p>
-                        </div>
-                    )}
-                    {application.aiSuggestions && (
-                        <div className="space-y-0.5 pt-1 border-t border-amber-100">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recruiter suggestion</p>
-                            <p className="text-xs text-foreground/70 leading-relaxed">{application.aiSuggestions}</p>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <div className="flex items-center gap-3 mt-3">
-                {application.resume && (
-                    <a
-                        href={application.resume}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                        <FileText className="size-3" /> Resume
-                    </a>
-                )}
-                {application.githubLink && (
-                    <a
-                        href={application.githubLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                        <Github className="size-3" /> GitHub
-                    </a>
-                )}
-                {application.profile && (
-                    <button
-                        onClick={() => setExpanded((prev) => !prev)}
-                        aria-label={expanded ? "Collapse profile" : "Expand profile"}
-                        aria-expanded={expanded}
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground ml-auto transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded"
-                    >
-                        {expanded ? <><ChevronUp className="size-3" /> Less</> : <><ChevronDown className="size-3" /> Profile</>}
-                    </button>
-                )}
-            </div>
-
-            {expanded && application.profile && (
-                <div className="mt-3 pt-3 border-t border-border space-y-3">
-                    {application.profile.location && (
-                        <p className="text-xs text-muted-foreground">
-                            <span className="font-medium text-foreground">Location:</span> {application.profile.location}
-                        </p>
-                    )}
-                    {application.profile.phone && (
-                        <p className="text-xs text-muted-foreground">
-                            <span className="font-medium text-foreground">Phone:</span> {application.profile.phone}
-                        </p>
-                    )}
-                    {application.profile.skills && application.profile.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                            {application.profile.skills.map((skill) => (
-                                <Badge key={skill} variant="secondary" className="text-[10px] px-2 py-0 font-normal bg-muted text-muted-foreground hover:bg-muted">
-                                    {skill}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
-                    {application.profile.publicLinks && (
-                        <div className="flex flex-wrap gap-2">
-                            {Object.entries(application.profile.publicLinks)
-                            .filter(([key, url]) => !!url && key !== "_id")
-                            .map(([key, url]) => (
-                                <a
-                                    key={key}
-                                    href={url as string}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-primary hover:underline capitalize"
-                                >
-                                    {key}
-                                </a>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {!isActioned && (
-                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-border">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={isUpdating}
-                        onClick={() => onReject(application.id)}
-                        className="h-7 text-xs border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive shadow-none"
-                    >
-                        <X className="size-3 mr-1" /> Reject
-                    </Button>
-                    <Button
-                        size="sm"
-                        disabled={isUpdating}
-                        onClick={() => onShortlist(application.id)}
-                        className="h-7 text-xs shadow-none"
-                    >
-                        <Check className="size-3 mr-1" /> Shortlist
-                    </Button>
-                </div>
-            )}
-        </div>
-    )
-}
 
 type TextShortlistDialogProps = {
     open: boolean
@@ -239,7 +64,6 @@ function TextShortlistDialog({ open, onOpenChange, isPending, onSubmit }: TextSh
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Sparkles className="size-4 text-amber-500" />
                         AI Suggestions
                     </DialogTitle>
                     <DialogDescription>
@@ -248,19 +72,7 @@ function TextShortlistDialog({ open, onOpenChange, isPending, onSubmit }: TextSh
                 </DialogHeader>
 
                 <div className="space-y-3">
-                    <div className="flex flex-wrap gap-1.5">
-                        {EXAMPLE_CHIPS.map((chip) => (
-                            <button
-                                key={chip}
-                                type="button"
-                                onClick={() => setCriteria(chip)}
-                                disabled={isPending}
-                                className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none"
-                            >
-                                {chip}
-                            </button>
-                        ))}
-                    </div>
+                    
 
                     <div className="space-y-1.5">
                         <label htmlFor="shortlist-criteria" className="sr-only">Shortlisting criteria</label>
@@ -322,13 +134,6 @@ export default function ManageJobApplications() {
     const { mutate: shortlistByText, isPending: isShortlisting } = useShortlistByText(jobId ?? "")
     const applications = data?.applications ?? []
 
-    const handleShortlist = (applicationId: string) => {
-        manualAction(
-            { applicationId, action: "shortlist" },
-            { onSuccess: () => toast.success("Application shortlisted") }
-        )
-    }
-
     const handleRejectConfirm = () => {
         if (!rejectTarget) return
         if (!rejectReason.trim()) {
@@ -376,6 +181,39 @@ export default function ManageJobApplications() {
     const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
     const hasActiveFilters = search || statusFilter !== "all" || sortByScore
 
+    useEffect(() => {
+        if (page > totalPages) {
+            setPage(totalPages)
+        }
+    }, [page, totalPages])
+
+    const gridRowData = useMemo<ApplicationGridRow[]>(() => {
+        return paginated.map((application, index) => ({
+            index: (page - 1) * PAGE_SIZE + index + 1,
+            name: application.applicant?.name ?? "Unknown applicant",
+            email: application.applicant?.email ?? "-",
+            status: application.status,
+            aiScore: application.aiScore,
+            appliedOn: new Date(application.createdAt).toLocaleDateString(),
+        }))
+    }, [paginated, page])
+
+    const gridColumnDefs = useMemo<ColDef<ApplicationGridRow>[]>(() => {
+        return [
+            { field: "index", headerName: "S.No", width: 90, sortable: false },
+            { field: "name", headerName: "Applicant", minWidth: 180 },
+            { field: "email", headerName: "Email", minWidth: 220 },
+            { field: "status", headerName: "Status", minWidth: 130 },
+            {
+                field: "aiScore",
+                headerName: "AI Score",
+                minWidth: 120,
+                valueFormatter: ({ value }) => (value === null ? "-" : String(value)),
+            },
+            { field: "appliedOn", headerName: "Applied On", minWidth: 130 },
+        ]
+    }, [])
+
     if (isPending) {
         return (
             <div className="min-h-50 flex justify-center items-center">
@@ -392,7 +230,7 @@ export default function ManageJobApplications() {
         )
     }
 
-    const { job, stats } = data
+    const { job } = data
 
     const resetFilters = () => {
         setSearch("")
@@ -467,20 +305,7 @@ export default function ManageJobApplications() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                    { label: "Total", value: stats.total },
-                    { label: "Pending", value: stats.pending },
-                    { label: "Shortlisted", value: stats.shortlisted },
-                    { label: "Rejected", value: stats.rejected },
-                ].map((stat) => (
-                    <div key={stat.label} className="rounded-lg border border-border p-3 text-center">
-                        <p className="text-xl font-semibold text-foreground">{stat.value}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 font-semibold uppercase tracking-wider">{stat.label}</p>
-                    </div>
-                ))}
-            </div>
-
+            
             <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -543,16 +368,18 @@ export default function ManageJobApplications() {
                 </div>
             ) : (
                 <>
-                    <div className="space-y-3">
-                        {paginated.map((application) => (
-                            <ApplicationCard
-                                key={application.id}
-                                application={application}
-                                onShortlist={handleShortlist}
-                                onReject={(id) => setRejectTarget(id)}
-                                isUpdating={isUpdating}
-                            />
-                        ))}
+                    <div className="ag-theme-alpine" style={{ height: 320 }}>
+                        <AgGridReact<ApplicationGridRow>
+                            rowData={gridRowData}
+                            columnDefs={gridColumnDefs}
+                            defaultColDef={{
+                                sortable: true,
+                                filter: true,
+                                resizable: true,
+                                flex: 1,
+                            }}
+                            pagination={true}
+                        />
                     </div>
 
                     {totalPages > 1 && (
