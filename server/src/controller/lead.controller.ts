@@ -339,21 +339,147 @@ Candidates Data:
 ${JSON.stringify(candidatePayload)}
 `
 
-        const result = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt, config: { responseMimeType: "application/json" } })
-        if (!result.text) return res.status(502).json({ message: "AI response was empty" })
+        const result = await ai.models.generateContent({ 
+            model: "gemini-2.5-flash", 
+            contents: prompt, 
+            config: { responseMimeType: "application/json" } 
+        })
+        if (!result.text) return res.status(502).json({ 
+            message: "AI response was empty" 
+        })
 
         const response = JSON.parse(result.text)
         if (!response?.scored || !Array.isArray(response.scored))
-            return res.status(400).json({ success: false, message: "Invalid AI response format." })
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid AI response format."
+            })
 
         await prisma.$transaction(
             response.scored.map((application: any) => prisma.userApplication.update({
                 where: { id: application.applicationId },
-                data: { aiScore: application.score, aiReason: application.reason, aiSuggestions: application.suggestions, status: "ai_suggested" }
+                data: { 
+                    aiScore: application.score, 
+                    aiReason: application.reason, 
+                    aiSuggestions: application.suggestions, 
+                    status: "ai_suggested" 
+                }
             }))
         )
 
-        return res.status(200).json({ message: "Suggestions for the Applications has been generated", response })
+        return res.status(200).json({ 
+            message: "Suggestions for the Applications has been generated", response
+        })
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Internal server error" 
+        })
+    }
+}
+
+export async function shortlistByText(req: Request, res: Response) {
+    try {
+        const user = (req as any).user
+        if (!user) return res.status(401).json({ message: "Unauthorized" })
+        if (user.role !== "LEAD") return res.status(403).json({ message: "Forbidden: Only leads can access this" })
+        if (!GEMINI_API_KEY) return res.status(400).json({ message: "Gemini API key is not configured" })
+
+        const { jobId } = req.params as { jobId: string }
+        const { textShortlist } = req.body as { textShortlist?: string }
+
+        if (!textShortlist?.trim()) return res.status(400).json({ message: "textShortlist is required" })
+
+        const job = await prisma.postJob.findFirst({ where: { id: jobId, userId: String(user._id) } })
+        if (!job) return res.status(404).json({ message: "Job not found for this lead" })
+
+        const applications = await prisma.userApplication.findMany({ where: { jobId }, orderBy: { createdAt: "desc" } })
+        if (applications.length === 0) return res.status(200).json({ message: "No applications found for this job", scored: [] })
+
+        const applicantUserIds = Array.from(new Set(applications.map((a) => a.userId)))
+        const applicantProfileIds = Array.from(new Set(applications.map((a) => a.profileId)))
+
+        const [applicants, applicantProfiles] = await Promise.all([
+            User.find({ _id: { $in: applicantUserIds } }).select("_id name email"),
+            UserProfile.find({ _id: { $in: applicantProfileIds } }).select("_id userId phone location skills workExperience education publicLinks"),
+        ])
+
+        const applicantMap = new Map(applicants.map((a) => [String(a._id), a]))
+        const profileMap = new Map(applicantProfiles.map((p) => [String(p._id), p]))
+
+        const candidatePayload = applications.map((application) => {
+            const applicant = applicantMap.get(application.userId)
+            const profile = profileMap.get(application.profileId)
+            return {
+                applicationId: application.id,
+                name: applicant?.name || "",
+                email: applicant?.email || "",
+                skills: Array.isArray(profile?.skills) ? profile?.skills : [],
+                workExperience: Array.isArray(profile?.workExperience) ? profile?.workExperience : [],
+                education: Array.isArray(profile?.education) ? profile?.education : [],
+                location: profile?.location || "",
+                publicLinks: profile?.publicLinks || {},
+            }
+        })
+
+        const ai = new GoogleGenAI({})
+        const prompt = `
+You are an expert technical recruiter. The hiring lead has provided a custom shortlisting criteria.
+
+Your task: score every candidate strictly against the recruiter's criteria text below. Ignore the job description — the criteria text is the only standard.
+
+Return **strict JSON only** in this exact shape. No markdown, no extra text:
+
+{
+  "scored": [
+    {
+      "applicationId": "string",
+      "score": 85,
+      "reason": "1-2 sentence explanation of why this score was given based on the criteria",
+      "suggestions": "Specific recruiter-facing suggestion about this candidate relative to the criteria"
+    }
+  ]
+}
+
+Rules:
+- score must be an integer 0–100
+- Include exactly one entry per candidate — do not skip any
+- Be objective and critical. Do not inflate scores
+- Base scoring ONLY on the recruiter's criteria text, not general job fit
+
+Recruiter's shortlisting criteria:
+"${textShortlist.trim()}"
+
+Candidates:
+${JSON.stringify(candidatePayload)}
+`
+
+        const result = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: { responseMimeType: "application/json" },
+        })
+
+        if (!result.text) return res.status(502).json({ message: "AI response was empty" })
+
+        const parsed = JSON.parse(result.text)
+        if (!parsed?.scored || !Array.isArray(parsed.scored))
+            return res.status(400).json({ message: "Invalid AI response format" })
+
+        await prisma.$transaction(
+            parsed.scored.map((item: any) =>
+                prisma.userApplication.update({
+                    where: { id: item.applicationId },
+                    data: {
+                        aiScore: item.score,
+                        aiReason: item.reason,
+                        aiSuggestions: item.suggestions,
+                        status: "ai_suggested",
+                    },
+                })
+            )
+        )
+
+        return res.status(200).json({ message: "Text-based AI shortlisting complete", scored: parsed.scored })
     } catch (error) {
         return res.status(500).json({ message: "Internal server error" })
     }

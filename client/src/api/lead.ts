@@ -230,3 +230,14 @@ export async function closeJobApplications(jobId: string): Promise<JobData> {
     if (!response.ok) throw new Error(data.message || "Failed to close applications")
     return data.job
 }
+
+export async function shortlistByText(jobId: string, textShortlist: string): Promise<void> {
+    const response = await fetch(`${baseUrl}/api/lead/posted/${jobId}/applications/shortlist-by-text`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ textShortlist }),
+    })
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(data.message || "Failed to run text-based shortlisting")
+}

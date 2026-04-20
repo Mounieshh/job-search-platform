@@ -1,4 +1,4 @@
-import { manualShortlistApplication, reviewJob, shortlistTopApplications, closeJobApplications } from "@/api/lead"
+import { manualShortlistApplication, reviewJob, shortlistTopApplications, closeJobApplications, shortlistByText } from "@/api/lead"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -62,6 +62,21 @@ export function useCloseJobApplications() {
         },
         onError: (error: any) => {
             toast.error(error.message || "Failed to close applications")
+        },
+    })
+}
+
+export function useShortlistByText(jobId: string) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (textShortlist: string) => shortlistByText(jobId, textShortlist),
+        onSuccess: () => {
+            toast.success("AI suggestions generated from your criteria")
+            queryClient.invalidateQueries({ queryKey: ["lead_posted_job_applications", "job", jobId] })
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to generate AI suggestions")
         },
     })
 }

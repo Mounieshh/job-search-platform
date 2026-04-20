@@ -1,21 +1,33 @@
 import { useMemo, useState } from "react"
 import { useParams, Link } from "react-router"
-import { ArrowLeft, Github, FileText, Sparkles, ChevronDown, ChevronUp, Check, X, Search } from "lucide-react"
+import { ArrowLeft, Github, FileText, Sparkles, ChevronDown, ChevronUp, Check, X, Search, Loader2, ArrowUpDown } from "lucide-react"
 import { useLeadJobApplications } from "@/hooks/queries/lead"
-import { useShortlistTopApplications, useManualShortlist } from "@/hooks/mutations/lead"
+import { useShortlistByText, useManualShortlist } from "@/hooks/mutations/lead"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import StatusBadge from "@/components/shared/StatusBadge"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import type { LeadApplicationItem } from "@/api/lead"
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 
 const PAGE_SIZE = 10
-const STATUS_OPTIONS = ["all", "pending", "shortlisted", "rejected"]
+const STATUS_OPTIONS = [
+    { value: "all", label: "All statuses" },
+    { value: "pending", label: "Pending" },
+    { value: "ai_suggested", label: "AI scored" },
+    { value: "shortlisted", label: "Shortlisted" },
+    { value: "rejected", label: "Rejected" },
+]
+
+const EXAMPLE_CHIPS = [
+    "Candidates with 3+ years React experience",
+    "Strong TypeScript and Node.js background",
+    "Remote-friendly with prior startup experience",
+]
 
 type ApplicationCardProps = {
     application: LeadApplicationItem
@@ -157,11 +169,11 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
                             .filter(([key, url]) => !!url && key !== "_id")
                             .map(([key, url]) => (
                                 <a
-                                key={key}
-                                href={url as string}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-primary hover:underline capitalize"
+                                    key={key}
+                                    href={url as string}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-primary hover:underline capitalize"
                                 >
                                     {key}
                                 </a>
@@ -196,18 +208,118 @@ function ApplicationCard({ application, onShortlist, onReject, isUpdating }: App
     )
 }
 
+type TextShortlistDialogProps = {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    jobId: string
+    isPending: boolean
+    onSubmit: (criteria: string) => void
+}
+
+function TextShortlistDialog({ open, onOpenChange, isPending, onSubmit }: TextShortlistDialogProps) {
+    const [criteria, setCriteria] = useState("")
+
+    const handleSubmit = () => {
+        if (!criteria.trim()) {
+            toast.error("Please enter shortlisting criteria")
+            return
+        }
+        onSubmit(criteria.trim())
+    }
+
+    const handleOpenChange = (next: boolean) => {
+        if (!isPending) {
+            onOpenChange(next)
+            if (!next) setCriteria("")
+        }
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <Sparkles className="size-4 text-amber-500" />
+                        AI Suggestions
+                    </DialogTitle>
+                    <DialogDescription>
+                        Describe what you're looking for. The AI will score all candidates strictly against your criteria.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-3">
+                    <div className="flex flex-wrap gap-1.5">
+                        {EXAMPLE_CHIPS.map((chip) => (
+                            <button
+                                key={chip}
+                                type="button"
+                                onClick={() => setCriteria(chip)}
+                                disabled={isPending}
+                                className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none"
+                            >
+                                {chip}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label htmlFor="shortlist-criteria" className="sr-only">Shortlisting criteria</label>
+                        <Textarea
+                            id="shortlist-criteria"
+                            value={criteria}
+                            onChange={(e) => setCriteria(e.target.value)}
+                            placeholder="e.g. Candidates with 3+ years React experience and strong TypeScript skills..."
+                            className="min-h-28 resize-none"
+                            disabled={isPending}
+                        />
+                    </div>
+                </div>
+
+                <DialogFooter className="gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => handleOpenChange(false)}
+                        disabled={isPending}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isPending || !criteria.trim()}
+                        className="gap-1.5"
+                    >
+                        {isPending ? (
+                            <>
+                                <Loader2 className="size-3.5 animate-spin" />
+                                Analysing...
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles className="size-3.5" />
+                                Generate suggestions
+                            </>
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export default function ManageJobApplications() {
     const { jobId } = useParams<{ jobId: string }>()
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
+    const [sortByScore, setSortByScore] = useState(false)
     const [rejectTarget, setRejectTarget] = useState<string | null>(null)
     const [rejectReason, setRejectReason] = useState("")
+    const [textShortlistOpen, setTextShortlistOpen] = useState(false)
 
     // Fetch all at once for client-side filtering
     const { data, isPending, error } = useLeadJobApplications(jobId, 1, 1000)
-    const { mutate: generateSuggestions, isPending: isGenerating } = useShortlistTopApplications()
     const { mutate: manualAction, isPending: isUpdating } = useManualShortlist(jobId ?? "")
+    const { mutate: shortlistByText, isPending: isShortlisting } = useShortlistByText(jobId ?? "")
     const applications = data?.applications ?? []
 
     const handleShortlist = (applicationId: string) => {
@@ -235,9 +347,17 @@ export default function ManageJobApplications() {
         )
     }
 
+    const handleTextShortlist = (criteria: string) => {
+        shortlistByText(criteria, {
+            onSuccess: () => {
+                setTextShortlistOpen(false)
+            },
+        })
+    }
+
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase()
-        return applications.filter((app) => {
+        const result = applications.filter((app) => {
             const matchesSearch = !q || [app.applicant?.name, app.applicant?.email]
                 .filter(Boolean)
                 .join(" ")
@@ -246,11 +366,15 @@ export default function ManageJobApplications() {
             const matchesStatus = statusFilter === "all" || app.status === statusFilter
             return matchesSearch && matchesStatus
         })
-    }, [applications, search, statusFilter])
+        if (sortByScore) {
+            result.sort((a, b) => (b.aiScore ?? -1) - (a.aiScore ?? -1))
+        }
+        return result
+    }, [applications, search, statusFilter, sortByScore])
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
     const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-    const hasActiveFilters = search || statusFilter !== "all"
+    const hasActiveFilters = search || statusFilter !== "all" || sortByScore
 
     if (isPending) {
         return (
@@ -273,6 +397,7 @@ export default function ManageJobApplications() {
     const resetFilters = () => {
         setSearch("")
         setStatusFilter("all")
+        setSortByScore(false)
         setPage(1)
     }
 
@@ -286,7 +411,7 @@ export default function ManageJobApplications() {
                     <ArrowLeft className="size-3.5" /> Back to posted jobs
                 </Link>
 
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight">{job.roleTitle}</h1>
                         <p className="text-sm text-muted-foreground mt-0.5">
@@ -294,7 +419,7 @@ export default function ManageJobApplications() {
                         </p>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-2">
                         <Drawer direction="right">
                             <DrawerTrigger asChild>
                                 <Button
@@ -331,12 +456,12 @@ export default function ManageJobApplications() {
                         <Button
                             size="sm"
                             variant="outline"
-                            disabled={isGenerating || applications.length === 0}
-                            onClick={() => jobId && generateSuggestions({ jobId })}
+                            disabled={applications.length === 0}
+                            onClick={() => setTextShortlistOpen(true)}
                             className="shrink-0 gap-1.5 shadow-none"
                         >
                             <Sparkles className="size-3.5" />
-                            {isGenerating ? "Analyzing..." : "AI Suggestions"}
+                            AI Suggestions
                         </Button>
                     </div>
                 </div>
@@ -375,11 +500,22 @@ export default function ManageJobApplications() {
                         className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                         {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                                {s === "all" ? "All statuses" : s.charAt(0).toUpperCase() + s.slice(1)}
-                            </option>
+                            <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                     </select>
+                    <button
+                        onClick={() => { setSortByScore((prev) => !prev); setPage(1) }}
+                        aria-label={sortByScore ? "Remove AI score sort" : "Sort by AI score"}
+                        aria-pressed={sortByScore}
+                        className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-md border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
+                            sortByScore
+                                ? "border-primary/30 bg-primary/5 text-primary"
+                                : "border-input text-muted-foreground hover:text-foreground hover:bg-accent"
+                        }`}
+                    >
+                        <ArrowUpDown className="size-3.5" />
+                        AI score
+                    </button>
                     {hasActiveFilters && (
                         <button
                             onClick={resetFilters}
@@ -388,8 +524,7 @@ export default function ManageJobApplications() {
                         >
                             <X className="size-3.5" /> Clear
                         </button>
-                    )}
-                </div>
+                    )}                </div>
             </div>
 
             {paginated.length === 0 ? (
@@ -463,22 +598,32 @@ export default function ManageJobApplications() {
                 </>
             )}
 
-            <Dialog open={Boolean(rejectTarget)} onOpenChange={(open) => {
-                if (!open) {
-                    setRejectTarget(null)
-                    setRejectReason("")
-                }
-            }}>
+            <Dialog
+                open={Boolean(rejectTarget)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setRejectTarget(null)
+                        setRejectReason("")
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Reason for Rejection</DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Provide a reason for rejecting this application. This will be recorded and may be shared with the applicant.
+                        </DialogDescription>
                     </DialogHeader>
-                    <Textarea
-                        value={rejectReason}
-                        onChange={(e) => setRejectReason(e.target.value)}
-                        placeholder="Explain why this application is being rejected..."
-                        className="min-h-28"
-                    />
+                    <div className="space-y-1.5">
+                        <label htmlFor="rejection-reason" className="sr-only">Rejection reason</label>
+                        <Textarea
+                            id="rejection-reason"
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            placeholder="Explain why this application is being rejected..."
+                            className="min-h-28"
+                        />
+                    </div>
                     <DialogFooter className="gap-2">
                         <Button
                             variant="outline"
@@ -500,6 +645,16 @@ export default function ManageJobApplications() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {jobId && (
+                <TextShortlistDialog
+                    open={textShortlistOpen}
+                    onOpenChange={setTextShortlistOpen}
+                    jobId={jobId}
+                    isPending={isShortlisting}
+                    onSubmit={handleTextShortlist}
+                />
+            )}
         </div>
     )
 }
