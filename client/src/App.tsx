@@ -46,15 +46,6 @@ function AppLayout() {
   const hideNavbar = AUTH_ROUTES.includes(pathname) || pathname.startsWith("/auth/password-reset/") || isAdminRoute
   const { data: user, isPending } = useSession()
 
-  if (isPending) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    )
-  }
-
-  // Force password change before accessing anything else
   if (user?.mustChangePassword && pathname !== "/auth/change-password") {
     return (
       <Routes>
@@ -64,7 +55,6 @@ function AppLayout() {
     )
   }
 
-  // Admin routes get their own layout
   if (isAdminRoute) {
     return (
       <AdminLayout>
@@ -90,6 +80,13 @@ function AppLayout() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+      {isPending && (
+        <div className="fixed top-16 right-4 z-50 flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+          <span className="inline-block size-2 animate-pulse rounded-full bg-amber-400" />
+          Checking session...
+        </div>
+      )}
+
       {!hideNavbar && <Navbar />}
 
       <main className={`${hideNavbar ? "flex-1" : "flex-1 pt-20 md:pt-24"} overflow-y-auto`}>

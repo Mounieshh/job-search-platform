@@ -17,17 +17,23 @@ type SignInResponse = {
 
 
 export async function getSession(){
-    const response = await fetch(`${baseUrl}/api/auth/me`, {
-        method: "GET",
-        credentials: "include"
-    })
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 4000)
 
-    if(!response.ok){
-        return null
+    try {
+        const response = await fetch(`${baseUrl}/api/auth/me`, {
+            method: "GET",
+            credentials: "include",
+            signal: controller.signal,
+        })
+
+        if (!response.ok) return null
+
+        const data: UserSession = await response.json()
+        return data.user ?? null
+    } finally {
+        clearTimeout(timeout)
     }
-
-    const data: UserSession = await response.json()
-    return data.user ?? null
 }
 
 export async function doLogout() {
