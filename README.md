@@ -1,4 +1,4 @@
-# Job Search Community — Client
+# Job Search Community
 
 Community-driven job search platform frontend. Three roles: **USER**, **LEAD** (company rep), **ADMIN**.
 
